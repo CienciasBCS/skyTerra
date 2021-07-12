@@ -1,7 +1,8 @@
-from enum import unique
-from app import db
+from flask_login import UserMixin
 
-class User(db.Model):
+from app import db, login
+
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cog_user_id = db.Column(db.String(50), unique=True)
     nombre = db.Column(db.String(100))
@@ -112,3 +113,9 @@ class OfertaExcluyente(db.Model):
     grupo_id = db.Column(db.Integer, db.ForeignKey('oferta_grupo.id'), primary_key=True)
     oferta = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), primary_key=True)
     
+
+@login.user_loader
+def load_user(cog_user_id):
+    print('-----------------')
+    print(cog_user_id)
+    return User.query.get(cog_user_id)

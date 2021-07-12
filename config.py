@@ -6,3 +6,11 @@ class Config(object):
         f"mysql://{os.environ['DB_USER']}:{os.environ['DB_PASS']}@{os.environ['DB_HOST']}/{os.environ['DB_NAME']}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    COGNITO_POOL_ID = os.environ['COGNITO_POOL_ID']
+    COGNITO_CLIENT_ID = os.environ['COGNITO_CLIENT_ID']
+    COGNITO_CLIENT_SECRET = os.environ['COGNITO_CLIENT_SECRET']
+    COGNITO_DOMAIN = os.environ['COGNITO_DOMAIN']
+
+    BASE_URL = os.environ['BASE_URL']
+    AWS_REGION = "us-east-2"
