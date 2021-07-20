@@ -1,8 +1,24 @@
-<nav class="navbar navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container p-2">
-        <a class="navbar-brand" href="#">
-            <img src="static/logo/solarBeam.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+        <a class="navbar-brand" href="/">
+            <img src="{{ url_for('static', filename='logo/solarBeam.svg') }}" alt="" width="30" height="24"
+                class="d-inline-block align-text-top">
             SolarBeam
         </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/usuario_final">Usuario Final</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">¿Cómo funciona?</a>
+                </li>
+            </ul>
+
+        </div>
     </div>
 </nav>

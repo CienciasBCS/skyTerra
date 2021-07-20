@@ -1,0 +1,71 @@
+<header id="header" class="header white-menu navbar-dark">
+    <div class="header-wrapper">
+        <!-- MOBILE HEADER -->
+        <div class="wsmobileheader clearfix">
+            <span class="smllogo"><img src="{{ url_for('static', filename='images/logo-01.png') }}" width="155"
+                    height="36" alt="mobile-logo" /></span>
+            <a id="wsnavtoggle" href="/" class="wsanimated-arrow"><span></span></a>
+        </div>
+
+
+        <!-- NAVIGATION MENU -->
+        <div class="wsmainfull menu clearfix">
+            <div class="wsmainwp clearfix">
+                <!-- LOGO IMAGE -->
+                <div class="desktoplogo"><a href="/" class="logo-black"><img
+                            src="{{ url_for('static', filename='images/logo-01.png') }}" width="155" height="36"
+                            alt="header-logo"></a></div>
+                <div class="desktoplogo"><a href="/" class="logo-white"><img
+                            src="{{ url_for('static', filename='images/logo-white.png') }}" width="155" height="36"
+                            alt="header-logo"></a></div>
+
+
+                <!-- MAIN MENU -->
+                <nav class="wsmenu clearfix">
+                    <ul class="wsmenu-list">
+
+                        <!-- SIMPLE NAVIGATION LINK -->
+                        <li class="nl-simple" aria-haspopup="true"><a href="/usuario_final">Usuario final</a>
+                        </li>
+
+                        <!-- DROPDOWN MENU -->
+                        <li aria-haspopup="true"><a href="/como_funciona">Proceso<span class="wsarrow"></span></a>
+                            <ul class="sub-menu">
+                                <li aria-haspopup="true"><a href="#">Pre-dimensionamiento</a></li>
+                                <li aria-haspopup="true"><a href="#">Dimensionamiento</a></li>
+                                <li aria-haspopup="true"><a href="#">Ofertas y financiamiento</a></li>
+                                <li aria-haspopup="true"><a href="#">Instalación</a></li>
+                                <li aria-haspopup="true"><a href="#">Puesta en marcha</a></li>
+                            </ul>
+                        </li> <!-- END DROPDOWN MENU -->
+
+                        <!-- SIMPLE NAVIGATION LINK -->
+                        <li class="nl-simple" aria-haspopup="true"><a href="#">Gestores</a></li>
+
+                        <!-- SIMPLE NAVIGATION LINK -->
+                        <li class="nl-simple" aria-haspopup="true"><a href="#">Integradores</a></li>
+
+                        <!-- DROPDOWN MENU -->
+                        <li aria-haspopup="true"><a href="#">Equipos<span class="wsarrow"></span></a>
+                            <ul class="sub-menu">
+                                <li aria-haspopup="true"><a href="#">Paneles</a></li>
+                                <li aria-haspopup="true"><a href="#">Inversores</a></li>
+                                <li aria-haspopup="true"><a href="#">Estructuras</a></li>
+                            </ul>
+                        </li> <!-- END DROPDOWN MENU -->
+
+                        <!-- HEADER BUTTON -->
+                        <li class="nl-simple" aria-haspopup="true">
+                            <a href="#" class="btn btn-tra-white primary-hover last-link">SolarBeam App</a>
+                        </li>
+
+
+                    </ul>
+                </nav> <!-- END MAIN MENU -->
+
+            </div>
+        </div> <!-- END NAVIGATION MENU -->
+
+
+    </div> <!-- End header-wrapper -->
+</header> <!-- END HEADER -->

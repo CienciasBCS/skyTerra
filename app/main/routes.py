@@ -5,5 +5,15 @@ from app.main import bp
 
 @bp.route('/')
 def home():
-    print(current_user.is_authenticated)
-    return render_template('pages/index.html')
+    
+    return render_template('static_pages/custom/index.html')
+    
+@bp.route('/usuario_final/')
+def usuario_final():
+
+    return render_template('static_pages/custom/usuario_final.html')
+
+@bp.route('/como_funciona/')
+def como_funciona():
+
+    return render_template('static_pages/custom/como_funciona.html')

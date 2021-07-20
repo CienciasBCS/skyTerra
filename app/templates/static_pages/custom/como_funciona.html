@@ -1,0 +1,259 @@
+{% extends 'static_pages/base.html' %}
+
+{% block title %}¿Cómo funciona?{% endblock title %}
+
+{% block content %}
+<!-- PAGE HERO
+        ============================================= -->
+<section id="team-page" class="page-hero-section bg-lightgrey tra-lines division">
+    <div class="container">
+
+
+        <!-- PAGE HERO TEXT -->
+        <div class="row">
+            <div class="col-md-10 col-lg-8 offset-md-1 offset-lg-2">
+                <div class="hero-txt text-center d-flex flex-column align-items-center">
+
+                    <!-- Title -->
+                    <h3 class="h3-md">¿Cómo funciona?</h3>
+
+                    <!-- Text -->
+                    <p class="grey-color">
+                        Se trata de un proceso de 5 etapas:
+                    </p>
+                    <div class="txt-block w-50">
+                        <!-- Option List -->
+                        <ul class="option-list primary-list mt-25">
+                            <!-- List Item #1 -->
+                            <li class="list-box">
+                                <!-- Icon -->
+                                <span><i class="fas fa-check left-0"></i></span>
+                                <!-- Text -->
+                                <div class="list-box-txt">
+                                    <p class="grey-color">Pre-dimensionamiento
+                                    </p>
+                                </div>
+                            </li>
+                            <!-- List Item #2 -->
+                            <li class="list-box">
+                                <!-- Icon -->
+                                <span><i class="fas fa-check left-0"></i></span>
+                                <!-- Text -->
+                                <div class="list-box-txt">
+                                    <p class="grey-color">Dimensionamiento
+                                    </p>
+                                </div>
+                            </li>
+                            <!-- List Item #3 -->
+                            <li class="list-box">
+                                <!-- Icon -->
+                                <span><i class="fas fa-check left-0"></i></span>
+                                <!-- Text -->
+                                <div class="list-box-txt">
+                                    <p class="grey-color">Ofertas
+                                    </p>
+                                </div>
+                            </li>
+                            <!-- List Item #4 -->
+                            <li class="list-box">
+                                <!-- Icon -->
+                                <span><i class="fas fa-check left-0"></i></span>
+                                <!-- Text -->
+                                <div class="list-box-txt">
+                                    <p class="grey-color">Instalación
+                                    </p>
+                                </div>
+                            </li>
+                            <!-- List Item #5 -->
+                            <li class="list-box">
+                                <!-- Icon -->
+                                <span><i class="fas fa-check left-0"></i></span>
+                                <!-- Text -->
+                                <div class="list-box-txt">
+                                    <p class="grey-color">Puesta en marcha
+                                    </p>
+                                </div>
+                            </li>
+                        </ul> <!-- End Option List -->
+                    </div>
+                </div>
+            </div>
+        </div> <!-- END PAGE HERO TEXT -->
+
+
+    </div> <!-- End container -->
+</section> <!-- END PAGE HERO -->
+
+<!-- CONTENT-3
+        ============================================= -->
+<section id="content-3" class="content-3 wide-60 content-section division">
+    <div class="container">
+        <!-- TOP CONTENT -->
+        <div id="c3-top" class="cbox-3 pb-50">
+            <div class="row d-flex align-items-center m-row">
+                <!-- TEXT BLOCK -->
+                <div class="col-md-7 col-lg-6 m-bottom">
+                    <div class="txt-block left-column pc-35 mb-40 wow fadeInRight" data-wow-delay="0.4s">
+                        <!-- Title -->
+                        <h3 class="h3-sm">Pre-dimensionamiento</h3>
+                        <!-- Text -->
+                        <p class="grey-color">
+                            Para ello ponemos a tu disposición una herramienta que te permite identificar
+                            cuantos paneles solares necesitas y el beneficio económico que te genera. Para ello
+                            solo necesitas el consumo y facturación de los últimos 12 meses.
+                        </p>
+                        <div class="d-flex justify-content-center">
+                            <a href="#" class="btn btn-primary tra-primary-hover last-link">
+                                Dimensiona tu sistema
+                            </a>
+                        </div>
+                    </div>
+                </div> <!-- END TEXT BLOCK -->
+                <!-- IMAGE BLOCK -->
+                <div class="col-md-5 col-lg-6 m-top">
+                    <div class="img-block right-column pc-25 mb-40 wow fadeInLeft" data-wow-delay="0.4s">
+                        <img class="img-fluid rounded shadow"
+                            src="{{ url_for('static', filename='images/sp_predimensionamiento.png') }}"
+                            alt="content-image">
+                    </div>
+                </div>
+
+
+            </div> <!-- End row -->
+        </div> <!-- END TOP CONTENT -->
+        <!-- BOTTOM CONTENT -->
+        <div id="c3-bottom" class="cbox-3">
+            <div class="row d-flex align-items-center">
+                <!-- IMAGE BLOCK -->
+                <div class="col-md-5 col-lg-6">
+                    <div class="img-block left-column pc-25 mb-40 wow fadeInRight" data-wow-delay="0.4s">
+                        <img class="img-fluid rounded shadow"
+                            src="{{url_for('static', filename='images/sp_dimensionamiento.jpg')}}" alt="content-image">
+                    </div>
+                </div>
+
+
+                <!-- TEXT BLOCK -->
+                <div class="col-md-7 col-lg-6">
+                    <div class="txt-block right-column pc-35 mb-40 wow fadeInLeft" data-wow-delay="0.4s">
+                        <!-- Title -->
+                        <h3 class="h3-sm">Dimensionamiento</h3>
+                        <!-- Text -->
+                        <p class="grey-color">
+                            El siguiente objetivo es asegurarnos de la calidad del sistema considerando donde
+                            será instalado. Una vez que eliges que tamaño quisieras instalar el siguiente paso
+                            es confirmar tus necesidades.
+                        </p>
+                        <p class="grey-color">
+                            Para esto, tendrás que registrar tu información y con
+                            ello, un gestor visitará el domicilio para confirmar la viabilidad de la
+                            instalación. Este generará un sistema hecho a la medida de tus necesidades y
+                            asegurar el cumplimiento de las normativas correspondientes.
+                        </p>
+                        <div class="d-flex justify-content-center">
+                            <a href="#" class="btn btn-primary tra-primary-hover last-link">
+                                Conoce los gestores
+                            </a>
+                        </div>
+                    </div>
+                </div> <!-- END TEXT BLOCK -->
+
+
+            </div> <!-- End row -->
+        </div> <!-- END BOTTOM CONTENT -->
+
+        <div id="c3-top" class="cbox-3 pb-50">
+            <div class="row d-flex align-items-center m-row">
+                <!-- TEXT BLOCK -->
+                <div class="col-md-7 col-lg-6 m-bottom">
+                    <div class="txt-block left-column pc-35 mb-40 wow fadeInRight" data-wow-delay="0.4s">
+                        <!-- Title -->
+                        <h3 class="h3-sm">Ofertas</h3>
+                        <!-- Text -->
+                        <p class="grey-color">
+                            Con la información recopilada, los diferentes integradores aprobados en nuestra
+                            plataforma podrán hacer una oferta para llevar a cabo tu proyecto. Con esto te
+                            informamos sobre las mejores ofertas y con eso podrás seleccionar la oferta
+                            propuesta u otra que sea de tu elección.
+                        </p>
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-primary tra-primary-hover last-link">
+                                Conoce los integradores
+                            </a>
+                            <a href="#" class="btn btn-primary tra-primary-hover last-link">
+                                Conoce el financiamiento
+                            </a>
+                        </div>
+                    </div>
+                </div> <!-- END TEXT BLOCK -->
+                <!-- IMAGE BLOCK -->
+                <div class="col-md-5 col-lg-6 m-top">
+                    <div class="img-block right-column pc-25 mb-40 wow fadeInLeft" data-wow-delay="0.4s">
+                        <img class="img-fluid rounded" src="{{ url_for('static', filename='images/sp_ofertas.jpg') }}"
+                            alt="content-image">
+                    </div>
+                </div>
+
+
+            </div> <!-- End row -->
+        </div> <!-- END TOP CONTENT -->
+        <!-- BOTTOM CONTENT -->
+        <div id="c3-bottom" class="cbox-3">
+            <div class="row d-flex align-items-center">
+                <!-- IMAGE BLOCK -->
+                <div class="col-md-5 col-lg-6">
+                    <div class="img-block left-column pc-25 mb-40 wow fadeInRight" data-wow-delay="0.4s">
+                        <img class="img-fluid rounded shadow"
+                            src="{{ url_for('static', filename='images/sp_instalacion.jpg') }}" alt="content-image">
+                    </div>
+                </div>
+
+
+                <!-- TEXT BLOCK -->
+                <div class="col-md-7 col-lg-6">
+                    <div class="txt-block right-column pc-35 mb-40 wow fadeInLeft" data-wow-delay="0.4s">
+                        <!-- Title -->
+                        <h3 class="h3-sm">Instalación</h3>
+                        <!-- Text -->
+                        <p class="grey-color">
+                            Con esto se comenzarán las labores de instalación por parte del integrador. El
+                            gestor estará a cargo de presentar toda la documentación ante CFE. Para iniciar con
+                            esta fase se tendrá que hacer el segundo pago
+                        </p>
+                    </div>
+                </div> <!-- END TEXT BLOCK -->
+
+
+            </div> <!-- End row -->
+        </div> <!-- END BOTTOM CONTENT -->
+
+        <div id="c3-top" class="cbox-3 pb-50">
+            <div class="row d-flex align-items-center m-row">
+                <!-- TEXT BLOCK -->
+                <div class="col-md-7 col-lg-6 m-bottom">
+                    <div class="txt-block left-column pc-35 mb-40 wow fadeInRight" data-wow-delay="0.4s">
+                        <!-- Title -->
+                        <h3 class="h3-sm">Puesta en marcha</h3>
+                        <!-- Text -->
+                        <p class="grey-color">
+                            Se echa a andar el proyecto con todo el regla incluyendo verificación de UVIE y
+                            contrato de interconexión con CFE. Con esta etapa se concluye el tercer y último
+                            pago.
+                        </p>
+                    </div>
+                </div> <!-- END TEXT BLOCK -->
+                <!-- IMAGE BLOCK -->
+                <div class="col-md-5 col-lg-6 m-top">
+                    <div class="img-block right-column pc-25 mb-40 wow fadeInLeft" data-wow-delay="0.4s">
+                        <img class="img-fluid rounded shadow"
+                            src="{{ url_for('static', filename='images/sp_puestaenmarcha.jpg') }}" alt="content-image">
+                    </div>
+                </div>
+
+
+            </div> <!-- End row -->
+        </div> <!-- END TOP CONTENT -->
+
+    </div> <!-- End container -->
+</section> <!-- END CONTENT-3 -->
+{% endblock content %}
