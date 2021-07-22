@@ -1,0 +1,7 @@
+.section-bg {
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-image: url('../../images/page-hero.png');
+}

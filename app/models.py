@@ -82,9 +82,7 @@ class Inversor(Producto):
 
 class licitacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     kwh = db.Column(db.Integer, nullable=False)
-    ofertas = db.relationship('OfertaProveedor', backref='licitacion')
 
     def __repr__(self):
         return f'<Licitación de: {self.user.nombre} - kwh: {self.kwh}>'  
@@ -95,6 +93,7 @@ class OfertaProveedor(db.Model):
     licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id'), nullable=False)
     num_max = db.Column(db.Integer, nullable=False)
     precio_unitario = db.Column(db.Numeric(8, 2),  nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return f'<Oferta: {self.producto.type} Para: {self.licitacion.user.nombre}>'  
@@ -112,10 +111,18 @@ class OfertaGrupo(db.Model):
 class OfertaExcluyente(db.Model):
     grupo_id = db.Column(db.Integer, db.ForeignKey('oferta_grupo.id'), primary_key=True)
     oferta = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), primary_key=True)
+
+class OfertaLicitacion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id'))
+    comprador_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    min_kw = db.Column(db.Numeric(4, 2),  nullable=False)
+    max_kw = db.Column(db.Numeric(4, 2),  nullable=False)
+    min_wp = db.Column(db.Numeric(4, 2),  nullable=False)
+    max_wp = db.Column(db.Numeric(4, 2),  nullable=False)
+    precio_max = db.Column(db.Numeric(12, 2),  nullable=False)
     
 
 @login.user_loader
 def load_user(cog_user_id):
-    print('-----------------')
-    print(cog_user_id)
     return User.query.get(cog_user_id)
