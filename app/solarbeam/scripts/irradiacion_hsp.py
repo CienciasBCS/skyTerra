@@ -85,5 +85,5 @@ def main(lat, lon, year):
     a["Irra"] = a["DNI"]*(np.cos(np.radians(lat))*np.cos(np.radians(a["Elv Angle"]))*np.cos(np.radians(180-a["Azimuth"]))+np.cos(np.radians(
         lat))*np.sin(np.radians(a["Elv Angle"])))+a["DHI"]*((1+np.sin(np.radians(lat)))/2)+a["GHI"]*.1*(1-((1+np.cos(np.radians(lat)))/2))
     a["HSP"] = a["Irra"]/2000
-    a["HSP"].sum()
+
     return a

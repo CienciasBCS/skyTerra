@@ -6,6 +6,7 @@ class Config(object):
         f"mysql://{os.environ['DB_USER']}:{os.environ['DB_PASS']}@{os.environ['DB_HOST']}/{os.environ['DB_NAME']}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    DB_SB_URI = f"mysql://{os.environ['DB_USER_SB']}:{os.environ['DB_PASS_SB']}@{os.environ['DB_HOST_SB']}/{os.environ['DB_NAME_SB_TAR']}"
 
     COGNITO_POOL_ID = os.environ['COGNITO_POOL_ID']
     COGNITO_CLIENT_ID = os.environ['COGNITO_CLIENT_ID']

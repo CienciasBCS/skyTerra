@@ -29,7 +29,7 @@
                                 </div>
                                 <div class="form-group col-md-2 text-center">
                                     <label for="municipiosOptions">Municipio</label>
-                                    <select id="municipiosOptions" class="form-control selectpicker"
+                                    <select id="municipiosOptions" name="municipio" class="form-control selectpicker"
                                         data-live-search="true"></select>
                                 </div>
                                 <div class="form-group col-md-2 text-center">
@@ -179,85 +179,55 @@
             return formGroup
         }
 
-        const renderKwhDem3List = (id) => {
+        const renderGDMTH = (id) => {
+            let categorias = {
+                'base': 'base', 'inter': 'intermedio', 'punta': 'punta'
+            }
+            let kwhRow = document.createElement('div');
+            kwhRow.classList.add('form-row', 'd-flex', 'justify-content-center', 'mt-1', 'mb-2');
+            let demRow = document.createElement('div');
+            demRow.classList.add('form-row', 'd-flex', 'justify-content-center', 'mt-2', 'mb-2');
             let formGroup = document.createElement('div');
-            let kwhBaseLabel = document.createElement('label');
-            let kwhBaseInput = document.createElement('input');
-            let kwhInterLabel = document.createElement('label');
-            let kwhInterInput = document.createElement('input');
-            let demBaseLabel = document.createElement('label');
-            let demBaseInput = document.createElement('input');
-            let demInterLabel = document.createElement('label');
-            let demInterInput = document.createElement('input');
-            let demPuntaLabel = document.createElement('label');
-            let demPuntaInput = document.createElement('input');
 
-            formGroup.classList.add('form-row');
+            Object.entries(categorias).forEach(([cat_id, nombreLbl]) => {
+                let kwhId = `kwh-${cat_id}-${id}`;
+                let kwhLabel = document.createElement('label');
+                let kwhInput = document.createElement('input');
+                let kwhCol = document.createElement('div');
 
-            let col = document.createElement('div');
-            col.classList.add('col-md-3');
+                kwhCol.classList.add('col-md-3');
+                kwhLabel.innerText = `Consumo ${nombreLbl} en KWh`;
+                kwhLabel.htmlFor = kwhId;
+                kwhInput.classList.add('form-control');
+                kwhInput.name = kwhId;
 
-            kwhId = `kwh-${id}`
-            kwhLabel.innerText = 'Consumo en KWh';
-            kwhLabel.htmlFor = kwhId;
-            kwhInput.classList.add('form-control');
-            kwhInput.name = kwhId;
+                kwhCol.appendChild(kwhLabel)
+                kwhCol.appendChild(kwhInput);
+                kwhRow.appendChild(kwhCol);
 
-            col.appendChild(kwhLabel)
-            col.appendChild(kwhInput);
+                let demId = `dem-${cat_id}-${id}`;
+                let demLabel = document.createElement('label');
+                let demInput = document.createElement('input');
+                let demCol = document.createElement('div');
 
-            formGroup.appendChild(col);
+                demCol.classList.add('col-md-3');
+                demLabel.innerText = `Demanda ${nombreLbl} en KWh`;
+                demLabel.htmlFor = demId;
+                demInput.classList.add('form-control');
+                demInput.name = demId;
 
+                demCol.appendChild(demLabel)
+                demCol.appendChild(demInput);
+                demRow.appendChild(demCol);
+            })
 
-            col = document.createElement('div');
-            col.classList.add('col-md-3');
-
-            demBaseId = `dem-base-${id}`;
-            demBaseLabel.innerText = 'Demanda base'
-            demBaseLabel.htmlFor = demBaseId;
-            demBaseInput.classList.add('form-control');
-            demBaseInput.name = demBaseId
-
-            col.appendChild(demBaseLabel);
-            col.appendChild(demBaseInput);
-
-            formGroup.appendChild(col);
-
-
-            col = document.createElement('div');
-            col.classList.add('col-md-3');
-
-            demInterId = `dem-inter-${id}`;
-            demInterLabel.innerText = 'Demanda intermedia'
-            demInterLabel.htmlFor = demInterId;
-            demInterInput.classList.add('form-control');
-            demInterInput.name = demInterId;
-
-            col.appendChild(demInterLabel);
-            col.appendChild(demInterInput);
-
-            formGroup.appendChild(col);
-
-
-            col = document.createElement('div');
-            col.classList.add('col-md-3');
-
-            demPuntaId = `dem-punta-${id}`;
-            demPuntaLabel.innerText = 'Demanda punta'
-            demPuntaLabel.htmlFor = demPuntaId;
-            demPuntaInput.classList.add('form-control');
-            demPuntaInput.name = demPuntaId;
-
-            col.appendChild(demPuntaLabel);
-            col.appendChild(demPuntaInput);
-
-            formGroup.appendChild(col);
-
+            formGroup.appendChild(kwhRow);
+            formGroup.appendChild(demRow);
 
             return formGroup
         }
 
-        return { renderMTO_BT_RAMT }
+        return { renderMTO_BT_RAMT, renderGDMTH }
     })()
 
     const pageLogic = (() => {
@@ -369,10 +339,12 @@
         }
 
         const renderAccordsMens = () => {
-            let startDate = new Date(initDate.value);
+            let values = initDate.value.split('-');
+            values[2] = +values[2] // 01 = mes anterior, 1 funciona correctamente
+            let startDate = new Date(values.join('-'));
             let month = new Date();
             accordBody.innerHTML = '';
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i <= 11; i++) {
                 month.setMonth(startDate.getMonth() + i);
 
                 let card = document.createElement('div');
@@ -407,7 +379,7 @@
                 cardBody.classList.add('card-body');
                 cardBody.id = `accordContent${i}`;
 
-                formGroup = renderAccordBody.renderMTO_BT_RAMT(i);
+                formGroup = renderAccordBody.renderGDMTH(i);
 
                 cardBody.appendChild(formGroup);
 

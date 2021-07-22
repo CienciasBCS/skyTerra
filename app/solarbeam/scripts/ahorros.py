@@ -7,15 +7,17 @@ Created on Mon Aug 17 16:35:37 2020
 
 
 import pandas as pd
-import numpy as np
+from . import tarifas
 
 
-def main(a,df, cap):
+def main(a,df, cap, estado, municipio, tipo):
     df2 = a[["Month", "Generation"]].groupby("Month").sum()*cap/1000
-    df2  = df2.reset_index().rename(columns = {"Month": "Mes"})
-    print('MEEEEEEEEEEEEEEEESSS')
-    print(df2['Mes'])
-    df = df2.merge(df, on = "Mes")
+    df2  = df2.reset_index().rename(columns = {"Month": "mes"})
+    
+    df = df2.merge(df, on = "mes")
+    df['PreciokWh'] = df.apply(lambda x: tarifas.calc_tarifa_gdmth(x['fecha'], estado, municipio, tipo,
+                                  [x['kwh-base'], x['kwh-inter'], x['kwh-punta']], 
+                                  [x['dem-base'], x['dem-inter'], x['dem-punta']]), axis=1)
     
     banco = []
     banco_acum = []
