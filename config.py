@@ -3,7 +3,7 @@ import os
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     SQLALCHEMY_DATABASE_URI = (
-        f"mysql://{os.environ['DB_USER']}:{os.environ['DB_PASS']}@{os.environ['DB_HOST']}/{os.environ['DB_NAME']}"
+        f"mysql://{os.environ['DB_USER_SB']}:{os.environ['DB_PASS_SB']}@{os.environ['DB_HOST_SB']}/{os.environ['DB_NAME']}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DB_SB_URI = f"mysql://{os.environ['DB_USER_SB']}:{os.environ['DB_PASS_SB']}@{os.environ['DB_HOST_SB']}/{os.environ['DB_NAME_SB_TAR']}"
@@ -14,4 +14,4 @@ class Config(object):
     COGNITO_DOMAIN = os.environ['COGNITO_DOMAIN']
 
     BASE_URL = os.environ['BASE_URL']
-    AWS_REGION = "us-east-2"
+    AWS_REGION = os.environ['AWS_DEFAULT_REGION']

@@ -9,7 +9,6 @@ class User(UserMixin, db.Model):
     apellidos = db.Column(db.String(100))
     email = db.Column(db.String(120), unique=True)
     telefono = db.Column(db.String(10), unique=True)
-    username = db.Column(db.String(100), unique=True)
     rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
 
     def __repr__(self):
