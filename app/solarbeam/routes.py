@@ -1,5 +1,6 @@
 from operator import methodcaller
 from flask import render_template, request
+from flask_login import login_required
 
 from app.solarbeam import bp
 from .scripts import util_solarbeam, generacion, ahorros
@@ -20,6 +21,10 @@ def solarbeam_app():
             a, consumo_df, cap, req_vals['estado'], req_vals['municipio'], req_vals['servicio'])
 
 
-
-        # print(costos_actuales)
     return render_template('solarBeam/home.html', estados=estados)
+
+@bp.route('/solarbeam/app/confirmacion_usuario/')
+@login_required
+def confirmar_usuario():
+
+    return render_template('solarBeam/confirm_user.html')
