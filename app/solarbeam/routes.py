@@ -8,7 +8,7 @@ from app import util
 @bp.route('/solarbeam/app/', methods=['GET', 'POST'])
 def solarbeam_app():
     util.get_conn_sb_tar()
-    estados = util.get_json_s3('cfe-tarifas', 'estados_municipios.json')
+    estados = util.get_json_s3('tarifas-cfe', 'estados_municipios.json')
     if request.method == 'POST':
         req_vals = request.form.to_dict()
         print(req_vals)
