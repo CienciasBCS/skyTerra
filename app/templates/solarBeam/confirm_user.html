@@ -4,6 +4,8 @@
 
 {% block stylesheets %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+
 
 {% endblock stylesheets %}
 
@@ -11,33 +13,128 @@
 <section class="section-bg">
     <div class="container mt-3 mb-3">
         <div class="card">
-            <div class="card-header h5 text-center">Confirmar registro de usuario</div>
+            <div class="card-header h4 text-center">Confirmar registro de usuario</div>
             <div class="card-body">
-                <div class="form-row">
-                    <div class="col-sm-6">
-                        <label for="nombreUser">Nombre</label>
-                        <input type="text" name="nombreUser" class="form-control">
+                <div class="form-group">
+                    <div class="orange-bottom-border">
+                        <h5>Tipo de Usuario</h5>
                     </div>
-                    <div class="col-sm-6">
-                        <label for="apellUser">Apellidos</label>
-                        <input type="text" name="apellUser" class="form-control">
-                    </div>
-                </div>
-                <div class="form-row mt-3">
-                    <div class="col-sm-6">
-                        <label for="telUser">Teléfono celular a 10 digitos</label>
-                        <input type="number" name="telUser" class="form-control">
-                    </div>
-                    <div class="col-sm-6">
+                    <div class="form-row mt-4">
                         <label for="rolUser">Selecciona el tipo de usuario</label>
                         <select name="rolUser" id="rolUser" class="form-control">
                             <option value="comprador">Comprador</option>
                             <option value="gestor">Gestor</option>
                             <option value="proveedor">Proveedor</option>
+                            <option value="integrador">Integrador</option>
                         </select>
                     </div>
                 </div>
-                <div class="row d-flex justify-content-center mt-3">
+                <div class="main-content" id="mainContent">
+                    <div class="form-group mt-4">
+                        <div class="orange-bottom-border">
+                            <h5>Información personal</h5>
+                        </div>
+                        <div class="form-row mt-4">
+                            <div class="col-sm-6">
+                                <label for="nombreUser">Nombre</label>
+                                <input type="text" name="nombreUser" class="form-control">
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="apellUser">Apellidos</label>
+                                <input type="text" name="apellUser" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-sm-6">
+                                <label for="telUser">Teléfono celular a 10 digitos</label>
+                                <input type="number" name="telUser" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mt-4">
+                        <div class="orange-bottom-border">
+                            <h5>Información comercial</h5>
+                        </div>
+                        <div class="form-row mt-4">
+                            <div class="col-sm-6">
+                                <label for="nombreCom">Nombre Comercial</label>
+                                <input type="text" name="nombreCom" class="form-control">
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="razSoc">Razón social</label>
+                                <input type="text" name="razSoc" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-sm-6">
+                                <label for="rfc">RFC</label>
+                                <input type="text" name="rfc" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-md-6">
+                                <label for="nomLegal">Nombre representante legal</label>
+                                <input type="text" name="nomLegal" class="form-control">
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <label for="apePatLegal">Apellido paterno del rep. legal</label>
+                                <input type="text" name="apePatLegal" class="form-control">
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <label for="apeMatLegal">Apellido materno del rep. legal</label>
+                                <input type="text" name="apeMatLegal" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-md-6">
+                                <label for="calle">Calle y número</label>
+                                <input type="text" name="calle" class="form-control">
+                            </div>
+                            <div class="col-md-3 col-sm-3">
+                                <label for="colonia">Colonia</label>
+                                <input type="text" name="colonia" class="form-control">
+                            </div>
+                            <div class="col-md-3 col-sm-3">
+                                <label for="cp">Código Postal</label>
+                                <input type="text" name="cp" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mt-4">
+                        <div class="orange-bottom-border">
+                            <h5>Documentos necesarios</h5>
+                        </div>
+                        <div class="form-row mt-4">
+                            <div class="col-sm-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="actaConstitutiva">
+                                    <label class="custom-file-label" for="actaConstitutiva">Acta Constitutiva</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="docReq1">
+                                    <label class="custom-file-label" for="docReq1">Documento requisito 1</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-sm-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="docReq2">
+                                    <label class="custom-file-label" for="docReq2">Documento requisito 2</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="docReq3">
+                                    <label class="custom-file-label" for="docReq3">Documento requisito 3</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mt-4">
                     <button type="submit" class="btn btn-primary">Confirmar datos</button>
                 </div>
             </div>
@@ -48,415 +145,168 @@
 {% endblock content %}
 
 {% block javascript %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
-
-<script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
-    async></script>
+<script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
 <script type="text/javascript">
-    const estadosMunis = {{ estados | safe }};
-    const tarifasBySelection = {
-        'hogar': ['1', '1a', '1b', '1c', '1d', '1e', '1f', 'dac'],
-        'negocio': ['apbt', 'pdbt', 'apmt', 'gdmth', 'rabt', 'ramt', 'gdbt', 'gdmto', '9cn'],
-        'industria': ['apmt', 'ramt', 'gdmto', 'gdmth', 'dist', 'dit', '9cn'],
-        'agricola': ['apmt', 'ramt', 'gdmto', 'gdmth', 'dist', 'dit', '9cn']
-    }
+    const renderDOM = (() => {
+        let mainContent = document.querySelector('#mainContent');
 
-    const months = [
-        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
-        'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ]
+        const renderSectionTitle = (title) => {
+            let section = document.createElement('div');
+            section.classList.add('form-group', 'mt-4');
 
-    const renderAccordBody = (() => {
+            let titleDiv = document.createElement('div');
+            let titleH5 = document.createElement('h5');
+            titleDiv.classList.add('orange-bottom-border');
+            titleH5.innerText = title;
+            titleDiv.appendChild(titleH5);
+            section.appendChild(titleDiv);
 
-        const renderMTO_BT_RAMT = (id) => {
-            let formGroup = document.createElement('div');
-            let kwhLabel = document.createElement('label');
-            let kwhInput = document.createElement('input');
-            let demBaseLabel = document.createElement('label');
-            let demBaseInput = document.createElement('input');
-            let demInterLabel = document.createElement('label');
-            let demInterInput = document.createElement('input');
-            let demPuntaLabel = document.createElement('label');
-            let demPuntaInput = document.createElement('input');
+            return section
+        }
 
-            formGroup.classList.add('form-row');
-
+        const renderInputColumn = (idInput, labelName, classCol, inputType = 'text') => {
             let col = document.createElement('div');
-            col.classList.add('col-md-3');
+            classCol.forEach(className => {
+                col.classList.add(className);
+            });
 
-            kwhId = `kwh-${id}`
-            kwhLabel.innerText = 'Consumo en KWh';
-            kwhLabel.htmlFor = kwhId;
-            kwhInput.classList.add('form-control');
-            kwhInput.name = kwhId;
+            let label = document.createElement('label');
+            let input = document.createElement('input');
+            label.htmlFor = idInput;
+            label.innerText = labelName;
+            input.type = inputType;
+            input.name = idInput
+            input.classList.add('form-control');
+            col.appendChild(label);
+            col.appendChild(input);
 
-            col.appendChild(kwhLabel)
-            col.appendChild(kwhInput);
-
-            formGroup.appendChild(col);
-
-
-            col = document.createElement('div');
-            col.classList.add('col-md-3');
-
-            demBaseId = `dem-base-${id}`;
-            demBaseLabel.innerText = 'Demanda base'
-            demBaseLabel.htmlFor = demBaseId;
-            demBaseInput.classList.add('form-control');
-            demBaseInput.name = demBaseId
-
-            col.appendChild(demBaseLabel);
-            col.appendChild(demBaseInput);
-
-            formGroup.appendChild(col);
-
-
-            col = document.createElement('div');
-            col.classList.add('col-md-3');
-
-            demInterId = `dem-inter-${id}`;
-            demInterLabel.innerText = 'Demanda intermedia'
-            demInterLabel.htmlFor = demInterId;
-            demInterInput.classList.add('form-control');
-            demInterInput.name = demInterId;
-
-            col.appendChild(demInterLabel);
-            col.appendChild(demInterInput);
-
-            formGroup.appendChild(col);
-
-
-            col = document.createElement('div');
-            col.classList.add('col-md-3');
-
-            demPuntaId = `dem-punta-${id}`;
-            demPuntaLabel.innerText = 'Demanda punta'
-            demPuntaLabel.htmlFor = demPuntaId;
-            demPuntaInput.classList.add('form-control');
-            demPuntaInput.name = demPuntaId;
-
-            col.appendChild(demPuntaLabel);
-            col.appendChild(demPuntaInput);
-
-            formGroup.appendChild(col);
-
-
-            return formGroup
+            return col;
         }
 
-        const renderGDMTH = (id) => {
-            let categorias = {
-                'base': 'base', 'inter': 'intermedio', 'punta': 'punta'
-            }
-            let kwhRow = document.createElement('div');
-            kwhRow.classList.add('form-row', 'd-flex', 'justify-content-center', 'mt-1', 'mb-2');
-            let demRow = document.createElement('div');
-            demRow.classList.add('form-row', 'd-flex', 'justify-content-center', 'mt-2', 'mb-2');
-            let formGroup = document.createElement('div');
+        const renderInputFileColumn = (idInput, labelName, classCol) => {
+            let col = document.createElement('div');
+            classCol.forEach(className => {
+                col.classList.add(className);
+            });
 
-            Object.entries(categorias).forEach(([cat_id, nombreLbl]) => {
-                let kwhId = `kwh-${cat_id}-${id}`;
-                let kwhLabel = document.createElement('label');
-                let kwhInput = document.createElement('input');
-                let kwhCol = document.createElement('div');
+            let fileWrapper = document.createElement('div');
+            let label = document.createElement('label');
+            let input = document.createElement('input');
+            fileWrapper.classList.add('custom-file');
+            input.type = 'file';
+            input.classList.add('custom-file-input');
+            input.name = idInput;
+            input.id = idInput;
+            label.htmlFor = idInput;
+            label.classList.add('custom-file-label');
+            label.innerText = labelName;
 
-                kwhCol.classList.add('col-md-3');
-                kwhLabel.innerText = `Consumo ${nombreLbl} en KWh`;
-                kwhLabel.htmlFor = kwhId;
-                kwhInput.classList.add('form-control');
-                kwhInput.name = kwhId;
+            fileWrapper.appendChild(input);
+            fileWrapper.appendChild(label);
+            col.appendChild(fileWrapper);
 
-                kwhCol.appendChild(kwhLabel)
-                kwhCol.appendChild(kwhInput);
-                kwhRow.appendChild(kwhCol);
-
-                let demId = `dem-${cat_id}-${id}`;
-                let demLabel = document.createElement('label');
-                let demInput = document.createElement('input');
-                let demCol = document.createElement('div');
-
-                demCol.classList.add('col-md-3');
-                demLabel.innerText = `Demanda ${nombreLbl} en KWh`;
-                demLabel.htmlFor = demId;
-                demInput.classList.add('form-control');
-                demInput.name = demId;
-
-                demCol.appendChild(demLabel)
-                demCol.appendChild(demInput);
-                demRow.appendChild(demCol);
-            })
-
-            formGroup.appendChild(kwhRow);
-            formGroup.appendChild(demRow);
-
-            return formGroup
+            return col;
         }
 
-        return { renderMTO_BT_RAMT, renderGDMTH }
+        const renderIntegrador = () => {
+            mainContent.innerHTML = '';
+
+            infoPersonal = renderSectionTitle('Información personal');
+
+            let formRow = document.createElement('div');
+            formRow.classList.add('form-row', 'mt-4');
+            col = renderInputColumn('nombreUser', 'Nombre', ['col-sm-6']);
+            formRow.appendChild(col);
+            col = renderInputColumn('apellUser', 'Apellidos', ['col-sm-6']);
+            formRow.appendChild(col);
+            infoPersonal.appendChild(formRow);
+
+            formRow = document.createElement('div');
+            formRow.classList.add('form-row', 'mt-3');
+            col = renderInputColumn('telUser', 'Teléfono celular a 10 digitos', ['col-sm-6'], inputType = 'number');
+            formRow.appendChild(col);
+            infoPersonal.appendChild(formRow);
+
+            mainContent.appendChild(infoPersonal);
+
+            infoComercial = renderSectionTitle('Información comercial');
+
+            formRow = document.createElement('div');
+            formRow.classList.add('form-row', 'mt-4');
+            col = renderInputColumn('nombreCom', 'Nombre Comercial', ['col-sm-6'])
+            formRow.appendChild(col);
+            col = renderInputColumn('razSoc', 'Razón social', ['col-sm-6'])
+            formRow.appendChild(col);
+            infoComercial.appendChild(formRow);
+
+            formRow = document.createElement('div');
+            formRow.classList.add('form-row', 'mt-3');
+            col = renderInputColumn('rfc', 'RFC', ['col-sm-6'])
+            formRow.appendChild(col);
+            infoComercial.appendChild(formRow);
+
+            formRow = document.createElement('div');
+            formRow.classList.add('form-row', 'mt-3');
+            col = renderInputColumn('nomLegal', 'Nombre representante legal', ['col-md-6'])
+            formRow.appendChild(col);
+            col = renderInputColumn('apePatLegal', 'Apellido paterno del rep. legal', ['col-md-3', 'col-sm-6'])
+            formRow.appendChild(col);
+            col = renderInputColumn('apeMatLegal', 'Apellido materno del rep. legal', ['col-md-3', 'col-sm-6'])
+            formRow.appendChild(col);
+            infoComercial.appendChild(formRow);
+
+            formRow = document.createElement('div');
+            formRow.classList.add('form-row', 'mt-3');
+            col = renderInputColumn('calle', 'Calle y número', ['col-md-6'])
+            formRow.appendChild(col);
+            col = renderInputColumn('colonia', 'Colonia', ['col-md-3', 'col-sm-6'])
+            formRow.appendChild(col);
+            col = renderInputColumn('cp', 'Código Postal', ['col-md-3', 'col-sm-6'])
+            formRow.appendChild(col);
+            infoComercial.appendChild(formRow);
+
+            mainContent.appendChild(infoComercial);
+
+            docReq = renderSectionTitle('Documentos necesarios');
+
+            formRow = document.createElement('div');
+            formRow.classList.add('form-row', 'mt-4');
+            col = renderInputFileColumn('actaConstitutiva', 'Acta Constitutiva', ['col-sm-6']);
+            formRow.appendChild(col);
+            col = renderInputFileColumn('docReq1', 'Documento requisito 1', ['col-sm-6']);
+            formRow.appendChild(col);
+            docReq.appendChild(formRow);
+
+            formRow = document.createElement('div');
+            formRow.classList.add('form-row', 'mt-3');
+            col = renderInputFileColumn('docReq2', 'Documento requisito 2', ['col-sm-6']);
+            formRow.appendChild(col);
+            col = renderInputFileColumn('docReq3', 'Documento requisito 3', ['col-sm-6']);
+            formRow.appendChild(col);
+            docReq.appendChild(formRow);
+
+            mainContent.appendChild(docReq);
+        }
+
+        return { renderIntegrador }
     })()
 
-    const pageLogic = (() => {
-        const estadosSelection = document.querySelector('#estadosOptions');
-        const munisSelection = document.querySelector('#municipiosOptions');
-        const servSelection = document.querySelector('#serviciosOptions');
-        const tarifasSelection = document.querySelector('#tarifasOptions');
-        const initDate = document.querySelector('#iniDate');
+    const appLogic = (() => {
+        const rol = document.querySelector('#rolUser');
 
-        let accordBody = document.querySelector('#accordionBody')
-
-        let subtmitBtn = document.querySelector('#submitBtn');
-
-        const updateMunisSelection = () => {
-            munisSelection.innerHTML = '';
-            let municipios = estadosMunis[estadosSelection.value]
-
-            municipios.forEach(municipio => {
-                let option = document.createElement('option');
-                option.value = municipio;
-                option.text = municipio.split(' ')
-                    .map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
-                    .join(' ')
-                munisSelection.appendChild(option);
-            });
-            $(munisSelection).selectpicker('refresh');
-        }
-
-        const updateTarifasSelection = () => {
-            tarifasSelection.innerHTML = '';
-            let tarifas = tarifasBySelection[servSelection.value]
-
-            tarifas.forEach(tarifa => {
-                let option = document.createElement('option');
-                option.value = tarifa;
-                option.text = tarifa.toUpperCase();
-
-                tarifasSelection.appendChild(option);
-            })
-        }
-
-        const renderAccordsBim = () => {
-            let startDate = new Date(initDate.value);
-            let firstMonth = new Date();
-            let secondMonth = new Date();
-            accordBody.innerHTML = '';
-            for (let i = 0; i < 12; i += 2) {
-                firstMonth.setMonth(startDate.getMonth() + i);
-                secondMonth.setMonth(startDate.getMonth() + i + 1);
-                let idxFirstMonth = firstMonth.getMonth();
-                let idxSecMonth = secondMonth.getMonth();
-
-                let card = document.createElement('div');
-                let cardHeader = document.createElement('div');
-                let h2 = document.createElement('h2');
-                let collapseButton = document.createElement('button');
-                let collapseAccord = document.createElement('div');
-                let cardBody = document.createElement('div');
-
-                let kwhFormGroup = document.createElement('div');
-                let kwhLabel = document.createElement('label');
-                let kwhInput = document.createElement('input');
-
-
-                card.classList.add('card');
-                cardHeader.classList.add('card-header');
-                cardHeader.id = `cardHeader${i}`;
-                h2.classList.add('mb-0');
-                collapseButton.id = `btnAccord${i}`;
-                collapseButton.classList.add('btn', 'btn-link', 'btn-block', 'text-left', 'collapsed', 'text-primary')
-                collapseButton.type = 'button';
-                collapseButton.setAttribute('data-toggle', 'collapse');
-                collapseButton.setAttribute('data-target', `#accordM${i}`);
-                collapseAccord.setAttribute('aria-expanded', 'false');
-                collapseAccord.setAttribute('aria-controls', `accordM${i}`)
-                collapseButton.innerText = `Bimestre: ${months[idxFirstMonth]} - ${months[idxSecMonth]}`;
-
-                h2.appendChild(collapseButton);
-                cardHeader.appendChild(h2);
-
-                collapseAccord.id = `accordM${i}`;
-                collapseAccord.classList.add('collapse')
-                collapseAccord.setAttribute('aria-labelledby', 'aria-labelledby');
-                collapseAccord.setAttribute('data-parent', '#accordionBody');
-                cardBody.classList.add('card-body', 'd-flex', 'justify-content-center');
-                cardBody.id = `accordContent${i}`;
-                // cardBody.innerText = 'Placeholder';
-
-                kwhFormGroup.classList.add('form-group');
-                kwhInputId = `bim-${i}`;
-                kwhInput.id = kwhInputId;
-                kwhInput.classList.add('form-control', 'kwhInput');
-                kwhInput.type = 'number';
-                kwhInput.name = kwhInputId;
-                kwhLabel.htmlFor = kwhInputId;
-                kwhLabel.innerText = 'Consumo en KWh de ese bimestre'
-
-                kwhFormGroup.appendChild(kwhLabel);
-                kwhFormGroup.appendChild(kwhInput);
-                cardBody.appendChild(kwhFormGroup);
-
-                collapseAccord.appendChild(cardBody);
-
-                card.appendChild(cardHeader);
-                card.appendChild(collapseAccord);
-
-                accordBody.appendChild(card);
-            }
-        }
-
-        const renderAccordsMens = () => {
-            let values = initDate.value.split('-');
-            values[2] = +values[2] // 01 = mes anterior, 1 funciona correctamente
-            let startDate = new Date(values.join('-'));
-            let month = new Date();
-            accordBody.innerHTML = '';
-            for (let i = 0; i <= 11; i++) {
-                month.setMonth(startDate.getMonth() + i);
-
-                let card = document.createElement('div');
-                let cardHeader = document.createElement('div');
-                let h2 = document.createElement('h2');
-                let collapseButton = document.createElement('button');
-                let collapseAccord = document.createElement('div');
-                let cardBody = document.createElement('div');
-
-                let formGroup = document.createElement('div');
-
-                card.classList.add('card');
-                cardHeader.classList.add('card-header');
-                cardHeader.id = `cardHeader${i}`;
-                h2.classList.add('mb-0');
-                collapseButton.id = `btnAccord${i}`;
-                collapseButton.classList.add('btn', 'btn-link', 'btn-block', 'text-left', 'collapsed', 'text-primary')
-                collapseButton.type = 'button';
-                collapseButton.setAttribute('data-toggle', 'collapse');
-                collapseButton.setAttribute('data-target', `#accordM${i}`);
-                collapseAccord.setAttribute('aria-expanded', 'false');
-                collapseAccord.setAttribute('aria-controls', `accordM${i}`)
-                collapseButton.innerText = `${months[month.getMonth()]}`;
-
-                h2.appendChild(collapseButton);
-                cardHeader.appendChild(h2);
-
-                collapseAccord.id = `accordM${i}`;
-                collapseAccord.classList.add('collapse')
-                collapseAccord.setAttribute('aria-labelledby', 'aria-labelledby');
-                collapseAccord.setAttribute('data-parent', '#accordionBody');
-                cardBody.classList.add('card-body');
-                cardBody.id = `accordContent${i}`;
-
-                formGroup = renderAccordBody.renderGDMTH(i);
-
-                cardBody.appendChild(formGroup);
-
-                collapseAccord.appendChild(cardBody);
-
-                card.appendChild(cardHeader);
-                card.appendChild(collapseAccord);
-
-                accordBody.appendChild(card);
-            }
-        }
-
-        const renderAccords = () => {
-            if (servSelection.value === 'hogar') {
-                renderAccordsBim();
-            } else {
-                renderAccordsMens();
-            }
-        }
-
-        const submitForm = () => {
-            let kwhInputs = document.querySelectorAll('.kwhInput');
-            kwhInputs.forEach(input => {
-                console.log(input.value);
-            })
-            let [lon, lat] = mapFunctions.getCoords();
-            console.log(`Coordenadas: ${lon} - ${lat}`);
-
-            console.log(`Tipo: ${servSelection.value} - Tarifa: ${tarifasSelection.value}`)
-
-        }
-
-        const _addListeners = () => {
-            estadosSelection.addEventListener('change', () => {
-                updateMunisSelection();
-            })
-
-            servSelection.addEventListener('change', () => {
-                updateTarifasSelection();
-                renderAccords();
-            })
-
-            initDate.addEventListener('change', () => {
-                renderAccords();
-            })
-
-            subtmitBtn.addEventListener('click', () => {
-                submitForm();
+        const addListeners = () => {
+            rol.addEventListener('change', () => {
+                if (rol.value == 'integrador') {
+                    renderDOM.renderIntegrador();
+                } else {
+                    renderDOM.renderIntegrador();
+                }
             })
         }
 
         const _init = (() => {
-            _addListeners();
-            updateTarifasSelection();
-            updateMunisSelection();
-            renderAccords();
+            addListeners();
         })()
-
     })()
-
-
-    const mapFunctions = (() => {
-        let marker;
-        let map;
-        let latitud = document.querySelector('#coordLat');
-        let longitud = document.querySelector('#coordLon');
-
-        const placeMarker = (location) => {
-            if (marker) {
-                marker.setPosition(location);
-                addCoords();
-            } else {
-                marker = new google.maps.Marker({
-                    position: location,
-                    map: map
-                });
-                addCoords();
-            }
-        }
-
-        const addCoords = () => {
-            latitud.value = marker.getPosition().lat();
-            longitud.value = marker.getPosition().lng();
-        }
-
-        const getCoords = () => {
-            let long = marker.getPosition().lng();
-            let lat = marker.getPosition().lat();
-
-            return [long, lat]
-        }
-
-        function initMap() {
-            map = new google.maps.Map(
-                document.getElementById('gMap'), {
-                zoom: 9,
-                center: { lat: 24.1409, lng: -110.3128 }
-            });
-            google.maps.event.addListener(map, 'click', function (event) {
-                placeMarker(event.latLng);
-            });
-        }
-        return { initMap, getCoords }
-    })()
-
-
-    function initMap() {
-        mapFunctions.initMap();
-    }
-
-
-
 </script>
 {% endblock javascript %}

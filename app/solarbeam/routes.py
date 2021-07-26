@@ -24,7 +24,7 @@ def solarbeam_app():
     return render_template('solarBeam/home.html', estados=estados)
 
 @bp.route('/solarbeam/app/confirmacion_usuario/')
-@login_required
+# @login_required
 def confirmar_usuario():
 
     return render_template('solarBeam/confirm_user.html')

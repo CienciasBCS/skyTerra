@@ -5,3 +5,11 @@
     background-size: cover;
     background-image: url('../../images/page-hero.png');
 }
+
+.orange-bottom-border {
+    border-bottom: 0.15em solid orange;
+}
+
+.custom-file-input:lang(en)~.custom-file-label::after {
+    content: "Buscar";
+}
