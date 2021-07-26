@@ -28,3 +28,16 @@ def solarbeam_app():
 def confirmar_usuario():
 
     return render_template('solarBeam/confirm_user.html')
+
+
+# COMPRADOR
+@bp.route('/solarbeam/app/registro_oferta_compra/')
+def registro_oferta_compra():
+
+    return render_template('solarBeam/reg_oferta_compra.html')
+
+@bp.route('/solarbeam/app/mis_ofertas/')
+def comprador_ofertas():
+
+
+    return render_template('solarBeam/comprador_ofertas.html')

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card shadow">
+            <div class="card-header h4 text-center">Registro de oferta de compra</div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="col-sm-6">
+                        <label for="eneQty">Cantidad a ser adquirida en kWh</label>
+                        <input type="number" name="eneQty" class="form-control">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="rolUser">Tipo de oferta</label>
+                        <select name="rolUser" id="rolUser" class="form-control">
+                            <option value="ofertaInd">Oferta individual</option>
+                            <option value="ofertaAgr">Oferta agrupada</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mt-4">
+                    <button type="submit" class="btn btn-primary">Confirmar registro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+{% endblock javascript %}

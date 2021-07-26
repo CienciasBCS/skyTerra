@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Mis ofertas</div>
+            <div class="card-body">
+                <table class="table table-card text-center">
+                    <thead>
+                        <th>Oferta</th>
+                        <th>Cantidad a adquirir (kWh)</th>
+                        <th>Estatus</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>100</td>
+                            <td><span class="badge badge-pill badge-primary">Pre-dimensionamiento</span></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>200</td>
+                            <td><span class="badge badge-pill badge-secondary">Dimensionamiento</span></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>300</td>
+                            <td><span class="badge badge-pill badge-warning">Adquisición</span></td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>400</td>
+                            <td><span class="badge badge-pill badge-info">Instalación</span></td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>500</td>
+                            <td><span class="badge badge-pill badge-success">Puesta en marcha</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+{% endblock javascript %}

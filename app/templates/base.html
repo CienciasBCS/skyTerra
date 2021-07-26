@@ -14,15 +14,18 @@
 
     {% block stylesheets %}
     {% endblock stylesheets %}
-    <title>SolarBeam</title>
+
+    <title>Skyterra - {% block title %}{% endblock title %}</title>
+
 </head>
 
 <body>
 
-    {% include 'includes/navbar.html' %}
-
-    {% block content %}
-    {% endblock content %}
+    <div class="section-bg">
+        {% include 'includes/navbar.html' %}
+        {% block content %}
+        {% endblock content %}
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
