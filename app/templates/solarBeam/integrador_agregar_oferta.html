@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Agregar oferta para proyecto #1</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label for="ofertaKWp">kWp a ofertar</label>
+                        <input type="number" class="form-control" name="ofertaKWp" id="ofertaKWp">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="ofertaKW">kW a ofertar</label>
+                        <input type="number" class="form-control" name="ofertaKW" id="ofertaKW">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="ofertaCostoKWp">Costo por kWp</label>
+                        <input type="number" class="form-control" name="ofertaCostoKWp" id="ofertaCostoKWp">
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-sm-12">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="ofertaFile">
+                            <label class="custom-file-label" for="ofertaFile">Oferta en PDF</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mt-3">
+                    <a href="#"><button class="btn btn-primary">Confirmar Oferta</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
+    async></script>
+<script>
+    const mapFunctions = (() => {
+        let marker;
+        let map;
+        let latitud = 24.55;
+        let longitud = -111.32;
+
+        function initMap() {
+            map = new google.maps.Map(
+                document.getElementById('gMap'), {
+                zoom: 9,
+                center: { lat: latitud, lng: longitud }
+            });
+            new google.maps.Marker({
+                position: { lat: latitud, lng: longitud },
+                map,
+            });
+        }
+        return { initMap }
+    })()
+
+
+    function initMap() {
+        mapFunctions.initMap();
+    }
+</script>
+{% endblock javascript %}

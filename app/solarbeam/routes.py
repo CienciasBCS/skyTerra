@@ -49,3 +49,10 @@ def proyectos_disponibles():
 
 
     return render_template('solarBeam/integrador_oferta_compra.html')
+
+
+@bp.route('/solarbeam/app/proyectos_disponibles/agregar_oferta')
+def agregar_oferta():
+
+
+    return render_template('solarBeam/integrador_agregar_oferta.html')
