@@ -13,17 +13,57 @@
         <div class="card shadow">
             <div class="card-header h4 text-center">Registro de oferta de compra</div>
             <div class="card-body">
-                <div class="form-row">
-                    <div class="col-sm-6">
-                        <label for="eneQty">Cantidad a ser adquirida en kWh</label>
-                        <input type="number" name="eneQty" class="form-control">
+                <div class="form-group">
+                    <div class="orange-bottom-border">
+                        <h5>Tipo de oferta</h5>
                     </div>
-                    <div class="col-sm-6">
-                        <label for="rolUser">Tipo de oferta</label>
-                        <select name="rolUser" id="rolUser" class="form-control">
+                    <div class="form-row mt-3">
+                        <label for="tipoOferta">Selecciona el tipo de oferta</label>
+                        <select name="tipoOferta" id="tipoOferta" class="form-control">
                             <option value="ofertaInd">Oferta individual</option>
                             <option value="ofertaAgr">Oferta agrupada</option>
                         </select>
+                    </div>
+                </div>
+                <div class="form-group mt-4">
+                    <div class="orange-bottom-border">
+                        <h5>Información técnica</h5>
+                    </div>
+                    <div class="form-row mt-3">
+                        <label for="proyectoNombre">Nombre del proyecto</label>
+                        <input type="text" name="proyectoNombre" id="proyectoNombre" class="form-control">
+                    </div>
+                    <div class="form-row mt-3">
+                        <div class="col-sm-6">
+                            <label for="capMin">Capacidad mínima en Wp</label>
+                            <input type="number" name="capMin" id="capMin" class="form-control">
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="capMax">Capacidad máxima en kWac</label>
+                            <input type="number" name="capMax" id="capMax" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mt-4">
+                    <div class="orange-bottom-border">
+                        <h5>Ubicación</h5>
+                    </div>
+                    <div class="form-row mt-3">
+                        <div class="col-md-6">
+                            <label for="calle">Calle y número</label>
+                            <input type="text" name="calle" class="form-control">
+                        </div>
+                        <div class="col-md-3 col-sm-3">
+                            <label for="colonia">Colonia</label>
+                            <input type="text" name="colonia" class="form-control">
+                        </div>
+                        <div class="col-md-3 col-sm-3">
+                            <label for="cp">Código Postal</label>
+                            <input type="text" name="cp" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row d-flex justify-content-center mt-3">
+                        <div id="gMap" style='width: 90%; height: 60vh;'></div>
                     </div>
                 </div>
                 <div class="row d-flex justify-content-center mt-4">
@@ -37,4 +77,56 @@
 {% endblock content %}
 
 {% block javascript %}
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
+    async></script>
+<script>
+    const mapFunctions = (() => {
+        let marker;
+        let map;
+        let latitud = document.querySelector('#coordLat');
+        let longitud = document.querySelector('#coordLon');
+
+        const placeMarker = (location) => {
+            if (marker) {
+                marker.setPosition(location);
+                addCoords();
+            } else {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+                addCoords();
+            }
+        }
+
+        const addCoords = () => {
+            latitud.value = marker.getPosition().lat();
+            longitud.value = marker.getPosition().lng();
+        }
+
+        const getCoords = () => {
+            let long = marker.getPosition().lng();
+            let lat = marker.getPosition().lat();
+
+            return [long, lat]
+        }
+
+        function initMap() {
+            map = new google.maps.Map(
+                document.getElementById('gMap'), {
+                zoom: 9,
+                center: { lat: 24.1409, lng: -110.3128 }
+            });
+            google.maps.event.addListener(map, 'click', function (event) {
+                placeMarker(event.latLng);
+            });
+        }
+        return { initMap, getCoords }
+    })()
+
+    function initMap() {
+        mapFunctions.initMap();
+    }
+</script>
 {% endblock javascript %}
