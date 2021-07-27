@@ -19,12 +19,12 @@ def get_conn_sb_tar():
     return conn
 
 
-def upload_file_to_s3(file, bucket_name, file_key):
+def upload_file_to_s3(file, file_key):
     s3 = boto3.client('s3')
     try:
         s3.upload_fileobj(
                 file,
-                bucket_name,
+                current_app.config['BUCKET'],
                 file_key,
             )
     except Exception as e:

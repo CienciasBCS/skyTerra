@@ -14,4 +14,5 @@ class Config(object):
     COGNITO_DOMAIN = os.environ['COGNITO_DOMAIN']
 
     BASE_URL = os.environ['BASE_URL']
+    BUCKET = os.environ['BUCKET']
     AWS_REGION = os.environ['AWS_DEFAULT_REGION']

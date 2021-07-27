@@ -38,7 +38,7 @@ def confirmar_usuario():
             file_object = request.files[file]
             file_key = f"archivos/{current_user.id}/{file}.pdf"
 
-            error = util.upload_file_to_s3(file_object, 'solarbeamdev', file_key)
+            error = util.upload_file_to_s3(file_object, file_key)
 
         if req_vals['rolUser'] == 'comprador':
             rol = Comprador(user_id=current_user.id)
