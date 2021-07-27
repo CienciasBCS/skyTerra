@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: add4e05fc498
-Revises: 4b16a2857891
-Create Date: 2021-07-23 15:01:30.089923
+Revision ID: fcefb7756a36
+Revises: 
+Create Date: 2021-07-27 14:04:37.299254
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'add4e05fc498'
-down_revision = '4b16a2857891'
+revision = 'fcefb7756a36'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -28,18 +28,6 @@ def upgrade():
     sa.Column('nombre', sa.String(length=75), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('rol',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('nombre', sa.String(length=25), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('producto',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('marca_id', sa.Integer(), nullable=True),
-    sa.Column('type', sa.String(length=50), nullable=True),
-    sa.ForeignKeyConstraint(['marca_id'], ['marca.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('cog_user_id', sa.String(length=50), nullable=True),
@@ -47,32 +35,24 @@ def upgrade():
     sa.Column('apellidos', sa.String(length=100), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('telefono', sa.String(length=10), nullable=True),
-    sa.Column('username', sa.String(length=100), nullable=True),
-    sa.Column('rol_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['rol_id'], ['rol.id'], ),
+    sa.Column('nombre_comercial', sa.String(length=100), nullable=False),
+    sa.Column('razon_social', sa.String(length=100), nullable=False),
+    sa.Column('rfc', sa.String(length=13), nullable=False),
+    sa.Column('nombre_rep_legal', sa.String(length=100), nullable=False),
+    sa.Column('ape_paterno_rep_legal', sa.String(length=100), nullable=False),
+    sa.Column('ape_materno_rep_legal', sa.String(length=100), nullable=False),
+    sa.Column('calle', sa.String(length=100), nullable=False),
+    sa.Column('colonia', sa.String(length=100), nullable=False),
+    sa.Column('codigo_postal', sa.String(length=100), nullable=False),
+    sa.Column('acta_constitutiva_key', sa.String(length=100), nullable=False),
+    sa.Column('doc_req1_key', sa.String(length=100), nullable=False),
+    sa.Column('doc_req2_key', sa.String(length=100), nullable=False),
+    sa.Column('doc_req3_key', sa.String(length=100), nullable=False),
+    sa.Column('tiene_rol', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('cog_user_id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('telefono'),
-    sa.UniqueConstraint('username')
-    )
-    op.create_table('inversor',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('modelo', sa.String(length=100), nullable=False),
-    sa.Column('ficha_tecnica_key', sa.String(length=50), nullable=False),
-    sa.Column('min_wp', sa.Integer(), nullable=False),
-    sa.Column('max_wp', sa.Integer(), nullable=False),
-    sa.Column('kw_ac', sa.Integer(), nullable=False),
-    sa.Column('max_vdc', sa.Numeric(precision=4, scale=2), nullable=False),
-    sa.Column('max_isc', sa.Numeric(precision=4, scale=2), nullable=False),
-    sa.Column('max_imc', sa.Numeric(precision=4, scale=2), nullable=False),
-    sa.Column('min_mppt', sa.Numeric(precision=4, scale=2), nullable=False),
-    sa.Column('max_mppt', sa.Numeric(precision=4, scale=2), nullable=False),
-    sa.Column('num_mppt', sa.Integer(), nullable=False),
-    sa.Column('strings', sa.Integer(), nullable=False),
-    sa.Column('efc', sa.Numeric(precision=4, scale=2), nullable=False),
-    sa.ForeignKeyConstraint(['id'], ['producto.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.UniqueConstraint('telefono')
     )
     op.create_table('oferta_grupo',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -91,6 +71,55 @@ def upgrade():
     sa.Column('precio_max', sa.Numeric(precision=12, scale=2), nullable=False),
     sa.ForeignKeyConstraint(['comprador_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['licitacion_id'], ['licitacion.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('producto',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('marca_id', sa.Integer(), nullable=True),
+    sa.Column('type', sa.String(length=50), nullable=True),
+    sa.ForeignKeyConstraint(['marca_id'], ['marca.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('user_role',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('tipo', sa.String(length=25), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id')
+    )
+    op.create_table('comprador',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('atr', sa.String(length=10), nullable=True),
+    sa.ForeignKeyConstraint(['id'], ['user_role.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('gestor',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['id'], ['user_role.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('integrador',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['id'], ['user_role.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('inversor',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('modelo', sa.String(length=100), nullable=False),
+    sa.Column('ficha_tecnica_key', sa.String(length=50), nullable=False),
+    sa.Column('min_wp', sa.Integer(), nullable=False),
+    sa.Column('max_wp', sa.Integer(), nullable=False),
+    sa.Column('kw_ac', sa.Integer(), nullable=False),
+    sa.Column('max_vdc', sa.Numeric(precision=4, scale=2), nullable=False),
+    sa.Column('max_isc', sa.Numeric(precision=4, scale=2), nullable=False),
+    sa.Column('max_imc', sa.Numeric(precision=4, scale=2), nullable=False),
+    sa.Column('min_mppt', sa.Numeric(precision=4, scale=2), nullable=False),
+    sa.Column('max_mppt', sa.Numeric(precision=4, scale=2), nullable=False),
+    sa.Column('num_mppt', sa.Integer(), nullable=False),
+    sa.Column('strings', sa.Integer(), nullable=False),
+    sa.Column('efc', sa.Numeric(precision=4, scale=2), nullable=False),
+    sa.ForeignKeyConstraint(['id'], ['producto.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('oferta_proveedor',
@@ -140,12 +169,15 @@ def downgrade():
     op.drop_table('oferta_condicionada')
     op.drop_table('panel')
     op.drop_table('oferta_proveedor')
+    op.drop_table('inversor')
+    op.drop_table('integrador')
+    op.drop_table('gestor')
+    op.drop_table('comprador')
+    op.drop_table('user_role')
+    op.drop_table('producto')
     op.drop_table('oferta_licitacion')
     op.drop_table('oferta_grupo')
-    op.drop_table('inversor')
     op.drop_table('user')
-    op.drop_table('producto')
-    op.drop_table('rol')
     op.drop_table('marca')
     op.drop_table('licitacion')
     # ### end Alembic commands ###

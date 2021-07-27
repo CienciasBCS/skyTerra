@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Instalaciones{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Instalaciones</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="ofertaFile">
+                            <label class="custom-file-label" for="eviFile">Alta de evidencias de instalación</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="ofertaFile">
+                            <label class="custom-file-label" for="dictFile">Alta de dictamen UVIE</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-sm-12">
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="confiBox">
+                            <label class="form-check-label" for="confiBox">Confirmación de entrada en operación</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mt-3">
+                    <button class="btn btn-primary">Confirmar Instalación</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
+    async></script>
+<script>
+    const mapFunctions = (() => {
+        let marker;
+        let map;
+        let latitud = 24.55;
+        let longitud = -111.32;
+
+        function initMap() {
+            map = new google.maps.Map(
+                document.getElementById('gMap'), {
+                zoom: 9,
+                center: { lat: latitud, lng: longitud }
+            });
+            new google.maps.Marker({
+                position: { lat: latitud, lng: longitud },
+                map,
+            });
+        }
+        return { initMap }
+    })()
+
+
+    function initMap() {
+        mapFunctions.initMap();
+    }
+</script>
+{% endblock javascript %}

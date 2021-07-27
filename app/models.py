@@ -1,4 +1,6 @@
+from enum import unique
 from flask_login import UserMixin
+from sqlalchemy.orm import defaultload
 
 from app import db, login
 
@@ -9,17 +11,62 @@ class User(UserMixin, db.Model):
     apellidos = db.Column(db.String(100))
     email = db.Column(db.String(120), unique=True)
     telefono = db.Column(db.String(10), unique=True)
-    rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
+    nombre_comercial = db.Column(db.String(100), nullable=False)
+    razon_social = db.Column(db.String(100), nullable=False)
+    rfc = db.Column(db.String(13), nullable=False)
+    nombre_rep_legal = db.Column(db.String(100), nullable=False)
+    ape_paterno_rep_legal = db.Column(db.String(100), nullable=False)
+    ape_materno_rep_legal = db.Column(db.String(100), nullable=False)
+    calle = db.Column(db.String(100), nullable=False)
+    colonia = db.Column(db.String(100), nullable=False)
+    codigo_postal = db.Column(db.String(100), nullable=False)
+    acta_constitutiva_key = db.Column(db.String(100), nullable=False)
+    doc_req1_key = db.Column(db.String(100), nullable=False)
+    doc_req2_key = db.Column(db.String(100), nullable=False)
+    doc_req3_key = db.Column(db.String(100), nullable=False)
+    tiene_rol = db.Column(db.Boolean, nullable=False, default=False)
+    user_rol = db.relationship('UserRole', backref='user', uselist=False, cascade="all,delete")
+    # rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
+
 
     def __repr__(self):
-        return f'<User {self.username}>'  
+        return f'<User {self.cog_user_id}>'  
 
-class Rol(db.Model):
+class UserRole(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(25))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), unique=True)
+    tipo = db.Column(db.String(25))
+    comprador = db.relationship('Comprador', backref='user_role', uselist=False, cascade="all,delete")
+    gestor = db.relationship('Gestor', backref='user_role', uselist=False, cascade="all,delete")
+    integrador = db.relationship('Integrador', backref='user_role', uselist=False, cascade="all,delete")
 
-    def __repr__(self):
-        return f'<Rol {self.nombre}>'  
+    __mapper_args__ = {
+        'polymorphic_identity':'user_role',
+        'polymorphic_on': tipo
+    }
+
+class Comprador(UserRole):
+    id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
+    atr = db.Column(db.String(10))
+
+
+    __mapper_args__ = {
+        'polymorphic_identity':'comprador',
+    }
+
+class Gestor(UserRole):
+    id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity':'gestor',
+    }    
+
+class Integrador(UserRole):
+    id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity':'integrador',
+    }    
 
 class Marca(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -101,7 +148,6 @@ class OfertaCondicionada(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     oferta_1 = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), nullable=False)
     oferta_2 = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), nullable=False)
-
 
 class OfertaGrupo(db.Model):
     id = db.Column(db.Integer, primary_key=True)

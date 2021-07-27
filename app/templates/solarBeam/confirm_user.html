@@ -7,136 +7,144 @@
 {% endblock stylesheets %}
 
 {% block content %}
-<section>
-    <div class="container mt-3 mb-3">
-        <div class="card">
-            <div class="card-header h4 text-center">Confirmar registro de usuario</div>
-            <div class="card-body">
-                <div class="form-group">
-                    <div class="orange-bottom-border">
-                        <h5>Tipo de Usuario</h5>
-                    </div>
-                    <div class="form-row mt-4">
-                        <label for="rolUser">Selecciona el tipo de usuario</label>
-                        <select name="rolUser" id="rolUser" class="form-control">
-                            <option value="comprador">Comprador</option>
-                            <option value="gestor">Gestor</option>
-                            <option value="integrador">Integrador</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="main-content" id="mainContent">
-                    <div class="form-group mt-4">
+<form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <section>
+        <div class="container mt-3 mb-3">
+            <div class="card">
+                <div class="card-header h4 text-center">Confirmar registro de usuario</div>
+                <div class="card-body">
+                    <div class="form-group">
                         <div class="orange-bottom-border">
-                            <h5>Información personal</h5>
+                            <h5>Tipo de Usuario</h5>
                         </div>
                         <div class="form-row mt-4">
-                            <div class="col-sm-6">
-                                <label for="nombreUser">Nombre</label>
-                                <input type="text" name="nombreUser" class="form-control">
+                            <label for="rolUser">Selecciona el tipo de usuario</label>
+                            <select name="rolUser" id="rolUser" class="form-control">
+                                <option value="comprador">Comprador</option>
+                                <option value="gestor">Gestor</option>
+                                <option value="integrador">Integrador</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="main-content" id="mainContent">
+                        <div class="form-group mt-4">
+                            <div class="orange-bottom-border">
+                                <h5>Información personal</h5>
                             </div>
-                            <div class="col-sm-6">
-                                <label for="apellUser">Apellidos</label>
-                                <input type="text" name="apellUser" class="form-control">
+                            <div class="form-row mt-4">
+                                <div class="col-sm-6">
+                                    <label for="nombreUser">Nombre</label>
+                                    <input type="text" name="nombreUser" class="form-control" required>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="apellUser">Apellidos</label>
+                                    <input type="text" name="apellUser" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-row mt-3">
+                                <div class="col-sm-6">
+                                    <label for="telUser">Teléfono celular a 10 digitos</label>
+                                    <input type="number" name="telUser" class="form-control" required>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-row mt-3">
-                            <div class="col-sm-6">
-                                <label for="telUser">Teléfono celular a 10 digitos</label>
-                                <input type="number" name="telUser" class="form-control">
+                        <div class="form-group mt-4">
+                            <div class="orange-bottom-border">
+                                <h5>Información comercial</h5>
+                            </div>
+                            <div class="form-row mt-4">
+                                <div class="col-sm-6">
+                                    <label for="nombreCom">Nombre Comercial</label>
+                                    <input type="text" name="nombreCom" class="form-control" required>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="razSoc">Razón social</label>
+                                    <input type="text" name="razSoc" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-row mt-3">
+                                <div class="col-sm-6">
+                                    <label for="rfc">RFC</label>
+                                    <input type="text" name="rfc" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-row mt-3">
+                                <div class="col-md-6">
+                                    <label for="nomLegal">Nombre representante legal</label>
+                                    <input type="text" name="nomLegal" class="form-control" required>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <label for="apePatLegal">Apellido paterno del rep. legal</label>
+                                    <input type="text" name="apePatLegal" class="form-control" required>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <label for="apeMatLegal">Apellido materno del rep. legal</label>
+                                    <input type="text" name="apeMatLegal" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-row mt-3">
+                                <div class="col-md-6">
+                                    <label for="calle">Calle y número</label>
+                                    <input type="text" name="calle" class="form-control" required>
+                                </div>
+                                <div class="col-md-3 col-sm-3">
+                                    <label for="colonia">Colonia</label>
+                                    <input type="text" name="colonia" class="form-control" required>
+                                </div>
+                                <div class="col-md-3 col-sm-3">
+                                    <label for="cp">Código Postal</label>
+                                    <input type="text" name="cp" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mt-4">
+                            <div class="orange-bottom-border">
+                                <h5>Documentos necesarios</h5>
+                            </div>
+                            <div class="form-row mt-4">
+                                <div class="col-sm-6">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" name="actaConstitutiva"
+                                            id="actaConstitutiva" required>
+                                        <label class="custom-file-label" for="actaConstitutiva">Acta
+                                            Constitutiva</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" name="docReq1" id="docReq1"
+                                            required>
+                                        <label class="custom-file-label" for="docReq1">Documento requisito 1</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row mt-3">
+                                <div class="col-sm-6">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" name="docReq2" id="docReq2"
+                                            required>
+                                        <label class="custom-file-label" for="docReq2">Documento requisito 2</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" name="docReq3" id="docReq3"
+                                            required>
+                                        <label class="custom-file-label" for="docReq3">Documento requisito 3</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group mt-4">
-                        <div class="orange-bottom-border">
-                            <h5>Información comercial</h5>
-                        </div>
-                        <div class="form-row mt-4">
-                            <div class="col-sm-6">
-                                <label for="nombreCom">Nombre Comercial</label>
-                                <input type="text" name="nombreCom" class="form-control">
-                            </div>
-                            <div class="col-sm-6">
-                                <label for="razSoc">Razón social</label>
-                                <input type="text" name="razSoc" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row mt-3">
-                            <div class="col-sm-6">
-                                <label for="rfc">RFC</label>
-                                <input type="text" name="rfc" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row mt-3">
-                            <div class="col-md-6">
-                                <label for="nomLegal">Nombre representante legal</label>
-                                <input type="text" name="nomLegal" class="form-control">
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <label for="apePatLegal">Apellido paterno del rep. legal</label>
-                                <input type="text" name="apePatLegal" class="form-control">
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <label for="apeMatLegal">Apellido materno del rep. legal</label>
-                                <input type="text" name="apeMatLegal" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row mt-3">
-                            <div class="col-md-6">
-                                <label for="calle">Calle y número</label>
-                                <input type="text" name="calle" class="form-control">
-                            </div>
-                            <div class="col-md-3 col-sm-3">
-                                <label for="colonia">Colonia</label>
-                                <input type="text" name="colonia" class="form-control">
-                            </div>
-                            <div class="col-md-3 col-sm-3">
-                                <label for="cp">Código Postal</label>
-                                <input type="text" name="cp" class="form-control">
-                            </div>
-                        </div>
+                    <div class="row d-flex justify-content-center mt-4">
+                        <button type="submit" class="btn btn-primary">Confirmar datos</button>
                     </div>
-                    <div class="form-group mt-4">
-                        <div class="orange-bottom-border">
-                            <h5>Documentos necesarios</h5>
-                        </div>
-                        <div class="form-row mt-4">
-                            <div class="col-sm-6">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="actaConstitutiva">
-                                    <label class="custom-file-label" for="actaConstitutiva">Acta Constitutiva</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="docReq1">
-                                    <label class="custom-file-label" for="docReq1">Documento requisito 1</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row mt-3">
-                            <div class="col-sm-6">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="docReq2">
-                                    <label class="custom-file-label" for="docReq2">Documento requisito 2</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="docReq3">
-                                    <label class="custom-file-label" for="docReq3">Documento requisito 3</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row d-flex justify-content-center mt-4">
-                    <button type="submit" class="btn btn-primary">Confirmar datos</button>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</form>
 
 {% endblock content %}
 
@@ -171,7 +179,8 @@
             label.htmlFor = idInput;
             label.innerText = labelName;
             input.type = inputType;
-            input.name = idInput
+            input.name = idInput;
+            input.required = true;
             input.classList.add('form-control');
             col.appendChild(label);
             col.appendChild(input);
@@ -193,6 +202,7 @@
             input.classList.add('custom-file-input');
             input.name = idInput;
             input.id = idInput;
+            input.required = true;
             label.htmlFor = idInput;
             label.classList.add('custom-file-label');
             label.innerText = labelName;

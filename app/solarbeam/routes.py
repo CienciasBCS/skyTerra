@@ -1,10 +1,14 @@
-from operator import methodcaller
+import re
 from flask import render_template, request
-from flask_login import login_required
+from flask.helpers import url_for
+from flask_login import current_user
+from werkzeug.utils import redirect
 
 from app.solarbeam import bp
+from app.decorators import login_required_no_rol
+from app.models import Comprador, Integrador, Gestor
 from .scripts import util_solarbeam, generacion, ahorros
-from app import util
+from app import util, db
 
 @bp.route('/solarbeam/app/', methods=['GET', 'POST'])
 def solarbeam_app():
@@ -23,9 +27,48 @@ def solarbeam_app():
 
     return render_template('solarBeam/home.html', estados=estados)
 
-@bp.route('/solarbeam/app/confirmacion_usuario/')
-# @login_required
+@bp.route('/solarbeam/app/confirmacion_usuario/', methods=['GET', 'POST'])
+@login_required_no_rol()
 def confirmar_usuario():
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        print(req_vals)
+        print(request.files)
+        for file in request.files:
+            file_object = request.files[file]
+            file_key = f"archivos/{current_user.id}/{file}.pdf"
+
+            error = util.upload_file_to_s3(file_object, 'solarbeamdev', file_key)
+
+        if req_vals['rolUser'] == 'comprador':
+            rol = Comprador(user_id=current_user.id)
+        elif req_vals['rolUser'] == 'integrador':
+            rol = Integrador(user_id=current_user.id)
+        elif req_vals['rolUser'] == 'gestor':
+            rol = Gestor(user_id=current_user.id)
+        db.session.add(rol)
+
+        current_user.nombre = req_vals['nombreUser']
+        current_user.apellidos = req_vals['apellUser']
+        current_user.telefono = req_vals['telUser']
+        current_user.nombre_comercial = req_vals['nombreCom']
+        current_user.razon_social = req_vals['razSoc']
+        current_user.rfc = req_vals['rfc']
+        current_user.nombre_rep_legal = req_vals['nomLegal']
+        current_user.ape_paterno_rep_legal = req_vals['apePatLegal']
+        current_user.ape_materno_rep_legal = req_vals['apeMatLegal']
+        current_user.calle = req_vals['calle']
+        current_user.colonia = req_vals['colonia']
+        current_user.codigo_postal = req_vals['cp']
+        current_user.acta_constitutiva_key = f"archivos/{current_user.id}/actaConstitutiva.pdf"
+        current_user.doc_req1_key = f"archivos/{current_user.id}/docReq1.pdf"
+        current_user.doc_req2_key = f"archivos/{current_user.id}/docReq2.pdf"
+        current_user.doc_req3_key = f"archivos/{current_user.id}/docReq3.pdf"
+        current_user.tiene_rol = True
+
+        db.session.commit()
+
+        return redirect(url_for('solarbeam.confirmar_usuario'))
 
     return render_template('solarBeam/confirm_user.html')
 
@@ -56,3 +99,17 @@ def agregar_oferta():
 
 
     return render_template('solarBeam/integrador_agregar_oferta.html')
+
+
+@bp.route('/solarbeam/app/proyectos_disponibles/instalacion')
+def instalacion():
+
+
+    return render_template('solarBeam/instalacion.html')
+
+
+@bp.route('/solarbeam/app/proyectos_disponibles/marcha')
+def marrcha():
+
+
+    return render_template('solarBeam/marcha.html')    

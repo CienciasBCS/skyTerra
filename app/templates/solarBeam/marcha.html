@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Proyecto #1</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 d-flex justify-content-center">
+                        kWh a instalar&nbsp<span>300</span>&nbspkWh
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-center">
+                        Capacidad a instalar&nbsp<span>300</span>&nbspkWh
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 d-flex justify-content-center">
+                        Tipo de contrato:&nbsp<span>300</span>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-center">
+                        <a href="#">Proyecto ejecutivo</a>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center mt-3">
+                    <div id="gMap" style='width: 90%; height: 60vh;'></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
+    async></script>
+<script>
+    const mapFunctions = (() => {
+        let marker;
+        let map;
+        let latitud = 24.55;
+        let longitud = -111.32;
+
+        function initMap() {
+            map = new google.maps.Map(
+                document.getElementById('gMap'), {
+                zoom: 9,
+                center: { lat: latitud, lng: longitud }
+            });
+            new google.maps.Marker({
+                position: { lat: latitud, lng: longitud },
+                map,
+            });
+        }
+        return { initMap }
+    })()
+
+
+    function initMap() {
+        mapFunctions.initMap();
+    }
+</script>
+{% endblock javascript %}
