@@ -8,71 +8,106 @@
 {% endblock stylesheets %}
 
 {% block content %}
-<section>
-    <div class="container mt-3 mb-3">
-        <div class="card shadow">
-            <div class="card-header h4 text-center">Registro de oferta de compra</div>
-            <div class="card-body">
-                <div class="form-group">
-                    <div class="orange-bottom-border">
-                        <h5>Tipo de oferta</h5>
-                    </div>
-                    <div class="form-row mt-3">
-                        <label for="tipoOferta">Selecciona el tipo de oferta</label>
-                        <select name="tipoOferta" id="tipoOferta" class="form-control">
-                            <option value="ofertaInd">Oferta individual</option>
-                            <option value="ofertaAgr">Oferta agrupada</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group mt-4">
-                    <div class="orange-bottom-border">
-                        <h5>Información técnica</h5>
-                    </div>
-                    <div class="form-row mt-3">
-                        <label for="proyectoNombre">Nombre del proyecto</label>
-                        <input type="text" name="proyectoNombre" id="proyectoNombre" class="form-control">
-                    </div>
-                    <div class="form-row mt-3">
-                        <div class="col-sm-6">
-                            <label for="capMin">Capacidad mínima en kWp</label>
-                            <input type="number" name="capMin" id="capMin" class="form-control">
-                        </div>
-                        <div class="col-sm-6">
-                            <label for="capMax">Capacidad máxima en kWac</label>
-                            <input type="number" name="capMax" id="capMax" class="form-control">
+<form method="POST" id="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <section>
+        <div class="container mt-3 mb-3">
+            <div class="card shadow">
+                <div class="card-header h4 text-center">Registro de oferta de compra</div>
+                <div class="card-body">
+                    {% if success %}
+                    <div class="row d-flex justify-content-center">
+                        <div class="alert alert-success" role="alert">
+                            Exito!
                         </div>
                     </div>
-                </div>
-                <div class="form-group mt-4">
-                    <div class="orange-bottom-border">
-                        <h5>Ubicación</h5>
-                    </div>
-                    <div class="form-row mt-3">
-                        <div class="col-md-6">
-                            <label for="calle">Calle y número</label>
-                            <input type="text" name="calle" class="form-control">
+                    {% endif %}
+                    <div class="form-group">
+                        <div class="orange-bottom-border">
+                            <h5>Tipo de oferta</h5>
                         </div>
-                        <div class="col-md-3 col-sm-3">
-                            <label for="colonia">Colonia</label>
-                            <input type="text" name="colonia" class="form-control">
-                        </div>
-                        <div class="col-md-3 col-sm-3">
-                            <label for="cp">Código Postal</label>
-                            <input type="text" name="cp" class="form-control">
+
+                        <div class="form-row mt-3">
+                            <label for="tipoOferta">Selecciona el tipo de oferta</label>
+                            <select name="tipoOferta" id="tipoOferta" class="form-control">
+                                <option value="ofertaInd">Oferta individual</option>
+                                <option value="ofertaAgr">Oferta agrupada</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="form-row d-flex justify-content-center mt-3">
-                        <div id="gMap" style='width: 90%; height: 60vh;'></div>
+                    <div class="form-group mt-4">
+                        <div class="orange-bottom-border">
+                            <h5>Información técnica</h5>
+                        </div>
+                        <div class="form-row mt-3">
+                            <label for="proyectoNombre">Nombre del proyecto</label>
+                            <input type="text" name="proyectoNombre" id="proyectoNombre" class="form-control">
+                            <div class="invalid-feedback">
+                                Por favor escoja un nombre del proyecto.
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-sm-6">
+                                <label for="capMin">Capacidad mínima en kWp</label>
+                                <input type="number" name="capMin" id="capMin" class="form-control">
+                                <div class="invalid-feedback">
+                                    Por favor rellene el campo con un número menor a 4 dígitos contando decimales.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="capMax">Capacidad máxima en kWac</label>
+                                <input type="number" name="capMax" id="capMax" class="form-control">
+                                <div class="invalid-feedback">
+                                    Por favor rellene el campo con un número menor a 4 dígitos contando decimales.
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="row d-flex justify-content-center mt-4">
-                    <button type="submit" class="btn btn-primary">Confirmar registro</button>
+                    <div class="form-group mt-4">
+                        <div class="orange-bottom-border">
+                            <h5>Ubicación</h5>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-md-6">
+                                <label for="calle">Calle y número</label>
+                                <input type="text" id="calle" name="calle" class="form-control">
+                                <div class="invalid-feedback">
+                                    Por favor rellene el campo con su dirección.
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-3">
+                                <label for="colonia">Colonia</label>
+                                <input type="text" id="colonia" name="colonia" class="form-control">
+                                <div class="invalid-feedback">
+                                    Por favor rellene el campo con su colonia.
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-3">
+                                <label for="cp">Código Postal</label>
+                                <input type="number" id="cp" name="cp" class="form-control">
+                                <div class="invalid-feedback">
+                                    Por favor rellene el campo con su código postal de 5 dígitos.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row d-flex justify-content-center mt-3">
+                            <div class="alert alert-danger {{'d-none' if not errorCoords}}" role="alert"
+                                id="errorCoords">
+                                Favor de seleccionar un punto en el mapa.
+                            </div>
+                            <div id="gMap" style='width: 90%; height: 60vh;'></div>
+                        </div>
+                    </div>
+                    <input class="d-none" id="coordLat" name="coordLat">
+                    <input class="d-none" id="coordLon" name="coordLon">
+                    <div class="row d-flex justify-content-center mt-4">
+                        <input type="submit" class="btn btn-primary" value="Confirmar registro">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</form>
 
 {% endblock content %}
 
@@ -81,11 +116,13 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
     async></script>
 <script>
+    let latitud = document.querySelector('#coordLat');
+    let longitud = document.querySelector('#coordLon');
+
     const mapFunctions = (() => {
         let marker;
         let map;
-        let latitud = document.querySelector('#coordLat');
-        let longitud = document.querySelector('#coordLon');
+
 
         const placeMarker = (location) => {
             if (marker) {
@@ -123,6 +160,122 @@
             });
         }
         return { initMap, getCoords }
+    })()
+
+    const validations = (() => {
+
+        const isRequired = value => value === '' ? false : true;
+
+        const isBetween = (length, min, max) => length < min || length > max ? false : true;
+
+        const showErrorMap = (errorId) => {
+            let errorDiv = document.getElementById(errorId);
+            errorDiv.classList.remove('d-none');
+
+            return false
+        }
+
+        const hideErrors = () => {
+            let errors = document.querySelectorAll('.alert-danger')
+            errors.forEach(error => {
+                error.classList.add('d-none');
+            });
+        }
+
+        const showError = (errorDiv) => {
+            errorDiv.classList.remove('is-valid');
+            errorDiv.classList.add('is-invalid');
+
+            return false
+        }
+
+        const validateError = () => {
+            let errors = document.querySelectorAll('.form-control')
+            errors.forEach(error => {
+                error.classList.remove('is-invalid');
+                error.classList.add('is-valid');
+            });
+
+        }
+
+        return {
+            isRequired, isBetween,
+            showErrorMap, hideErrors, showError, validateError
+        }
+    })()
+
+    const appLogic = (() => {
+        const form = document.querySelector('#form');
+        const nombreProy = document.querySelector('#proyectoNombre');
+        const capMin = document.querySelector('#capMin');
+        const capMax = document.querySelector('#capMax');
+        const direccion = document.querySelector('#calle');
+        const colonia = document.querySelector('#colonia');
+        const codigoPostal = document.querySelector('#cp');
+
+
+        const validateCoords = () => {
+            return (
+                validations.isRequired(latitud.value) &&
+                validations.isRequired(longitud.value)
+            )
+        }
+
+        const validateNombreProj = () => validations.isRequired(nombreProy.value);
+
+        const validateCapMin = () => {
+            return (
+                validations.isRequired(capMin.value) &&
+                validations.isBetween(capMin.value.length, 1, 4)
+            )
+        }
+
+        const validateCapMax = () => {
+            return (
+                validations.isRequired(capMax.value) &&
+                validations.isBetween(capMax.value.length, 1, 4)
+            )
+        }
+
+        const validateDireccion = () => validations.isRequired(direccion.value)
+
+        const validateColonia = () => validations.isRequired(colonia.value)
+
+        const validateCP = () => {
+            return (
+                validations.isRequired(codigoPostal.value) &&
+                validations.isBetween(codigoPostal.value.length, 5, 5)
+            )
+        }
+
+        const validateForm = () => {
+            validations.hideErrors();
+            validations.validateError();
+            let errors = []
+
+            errors.push(!validateCoords() ? validations.showErrorMap('errorCoords') : true);
+            errors.push(!validateNombreProj() ? validations.showError(nombreProy) : true);
+            errors.push(!validateCapMin() ? validations.showError(capMin) : true);
+            errors.push(!validateCapMax() ? validations.showError(capMax) : true);
+            errors.push(!validateDireccion() ? validations.showError(direccion) : true);
+            errors.push(!validateColonia() ? validations.showError(colonia) : true);
+            errors.push(!validateCP() ? validations.showError(codigoPostal) : true);
+
+            if (!errors.includes(false)) form.submit();
+
+        }
+
+        const addListeners = () => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                console.log('submit');
+                validateForm();
+            })
+        }
+
+        const _init = (() => {
+            addListeners();
+        })()
     })()
 
     function initMap() {

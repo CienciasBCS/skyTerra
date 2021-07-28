@@ -6,7 +6,7 @@ from werkzeug.utils import redirect
 
 from app.solarbeam import bp
 from app.decorators import login_required_no_rol
-from app.models import Comprador, Integrador, Gestor
+from app.models import Comprador, Integrador, Gestor, Licitacion
 from .scripts import util_solarbeam, generacion, ahorros
 from app import util, db
 
@@ -74,8 +74,15 @@ def confirmar_usuario():
 
 
 # COMPRADOR
-@bp.route('/solarbeam/app/registro_oferta_compra/')
+@bp.route('/solarbeam/app/registro_oferta_compra/', methods=['GET', 'POST'])
 def registro_oferta_compra():
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        print(req_vals)
+        if req_vals['coordLat'] and req_vals['coordLon']:
+            return render_template('solarBeam/reg_oferta_compra.html', success=True)
+        else:
+            return render_template('solarBeam/reg_oferta_compra.html', errorCoords=True)
 
     return render_template('solarBeam/reg_oferta_compra.html')
 

@@ -15,3 +15,7 @@
 .custom-file-input:lang(en)~.custom-file-label::after {
     content: "Buscar";
 }
+
+.color-secondary {
+    color: rgb(6, 6, 161);
+}

@@ -48,6 +48,7 @@ class UserRole(db.Model):
 class Comprador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
     atr = db.Column(db.String(10))
+    ofertas = db.relationship('OfertaLicitacion', backref='comprador')
 
 
     __mapper_args__ = {
@@ -56,7 +57,7 @@ class Comprador(UserRole):
 
 class Gestor(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
-
+    ofertas = db.relationship('OfertaLicitacion', backref='gestor')
     __mapper_args__ = {
         'polymorphic_identity':'gestor',
     }    
@@ -126,12 +127,36 @@ class Inversor(Producto):
         'polymorphic_identity':'inversor',
     }
 
-class licitacion(db.Model):
+class Licitacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    kwh = db.Column(db.Integer, nullable=False)
+    nombre = db.Column(db.String(75), nullable=False)
+    descripcion = db.Column(db.String(200), nullable=False)
+    agrupada = db.Column(db.Boolean, nullable=False, default=False)
+    kwp_inst = db.Column(db.Numeric(4, 2), nullable=False)
+    kw = db.Column(db.Numeric(4, 2), nullable=False)
+    cant = db.Column(db.Numeric(4, 2), nullable=False)
+    activa = db.Column(db.Boolean, nullable=False, default=True)
+    ofertas = db.relationship('OfertaLicitacion', backref='licitacion')
 
     def __repr__(self):
-        return f'<Licitación de: {self.user.nombre} - kwh: {self.kwh}>'  
+        return f'<Licitación: {self.nombre} - kwh: {self.kw}>'  
+
+class OfertaLicitacion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id'), nullable=False)
+    comprador_id = db.Column(db.Integer, db.ForeignKey('comprador.id'), nullable=False)
+    gestor_id = db.Column(db.Integer, db.ForeignKey('gestor.id'))
+    nombre = db.Column(db.String(100), nullable=False)
+    tipo = db.Column(db.Integer, nullable=False)
+    max_kw = db.Column(db.Numeric(4, 2),  nullable=False)
+    min_wp = db.Column(db.Numeric(4, 2),  nullable=False)
+    precio_max = db.Column(db.Numeric(12, 2),  nullable=False)        
+    direccion = db.Column(db.String(100), nullable=False)
+    colonia = db.Column(db.String(100), nullable=False)
+    codigo_postal = db.Column(db.Integer, nullable=False)
+    latitud = db.Column(db.Numeric(7, 4),  nullable=False)
+    longitud = db.Column(db.Numeric(7, 4),  nullable=False)
+    status = db.Column(db.Integer,  nullable=False)
 
 class OfertaProveedor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -156,16 +181,6 @@ class OfertaGrupo(db.Model):
 class OfertaExcluyente(db.Model):
     grupo_id = db.Column(db.Integer, db.ForeignKey('oferta_grupo.id'), primary_key=True)
     oferta = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), primary_key=True)
-
-class OfertaLicitacion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id'))
-    comprador_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    min_kw = db.Column(db.Numeric(4, 2),  nullable=False)
-    max_kw = db.Column(db.Numeric(4, 2),  nullable=False)
-    min_wp = db.Column(db.Numeric(4, 2),  nullable=False)
-    max_wp = db.Column(db.Numeric(4, 2),  nullable=False)
-    precio_max = db.Column(db.Numeric(12, 2),  nullable=False)
     
 
 @login.user_loader
