@@ -75,6 +75,7 @@ def confirmar_usuario():
 
 # COMPRADOR
 @bp.route('/solarbeam/app/mis_ofertas/')
+@login_required_roles(['comprador', 'admin'])
 def comprador_ofertas():
 
 
