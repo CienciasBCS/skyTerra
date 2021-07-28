@@ -8,7 +8,7 @@ def login_required_roles(perm_roles="ANY"):
         def decorated_view(*args, **kwargs):
             if not current_user.is_authenticated:
                 return current_app.login_manager.unauthorized() 
-            if (current_user.role not in perm_roles) and ("ANY" not in perm_roles):
+            if (current_user.user_rol.tipo not in perm_roles) and ("ANY" not in perm_roles):
                 return current_app.login_manager.unauthorized() 
             return fn(*args, **kwargs)
         return decorated_view

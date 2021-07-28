@@ -31,7 +31,7 @@
                             <label for="tipoOferta">Selecciona el tipo de oferta</label>
                             <select name="tipoOferta" id="tipoOferta" class="form-control">
                                 <option value="ofertaInd">Oferta individual</option>
-                                <option value="ofertaAgr">Oferta agrupada</option>
+                                <option value="ofertaAgr" disabled>Oferta agrupada</option>
                             </select>
                         </div>
                     </div>
@@ -47,18 +47,25 @@
                             </div>
                         </div>
                         <div class="form-row mt-3">
-                            <div class="col-sm-6">
+                            <div class="col-sm-4">
                                 <label for="capMin">Capacidad mínima en kWp</label>
-                                <input type="number" name="capMin" id="capMin" class="form-control">
+                                <input type="number" name="capMin" id="capMin" class="form-control" step=".01">
                                 <div class="invalid-feedback">
-                                    Por favor rellene el campo con un número menor a 4 dígitos contando decimales.
+                                    Por favor rellene el campo con un número menor a 100 kWp.
                                 </div>
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-sm-4">
                                 <label for="capMax">Capacidad máxima en kWac</label>
-                                <input type="number" name="capMax" id="capMax" class="form-control">
+                                <input type="number" name="capMax" id="capMax" class="form-control" step=".01">
                                 <div class="invalid-feedback">
-                                    Por favor rellene el campo con un número menor a 4 dígitos contando decimales.
+                                    Por favor rellene el campo con un número menor a 100 kWac.
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="capMax">Precio máximo</label>
+                                <input type="number" name="preMax" id="preMax" class="form-control">
+                                <div class="invalid-feedback">
+                                    Por favor coloque precio máximo.
                                 </div>
                             </div>
                         </div>
@@ -209,6 +216,7 @@
         const nombreProy = document.querySelector('#proyectoNombre');
         const capMin = document.querySelector('#capMin');
         const capMax = document.querySelector('#capMax');
+        const preMax = document.querySelector('#preMax');
         const direccion = document.querySelector('#calle');
         const colonia = document.querySelector('#colonia');
         const codigoPostal = document.querySelector('#cp');
@@ -226,16 +234,18 @@
         const validateCapMin = () => {
             return (
                 validations.isRequired(capMin.value) &&
-                validations.isBetween(capMin.value.length, 1, 4)
+                validations.isBetween(capMin.value, 0.01, 100)
             )
         }
 
         const validateCapMax = () => {
             return (
                 validations.isRequired(capMax.value) &&
-                validations.isBetween(capMax.value.length, 1, 4)
+                validations.isBetween(capMax.value, 0.01, 100)
             )
         }
+
+        const validatePreMax = () => validations.isRequired(preMax.value)
 
         const validateDireccion = () => validations.isRequired(direccion.value)
 
@@ -257,6 +267,7 @@
             errors.push(!validateNombreProj() ? validations.showError(nombreProy) : true);
             errors.push(!validateCapMin() ? validations.showError(capMin) : true);
             errors.push(!validateCapMax() ? validations.showError(capMax) : true);
+            errors.push(!validatePreMax() ? validations.showError(preMax) : true);
             errors.push(!validateDireccion() ? validations.showError(direccion) : true);
             errors.push(!validateColonia() ? validations.showError(colonia) : true);
             errors.push(!validateCP() ? validations.showError(codigoPostal) : true);
@@ -268,7 +279,6 @@
         const addListeners = () => {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                console.log('submit');
                 validateForm();
             })
         }

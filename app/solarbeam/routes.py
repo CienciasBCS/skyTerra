@@ -5,8 +5,8 @@ from flask_login import current_user
 from werkzeug.utils import redirect
 
 from app.solarbeam import bp
-from app.decorators import login_required_no_rol
-from app.models import Comprador, Integrador, Gestor, Licitacion
+from app.decorators import login_required_no_rol, login_required_roles
+from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion
 from .scripts import util_solarbeam, generacion, ahorros
 from app import util, db
 
@@ -74,11 +74,36 @@ def confirmar_usuario():
 
 
 # COMPRADOR
+@bp.route('/solarbeam/app/mis_ofertas/')
+def comprador_ofertas():
+
+
+    return render_template('solarBeam/comprador_ofertas.html')
+
+
 @bp.route('/solarbeam/app/registro_oferta_compra/', methods=['GET', 'POST'])
+@login_required_roles(['comprador', 'admin'])
 def registro_oferta_compra():
     if request.method == 'POST':
         req_vals = request.form.to_dict()
         print(req_vals)
+        if req_vals['tipoOferta'] == 'ofertaInd':
+            nueva_licitacion = Licitacion(agrupada=False, activa=True)
+            db.session.add(nueva_licitacion)
+            db.session.flush()
+
+            nueva_ofer_lic = OfertaLicitacion(
+                licitacion_id=nueva_licitacion.id, comprador_id=current_user.user_rol.comprador.id,
+                max_kw=req_vals['capMax'], min_wp=req_vals['capMin'], precio_max=req_vals['preMax'],
+                nombre=req_vals['proyectoNombre'], direccion=req_vals['calle'], colonia=req_vals['colonia'],
+                codigo_postal=req_vals['cp'], latitud=req_vals['coordLat'], longitud=req_vals['coordLon'],
+                status=0
+            )
+            db.session.add(nueva_ofer_lic)
+            db.session.commit()
+
+            return redirect(url_for('solarbeam.comprador_ofertas'))
+
         if req_vals['coordLat'] and req_vals['coordLon']:
             return render_template('solarBeam/reg_oferta_compra.html', success=True)
         else:
@@ -86,11 +111,7 @@ def registro_oferta_compra():
 
     return render_template('solarBeam/reg_oferta_compra.html')
 
-@bp.route('/solarbeam/app/mis_ofertas/')
-def comprador_ofertas():
 
-
-    return render_template('solarBeam/comprador_ofertas.html')
 
 
 # INTEGRADOR

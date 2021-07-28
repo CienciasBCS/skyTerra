@@ -129,25 +129,22 @@ class Inversor(Producto):
 
 class Licitacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(75), nullable=False)
-    descripcion = db.Column(db.String(200), nullable=False)
     agrupada = db.Column(db.Boolean, nullable=False, default=False)
-    kwp_inst = db.Column(db.Numeric(4, 2), nullable=False)
-    kw = db.Column(db.Numeric(4, 2), nullable=False)
-    cant = db.Column(db.Numeric(4, 2), nullable=False)
+    kwp_inst = db.Column(db.Numeric(4, 2))
+    kw = db.Column(db.Numeric(4, 2))
+    cant = db.Column(db.Numeric(4, 2))
     activa = db.Column(db.Boolean, nullable=False, default=True)
-    ofertas = db.relationship('OfertaLicitacion', backref='licitacion')
+    ofertas = db.relationship('OfertaLicitacion', backref='licitacion', cascade="all,delete")
 
     def __repr__(self):
         return f'<Licitación: {self.nombre} - kwh: {self.kw}>'  
 
 class OfertaLicitacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id'), nullable=False)
+    licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id', ondelete="CASCADE"), nullable=False)
     comprador_id = db.Column(db.Integer, db.ForeignKey('comprador.id'), nullable=False)
     gestor_id = db.Column(db.Integer, db.ForeignKey('gestor.id'))
     nombre = db.Column(db.String(100), nullable=False)
-    tipo = db.Column(db.Integer, nullable=False)
     max_kw = db.Column(db.Numeric(4, 2),  nullable=False)
     min_wp = db.Column(db.Numeric(4, 2),  nullable=False)
     precio_max = db.Column(db.Numeric(12, 2),  nullable=False)        
@@ -156,7 +153,7 @@ class OfertaLicitacion(db.Model):
     codigo_postal = db.Column(db.Integer, nullable=False)
     latitud = db.Column(db.Numeric(7, 4),  nullable=False)
     longitud = db.Column(db.Numeric(7, 4),  nullable=False)
-    status = db.Column(db.Integer,  nullable=False)
+    status = db.Column(db.Integer,  nullable=False, default=0)
 
 class OfertaProveedor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
