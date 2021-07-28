@@ -9,44 +9,211 @@
 
 {% block content %}
 <section>
+    {% set ofertas_predim = current_user.user_rol.ofertas|selectattr('status', 'equalto', 0)|list %}
+    {% set ofertas_dimen = current_user.user_rol.ofertas|selectattr('status', 'equalto', 1)|list %}
+    {% set ofertas_adqui = current_user.user_rol.ofertas|selectattr('status', 'equalto', 2)|list %}
+    {% set ofertas_insta = current_user.user_rol.ofertas|selectattr('status', 'equalto', 3)|list %}
+    {% set ofertas_puestaMarcha = current_user.user_rol.ofertas|selectattr('status', 'equalto', 4)|list %}
+    {% set ofertas_activas = current_user.user_rol.ofertas|rejectattr('status', 'equalto', 4)|list %}
     <div class="container mt-3 mb-3">
         <div class="card rounded shadow">
             <div class="card-header h4 text-center">Mis ofertas</div>
             <div class="card-body">
-                <table class="table table-card text-center">
-                    <thead>
-                        <th>Oferta</th>
-                        <th>Cantidad a adquirir (kWh)</th>
-                        <th>Estatus</th>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>100</td>
-                            <td><span class="badge badge-pill badge-primary">Pre-dimensionamiento</span></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>200</td>
-                            <td><span class="badge badge-pill badge-secondary">Dimensionamiento</span></td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>300</td>
-                            <td><span class="badge badge-pill badge-warning">Adquisición</span></td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>400</td>
-                            <td><span class="badge badge-pill badge-info">Instalación</span></td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>500</td>
-                            <td><span class="badge badge-pill badge-success">Puesta en marcha</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="mb-3 flex-column">
+                    <h6>Hola {{current_user.nombre}}!</h6>
+                    <p>Actualmente tienes: <span>{{ len(ofertas_activas) }}</span> oferta(s) de compra activa(s).</p>
+                    <a href="{{url_for('solarbeam.registro_oferta_compra')}}"><button class="btn btn-primary">Registar
+                            nueva oferta</button></a>
+                </div>
+                <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="predim-tab" data-toggle="tab" href="#predim" role="tab"
+                            aria-controls="predim" aria-selected="true">Pre-dimensionamiento
+                            {% if ofertas_predim %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_predim)}}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="dimen-tab" data-toggle="tab" href="#dimen" role="tab"
+                            aria-controls="dimen" aria-selected="false">Dimensionamiento
+                            {% if ofertas_dimen %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_dimen)}}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="adqui-tab" data-toggle="tab" href="#adqui" role="tab"
+                            aria-controls="adqui" aria-selected="false">Adquisición
+                            {% if ofertas_adqui %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_adqui)}}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="insta-tab" data-toggle="tab" href="#insta" role="tab"
+                            aria-controls="insta" aria-selected="false">Instalación
+                            {% if ofertas_insta %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_insta)}}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="puestaMarcha-tab" data-toggle="tab" href="#puestaMarcha" role="tab"
+                            aria-controls="puestaMarcha" aria-selected="false">Puesta en marcha
+                            {% if ofertas_puestaMarcha %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_puestaMarcha)}}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active p-3" id="predim" role="tabpanel" aria-labelledby="predim-tab">
+                        {% if ofertas_predim %}
+                        <table class="table table-card text-center">
+                            <thead>
+                                <th>Nombre</th>
+                                <th>Email de gestor</th>
+                                <th>Capacidad mínima en kWp</th>
+                                <th>Capacidad máxima en kWac</th>
+                            </thead>
+                            <tbody>
+                                {% for oferta in ofertas_predim %}
+                                <tr>
+                                    <td>{{oferta.nombre}}</td>
+                                    {% if oferta.gestor %}
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    {% else %}
+                                    <td>Ningún gestor ha aceptado la oferta</td>
+                                    {% endif %}
+                                    <td>{{oferta.min_wp}}</td>
+                                    <td>{{oferta.max_kw}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>Actualmente no tienes ofertas en la etapa de pre-dimensionamiento.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade p-3" id="dimen" role="tabpanel" aria-labelledby="dimen-tab">
+                        {% if ofertas_dimen %}
+                        <table class="table table-card text-center">
+                            <thead>
+                                <th>Nombre</th>
+                                <th>Email de gestor</th>
+                                <th>Capacidad mínima en kWp</th>
+                                <th>Capacidad máxima en kWac</th>
+                            </thead>
+                            <tbody>
+                                {% for oferta in ofertas_dimen %}
+                                <tr>
+                                    <td>{{oferta.nombre}}</td>
+                                    {% if oferta.gestor %}
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    {% else %}
+                                    <td>Ningún gestor ha aceptado la oferta</td>
+                                    {% endif %}
+                                    <td>{{oferta.min_wp}}</td>
+                                    <td>{{oferta.max_kw}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>Actualmente no tienes ofertas en la etapa de dimensionamiento.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade p-3" id="adqui" role="tabpanel" aria-labelledby="adqui-tab">
+                        {% if ofertas_adqui %}
+                        <table class="table table-card text-center">
+                            <thead>
+                                <th>Nombre</th>
+                                <th>Email de gestor</th>
+                                <th>Capacidad mínima en kWp</th>
+                                <th>Capacidad máxima en kWac</th>
+                            </thead>
+                            <tbody>
+                                {% for oferta in ofertas_adqui %}
+                                <tr>
+                                    <td>{{oferta.nombre}}</td>
+                                    {% if oferta.gestor %}
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    {% else %}
+                                    <td>Ningún gestor ha aceptado la oferta</td>
+                                    {% endif %}
+                                    <td>{{oferta.min_wp}}</td>
+                                    <td>{{oferta.max_kw}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>Actualmente no tienes ofertas en la etapa de adquisición.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade p-3" id="insta" role="tabpanel" aria-labelledby="insta-tab">
+                        {% if ofertas_insta %}
+                        <table class="table table-card text-center">
+                            <thead>
+                                <th>Nombre</th>
+                                <th>Email de gestor</th>
+                                <th>Capacidad mínima en kWp</th>
+                                <th>Capacidad máxima en kWac</th>
+                            </thead>
+                            <tbody>
+                                {% for oferta in ofertas_insta %}
+                                <tr>
+                                    <td>{{oferta.nombre}}</td>
+                                    {% if oferta.gestor %}
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    {% else %}
+                                    <td>Ningún gestor ha aceptado la oferta</td>
+                                    {% endif %}
+                                    <td>{{oferta.min_wp}}</td>
+                                    <td>{{oferta.max_kw}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>Actualmente no tienes ofertas en la etapa de instalación.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade p-3" id="puestaMarcha" role="tabpanel" aria-labelledby="puestaMarcha-tab">
+                        {% if ofertas_puestaMarcha %}
+                        <table class="table table-card text-center">
+                            <thead>
+                                <th>Nombre</th>
+                                <th>Email de gestor</th>
+                                <th>Capacidad mínima en kWp</th>
+                                <th>Capacidad máxima en kWac</th>
+                            </thead>
+                            <tbody>
+                                {% for oferta in ofertas_puestaMarcha %}
+                                <tr>
+                                    <td>{{oferta.nombre}}</td>
+                                    {% if oferta.gestor %}
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    {% else %}
+                                    <td>Ningún gestor ha aceptado la oferta</td>
+                                    {% endif %}
+                                    <td>{{oferta.min_wp}}</td>
+                                    <td>{{oferta.max_kw}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>Actualmente no tienes ofertas en la etapa de puesta en marcha</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

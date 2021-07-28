@@ -78,7 +78,7 @@ def confirmar_usuario():
 def comprador_ofertas():
 
 
-    return render_template('solarBeam/comprador_ofertas.html')
+    return render_template('solarBeam/comprador_ofertas.html', len=len)
 
 
 @bp.route('/solarbeam/app/registro_oferta_compra/', methods=['GET', 'POST'])
