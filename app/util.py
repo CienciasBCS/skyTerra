@@ -1,4 +1,6 @@
 import json
+import string
+import random
 
 from flask import current_app
 from sqlalchemy import create_engine
@@ -31,3 +33,8 @@ def upload_file_to_s3(file, file_key):
         print("Something Happened: ", e)
         return e
     return False
+
+
+def get_random_code(size=6, chars=string.ascii_uppercase + string.digits):
+
+    return ''.join(random.choice(chars) for _ in range(size))

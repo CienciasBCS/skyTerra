@@ -94,7 +94,11 @@
                                 </div>
                                 <div class="col-md-3 col-sm-3">
                                     <label for="cp">Código Postal</label>
-                                    <input type="text" name="cp" class="form-control" required>
+                                    <input type="text" name="cp" class="form-control {{'is-invalid' if cp_error}}"
+                                        required>
+                                    <div class="invalid-feedback">
+                                        Por favor escoja un código postal valido.
+                                    </div>
                                 </div>
                             </div>
                         </div>

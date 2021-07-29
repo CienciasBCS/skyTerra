@@ -22,8 +22,17 @@
                 <div class="mb-3 flex-column">
                     <h6>Hola {{current_user.nombre}}!</h6>
                     <p>Actualmente tienes: <span>{{ len(ofertas_activas) }}</span> oferta(s) de compra activa(s).</p>
-                    <a href="{{url_for('solarbeam.registro_oferta_compra')}}"><button class="btn btn-primary">Registrar
-                            nueva oferta</button></a>
+                    <p>Tu código para compartir es:
+                    </p>
+                    <div class="input-group m-0 p-0 col-sm-3">
+                        <input type="text" id="codigoInput" class="form-control"
+                            value="{{current_user.user_rol.codigo}}" aria-label="Código" aria-describedby="basic-addon2"
+                            disabled>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" id="copyBtn" type="button" data-toggle="tooltip"
+                                data-placement="bottom" title="Código copiado!">Copiar</button>
+                        </div>
+                    </div>
                 </div>
                 <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
                     <li class="nav-item">
@@ -87,9 +96,9 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td>{{oferta.comprador.user_role.user.email}}</td>
                                     {% else %}
-                                    <td>Ningún gestor se ha encontrado en el área</td>
+                                    <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
                                     <td>{{oferta.min_wp}}</td>
                                     <td>{{oferta.max_kw}}</td>
@@ -115,9 +124,9 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td>{{oferta.comprador.user_role.user.email}}</td>
                                     {% else %}
-                                    <td>Ningún gestor se ha encontrado en el área</td>
+                                    <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
                                     <td>{{oferta.min_wp}}</td>
                                     <td>{{oferta.max_kw}}</td>
@@ -143,7 +152,7 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td>{{oferta.comprador.user_role.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
@@ -171,7 +180,7 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td>{{oferta.comprador.user_role.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
@@ -199,7 +208,7 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td>{{oferta.comprador.user_role.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
@@ -222,4 +231,29 @@
 {% endblock content %}
 
 {% block javascript %}
+<script>
+    const addListeners = (() => {
+        let copyBtn = document.getElementById('copyBtn');
+        let codigoInput = document.getElementById('codigoInput');
+        $(copyBtn).tooltip({ trigger: 'manual' }).tooltip('disable');
+
+
+        copyBtn.addEventListener('click', () => {
+            let dummy = document.createElement('input');
+            dummy.value = codigoInput.value;
+            document.body.appendChild(dummy)
+            dummy.select();
+            document.execCommand("copy");
+            $(copyBtn).tooltip('enable');
+            $(copyBtn).tooltip('show');
+            document.body.removeChild(dummy);
+            setTimeout(function () {
+                $(copyBtn).tooltip('disable');
+                $(copyBtn).tooltip('hide');
+            }, 1000);
+
+        })
+    })()
+</script>
+
 {% endblock javascript %}

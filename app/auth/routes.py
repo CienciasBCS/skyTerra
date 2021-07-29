@@ -55,7 +55,12 @@ def callback():
         session['expires'] = id_token["exp"]
         session['refresh_token'] = response.json()["refresh_token"]
         flask_login.login_user(user, remember=True)
-        return redirect(url_for("solarbeam.solarbeam_app"))
+        if user.user_rol.tipo == 'gestor':
+            return redirect(url_for("solarbeam.gestor_ofertas"))
+        elif user.user_rol.tipo == 'comprador':
+            return redirect(url_for("solarbeam.comprador_ofertas"))
+        else:
+            return redirect(url_for("solarbeam.solarbeam_app"))
 
     return render_template_string("""
             <p>Something went wrong... {}</p>

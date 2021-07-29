@@ -1,8 +1,18 @@
+from datetime import datetime
 from enum import unique
 from flask_login import UserMixin
-from sqlalchemy.orm import defaultload
 
-from app import db, login
+from app import db, login, util
+
+class CodigoPostal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    codigo_postal = db.Column(db.Integer, unique=True, nullable=False)
+    estado = db.Column(db.String(100), nullable=False)
+    municipio = db.Column(db.String(100), nullable=False)
+    ciudad = db.Column(db.String(100))
+    usuarios = db.relationship('User', backref='cp')
+    ofertas = db.relationship('OfertaLicitacion', backref='cp')
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,7 +29,7 @@ class User(UserMixin, db.Model):
     ape_materno_rep_legal = db.Column(db.String(100), nullable=False)
     calle = db.Column(db.String(100), nullable=False)
     colonia = db.Column(db.String(100), nullable=False)
-    codigo_postal = db.Column(db.String(100), nullable=False)
+    cp_id = db.Column(db.Integer, db.ForeignKey('codigo_postal.id', ondelete="CASCADE"))
     acta_constitutiva_key = db.Column(db.String(100), nullable=False)
     doc_req1_key = db.Column(db.String(100), nullable=False)
     doc_req2_key = db.Column(db.String(100), nullable=False)
@@ -58,6 +68,8 @@ class Comprador(UserRole):
 class Gestor(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
     ofertas = db.relationship('OfertaLicitacion', backref='gestor')
+    codigo = db.Column(db.String(6), index=True, default=util.get_random_code, unique=True)
+
     __mapper_args__ = {
         'polymorphic_identity':'gestor',
     }    
@@ -142,7 +154,7 @@ class Licitacion(db.Model):
 class OfertaLicitacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id', ondelete="CASCADE"), nullable=False)
-    comprador_id = db.Column(db.Integer, db.ForeignKey('comprador.id'), nullable=False)
+    comprador_id = db.Column(db.Integer, db.ForeignKey('comprador.id', ondelete="CASCADE" ), nullable=False)
     gestor_id = db.Column(db.Integer, db.ForeignKey('gestor.id'))
     nombre = db.Column(db.String(100), nullable=False)
     max_kw = db.Column(db.Numeric(4, 2),  nullable=False)
@@ -150,10 +162,11 @@ class OfertaLicitacion(db.Model):
     precio_max = db.Column(db.Numeric(12, 2),  nullable=False)        
     direccion = db.Column(db.String(100), nullable=False)
     colonia = db.Column(db.String(100), nullable=False)
-    codigo_postal = db.Column(db.Integer, nullable=False)
+    cp_id = db.Column(db.Integer, db.ForeignKey('codigo_postal.id', ondelete="CASCADE"))
     latitud = db.Column(db.Numeric(7, 4),  nullable=False)
     longitud = db.Column(db.Numeric(7, 4),  nullable=False)
     status = db.Column(db.Integer,  nullable=False, default=0)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
 class OfertaProveedor(db.Model):
     id = db.Column(db.Integer, primary_key=True)

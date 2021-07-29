@@ -32,8 +32,10 @@ def solarbeam_app():
 def confirmar_usuario():
     if request.method == 'POST':
         req_vals = request.form.to_dict()
-        print(req_vals)
-        print(request.files)
+        
+        if not util_solarbeam.is_cp_valid(req_vals['cp']):
+            return render_template('solarBeam/confirm_user.html', cp_error=True)
+
         for file in request.files:
             file_object = request.files[file]
             file_key = f"archivos/{current_user.id}/{file}.pdf"
@@ -42,11 +44,15 @@ def confirmar_usuario():
 
         if req_vals['rolUser'] == 'comprador':
             rol = Comprador(user_id=current_user.id)
+            flask_url = 'solarbeam.comprador_ofertas'
         elif req_vals['rolUser'] == 'integrador':
             rol = Integrador(user_id=current_user.id)
+            flask_url = 'solarbeam.integrador_ofertas'
         elif req_vals['rolUser'] == 'gestor':
             rol = Gestor(user_id=current_user.id)
+            flask_url = 'solarbeam.gestor_ofertas'
         db.session.add(rol)
+
 
         current_user.nombre = req_vals['nombreUser']
         current_user.apellidos = req_vals['apellUser']
@@ -59,7 +65,7 @@ def confirmar_usuario():
         current_user.ape_materno_rep_legal = req_vals['apeMatLegal']
         current_user.calle = req_vals['calle']
         current_user.colonia = req_vals['colonia']
-        current_user.codigo_postal = req_vals['cp']
+        current_user.cp_id = util_solarbeam.get_cp_id(req_vals['cp'])  
         current_user.acta_constitutiva_key = f"archivos/{current_user.id}/actaConstitutiva.pdf"
         current_user.doc_req1_key = f"archivos/{current_user.id}/docReq1.pdf"
         current_user.doc_req2_key = f"archivos/{current_user.id}/docReq2.pdf"
@@ -68,9 +74,17 @@ def confirmar_usuario():
 
         db.session.commit()
 
-        return redirect(url_for('solarbeam.confirmar_usuario'))
+        return redirect(url_for(flask_url))
 
     return render_template('solarBeam/confirm_user.html')
+
+
+# GESTOR
+@bp.route('/solarbeam/app/gestor/mis_ofertas/')
+@login_required_roles(['gestor', 'admin'])
+def gestor_ofertas():
+
+    return render_template('solarBeam/gestor_ofertas.html', len=len)
 
 
 # COMPRADOR
@@ -93,11 +107,24 @@ def registro_oferta_compra():
             db.session.add(nueva_licitacion)
             db.session.flush()
 
+            if req_vals['gestorOpc'] == 'sinGestor':
+                gestor_id = util_solarbeam.get_random_gestor_id(current_user.cp.municipio)
+            elif req_vals['gestorOpc'] == 'conGestor':
+                gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
+
+                if not gestor_id:
+                    return render_template('solarBeam/reg_oferta_compra.html', errorGestorCord=True)
+
+            if not util_solarbeam.is_cp_valid(req_vals['cp']):
+                return render_template('solarBeam/reg_oferta_compra.html', errorCP=True)
+            else:
+                cp_id = util_solarbeam.get_cp_id(req_vals['cp'])
+
             nueva_ofer_lic = OfertaLicitacion(
-                licitacion_id=nueva_licitacion.id, comprador_id=current_user.user_rol.comprador.id,
+                licitacion_id=nueva_licitacion.id, comprador_id=current_user.user_rol.comprador.id, gestor_id=gestor_id,
                 max_kw=req_vals['capMax'], min_wp=req_vals['capMin'], precio_max=req_vals['preMax'],
                 nombre=req_vals['proyectoNombre'], direccion=req_vals['calle'], colonia=req_vals['colonia'],
-                codigo_postal=req_vals['cp'], latitud=req_vals['coordLat'], longitud=req_vals['coordLon'],
+                cp_id=cp_id, latitud=req_vals['coordLat'], longitud=req_vals['coordLon'],
                 status=0
             )
             db.session.add(nueva_ofer_lic)

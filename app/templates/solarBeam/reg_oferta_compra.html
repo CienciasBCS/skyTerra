@@ -26,13 +26,29 @@
                         <div class="orange-bottom-border">
                             <h5>Tipo de oferta</h5>
                         </div>
-
                         <div class="form-row mt-3">
                             <label for="tipoOferta">Selecciona el tipo de oferta</label>
                             <select name="tipoOferta" id="tipoOferta" class="form-control">
                                 <option value="ofertaInd">Oferta individual</option>
                                 <option value="ofertaAgr" disabled>Oferta agrupada</option>
                             </select>
+                        </div>
+                        <div class="form-row mt-2">
+                            <div class="col-sm-6">
+                                <label for="gestorOpc">Selecciona tu opción</label>
+                                <select name="gestorOpc" id="gestorOpc" class="form-control">
+                                    <option value="conGestor">Cuento con código de un gestor</option>
+                                    <option value="sinGestor">No cuento con código de un gestor</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="codigoGestor">Código de gestor</label>
+                                <input type="text" name="codigoGestor" id="codigoGestor"
+                                    class="form-control {{'is-invalid' if errorGestorCord}}">
+                                <div class="invalid-feedback">
+                                    Código de gestor invalido, debe de ser 6 dígitos.
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group mt-4">
@@ -91,9 +107,9 @@
                             </div>
                             <div class="col-md-3 col-sm-3">
                                 <label for="cp">Código Postal</label>
-                                <input type="number" id="cp" name="cp" class="form-control">
+                                <input type="number" id="cp" name="cp" class="form-control {{'is-invalid' if errorCP}}">
                                 <div class="invalid-feedback">
-                                    Por favor rellene el campo con su código postal de 5 dígitos.
+                                    Por favor rellene el campo con su código postal valido de 5 dígitos.
                                 </div>
                             </div>
                         </div>
@@ -220,6 +236,8 @@
         const direccion = document.querySelector('#calle');
         const colonia = document.querySelector('#colonia');
         const codigoPostal = document.querySelector('#cp');
+        const gestorOpts = document.querySelector('#gestorOpc');
+        const codigoGestor = document.querySelector('#codigoGestor');
 
 
         const validateCoords = () => {
@@ -230,6 +248,18 @@
         }
 
         const validateNombreProj = () => validations.isRequired(nombreProy.value);
+
+        const validateCodigoGestor = () => {
+            if (gestorOpts.value === 'conGestor') {
+                return (
+                    validations.isRequired(codigoGestor.value) &&
+                    validations.isBetween(codigoGestor.value.length, 6, 6)
+                )
+            } else {
+                return true
+            }
+
+        }
 
         const validateCapMin = () => {
             return (
@@ -261,10 +291,12 @@
         const validateForm = () => {
             validations.hideErrors();
             validations.validateError();
+
             let errors = []
 
             errors.push(!validateCoords() ? validations.showErrorMap('errorCoords') : true);
             errors.push(!validateNombreProj() ? validations.showError(nombreProy) : true);
+            errors.push(!validateCodigoGestor() ? validations.showError(codigoGestor) : true);
             errors.push(!validateCapMin() ? validations.showError(capMin) : true);
             errors.push(!validateCapMax() ? validations.showError(capMax) : true);
             errors.push(!validatePreMax() ? validations.showError(preMax) : true);
@@ -274,12 +306,22 @@
 
             if (!errors.includes(false)) form.submit();
 
+
+
         }
 
         const addListeners = () => {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 validateForm();
+            })
+
+            gestorOpts.addEventListener('change', () => {
+                if (gestorOpts.value === 'conGestor') codigoGestor.disabled = false;
+                if (gestorOpts.value === 'sinGestor') {
+                    codigoGestor.value = '';
+                    codigoGestor.disabled = true;
+                }
             })
         }
 

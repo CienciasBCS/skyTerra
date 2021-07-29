@@ -1,5 +1,8 @@
-import datetime
+import datetime, random
 from dateutil.relativedelta import relativedelta
+
+from app import db
+from app.models import CodigoPostal, Gestor, User
 
 import pandas as pd
 
@@ -30,3 +33,25 @@ def get_consumo_df(req_dict):
     consumo.rename(columns={'index': 'mes'}, inplace=True)
 
     return consumo
+
+def is_cp_valid(cp):
+    return db.session.query(db.exists().where(CodigoPostal.codigo_postal == cp)).scalar()
+
+def get_cp_id(cp):
+    return CodigoPostal.query.filter_by(codigo_postal = 23090).first().id
+
+def get_gestor_id_with_code(codigo):
+    gestor = Gestor.query.filter_by(codigo=codigo).first()
+    if gestor:
+        return gestor.id
+    else:
+        return None
+
+def get_random_gestor_id(municipio):
+    gestores = Gestor.query.join(Gestor.user_role, aliased=True).join\
+                (User, aliased=True).join(CodigoPostal).filter_by(municipio=municipio).all()
+    gestor = random.choice(gestores)
+    if gestor:
+        return gestor.id
+    else:
+        return None
