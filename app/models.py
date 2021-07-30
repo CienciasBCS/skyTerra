@@ -20,7 +20,7 @@ class User(UserMixin, db.Model):
     nombre = db.Column(db.String(100))
     apellidos = db.Column(db.String(100))
     email = db.Column(db.String(120), unique=True)
-    telefono = db.Column(db.String(10), unique=True)
+    telefono = db.Column(db.String(10))
     nombre_comercial = db.Column(db.String(100), nullable=False)
     razon_social = db.Column(db.String(100), nullable=False)
     rfc = db.Column(db.String(13), nullable=False)
