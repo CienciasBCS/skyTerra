@@ -139,6 +139,11 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
     async></script>
 <script>
+    let valuesCompleted;
+    {% if req_vals %}
+    valuesCompleted = {{ req_vals | safe }};
+    {% endif %}
+
     let latitud = document.querySelector('#coordLat');
     let longitud = document.querySelector('#coordLon');
 
@@ -181,6 +186,9 @@
             google.maps.event.addListener(map, 'click', function (event) {
                 placeMarker(event.latLng);
             });
+            if (valuesCompleted) {
+                placeMarker({ lat: +valuesCompleted['coordLat'], lng: +valuesCompleted['coordLon'] })
+            }
         }
         return { initMap, getCoords }
     })()
@@ -310,6 +318,33 @@
 
         }
 
+        const updateGestorCodeInput = () => {
+            if (gestorOpts.value === 'conGestor') codigoGestor.disabled = false;
+            if (gestorOpts.value === 'sinGestor') {
+                codigoGestor.value = '';
+                codigoGestor.disabled = true;
+            }
+        }
+
+        const fillForm = () => {
+            if (valuesCompleted) {
+
+                Object.entries(valuesCompleted).forEach(([divId, divValue]) => {
+                    let div = document.getElementById(divId);
+                    if (divId === 'error') return
+                    div.classList.add('is-valid');
+                    div.value = divValue;
+                })
+
+                let errorDiv = document.getElementById(valuesCompleted.error)
+                errorDiv.classList.remove('is-valid');
+                errorDiv.classList.add('is-invalid');
+
+                updateGestorCodeInput();
+            }
+        }
+
+
         const addListeners = () => {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -317,16 +352,13 @@
             })
 
             gestorOpts.addEventListener('change', () => {
-                if (gestorOpts.value === 'conGestor') codigoGestor.disabled = false;
-                if (gestorOpts.value === 'sinGestor') {
-                    codigoGestor.value = '';
-                    codigoGestor.disabled = true;
-                }
+                updateGestorCodeInput();
             })
         }
 
         const _init = (() => {
             addListeners();
+            fillForm();
         })()
     })()
 

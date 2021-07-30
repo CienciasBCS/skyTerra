@@ -33,8 +33,10 @@ def confirmar_usuario():
     if request.method == 'POST':
         req_vals = request.form.to_dict()
         
-        if not util_solarbeam.is_cp_valid(req_vals['cp']):
-            return render_template('solarBeam/confirm_user.html', cp_error=True)
+        if not util_solarbeam.is_cp_valid(req_vals['cp']): # Unica validación en el servidor!!
+            req_vals.pop('csrf_token')
+            req_vals['error'] = 'cp'
+            return render_template('solarBeam/confirm_user.html', cp_error=True, req_vals=req_vals)
 
         for file in request.files:
             file_object = request.files[file]
@@ -113,10 +115,14 @@ def registro_oferta_compra():
                 gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
 
                 if not gestor_id:
-                    return render_template('solarBeam/reg_oferta_compra.html', errorGestorCord=True)
+                    req_vals.pop('csrf_token')
+                    req_vals['error'] = 'codigoGestor'
+                    return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorGestorCord=True)
 
             if not util_solarbeam.is_cp_valid(req_vals['cp']):
-                return render_template('solarBeam/reg_oferta_compra.html', errorCP=True)
+                req_vals.pop('csrf_token')
+                req_vals['error'] = 'cp'
+                return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorCP=True)
             else:
                 cp_id = util_solarbeam.get_cp_id(req_vals['cp'])
 

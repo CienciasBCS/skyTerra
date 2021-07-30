@@ -7,7 +7,7 @@
 {% endblock stylesheets %}
 
 {% block content %}
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" id="form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <section>
         <div class="container mt-3 mb-3">
@@ -20,12 +20,15 @@
                         </div>
                         <div class="form-row mt-4">
                             <label for="rolUser">Selecciona el tipo de usuario</label>
-                            <select name="rolUser" id="rolUser" class="form-control">
+                            <select name="rolUser" id="rolUser" class="form-control is-invalid">
                                 <option hidden disabled selected value> -- Seleccione una opción -- </option>
                                 <option value="comprador">Comprador</option>
                                 <option value="gestor">Gestor</option>
                                 <option value="integrador">Integrador</option>
                             </select>
+                            <div class="invalid-feedback">
+                                Por favor seleccione un usuario!
+                            </div>
                         </div>
                     </div>
                     <div class="main-content" id="mainContent">
@@ -36,17 +39,17 @@
                             <div class="form-row mt-4">
                                 <div class="col-sm-6">
                                     <label for="nombreUser">Nombre</label>
-                                    <input type="text" name="nombreUser" class="form-control" required>
+                                    <input type="text" name="nombreUser" class="form-control" disabled required>
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="apellUser">Apellidos</label>
-                                    <input type="text" name="apellUser" class="form-control" required>
+                                    <input type="text" name="apellUser" class="form-control" disabled required>
                                 </div>
                             </div>
                             <div class="form-row mt-3">
                                 <div class="col-sm-6">
                                     <label for="telUser">Teléfono celular a 10 digitos</label>
-                                    <input type="number" name="telUser" class="form-control" required>
+                                    <input type="number" name="telUser" class="form-control" disabled required>
                                 </div>
                             </div>
                         </div>
@@ -57,46 +60,46 @@
                             <div class="form-row mt-4">
                                 <div class="col-sm-6">
                                     <label for="nombreCom">Nombre Comercial</label>
-                                    <input type="text" name="nombreCom" class="form-control" required>
+                                    <input type="text" name="nombreCom" class="form-control" disabled required>
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="razSoc">Razón social</label>
-                                    <input type="text" name="razSoc" class="form-control" required>
+                                    <input type="text" name="razSoc" class="form-control" disabled required>
                                 </div>
                             </div>
                             <div class="form-row mt-3">
                                 <div class="col-sm-6">
                                     <label for="rfc">RFC</label>
-                                    <input type="text" name="rfc" class="form-control" required>
+                                    <input type="text" name="rfc" class="form-control" disabled required>
                                 </div>
                             </div>
                             <div class="form-row mt-3">
                                 <div class="col-md-6">
                                     <label for="nomLegal">Nombre representante legal</label>
-                                    <input type="text" name="nomLegal" class="form-control" required>
+                                    <input type="text" name="nomLegal" class="form-control" disabled required>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <label for="apePatLegal">Apellido paterno del rep. legal</label>
-                                    <input type="text" name="apePatLegal" class="form-control" required>
+                                    <input type="text" name="apePatLegal" class="form-control" disabled required>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <label for="apeMatLegal">Apellido materno del rep. legal</label>
-                                    <input type="text" name="apeMatLegal" class="form-control" required>
+                                    <input type="text" name="apeMatLegal" class="form-control" disabled required>
                                 </div>
                             </div>
                             <div class="form-row mt-3">
                                 <div class="col-md-6">
                                     <label for="calle">Calle y número</label>
-                                    <input type="text" name="calle" class="form-control" required>
+                                    <input type="text" name="calle" class="form-control" disabled required>
                                 </div>
                                 <div class="col-md-3 col-sm-3">
                                     <label for="colonia">Colonia</label>
-                                    <input type="text" name="colonia" class="form-control" required>
+                                    <input type="text" name="colonia" class="form-control" disabled required>
                                 </div>
                                 <div class="col-md-3 col-sm-3">
                                     <label for="cp">Código Postal</label>
                                     <input type="number" name="cp" class="form-control {{'is-invalid' if cp_error}}"
-                                        required>
+                                        disabled required>
                                     <div class="invalid-feedback">
                                         Por favor escoja un código postal valido.
                                     </div>
@@ -111,7 +114,7 @@
                                 <div class="col-sm-6">
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" name="actaConstitutiva"
-                                            id="actaConstitutiva" required>
+                                            id="actaConstitutiva" disabled required>
                                         <label class="custom-file-label" for="actaConstitutiva">Acta
                                             Constitutiva</label>
                                     </div>
@@ -119,7 +122,7 @@
                                 <div class="col-sm-6">
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" name="docReq1" id="docReq1"
-                                            required>
+                                            disabled required>
                                         <label class="custom-file-label" for="docReq1">Documento requisito 1</label>
                                     </div>
                                 </div>
@@ -128,14 +131,14 @@
                                 <div class="col-sm-6">
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" name="docReq2" id="docReq2"
-                                            required>
+                                            disabled required>
                                         <label class="custom-file-label" for="docReq2">Documento requisito 2</label>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" name="docReq3" id="docReq3"
-                                            required>
+                                            disabled required>
                                         <label class="custom-file-label" for="docReq3">Documento requisito 3</label>
                                     </div>
                                 </div>
@@ -156,8 +159,21 @@
 {% block javascript %}
 <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
 <script type="text/javascript">
+    let valuesCompleted;
+    {% if req_vals %}
+    valuesCompleted = {{ req_vals | safe }};
+    {% endif %}
+
     const renderDOM = (() => {
+        const rol = document.querySelector('#rolUser');
         let mainContent = document.querySelector('#mainContent');
+
+        const inputListener = (input, label) => {
+            input.addEventListener('change', () => {
+                let file = input.files[0];
+                label.innerText = file.name;
+            })
+        }
 
         const renderSectionTitle = (title) => {
             let section = document.createElement('div');
@@ -181,14 +197,30 @@
 
             let label = document.createElement('label');
             let input = document.createElement('input');
+
             label.htmlFor = idInput;
             label.innerText = labelName;
             input.type = inputType;
             input.name = idInput;
+            input.id = idInput;
             input.required = true;
             input.classList.add('form-control');
+
             col.appendChild(label);
             col.appendChild(input);
+
+            if (['telUser', 'rfc', 'cp'].includes(idInput)) {
+                let warningDiv = document.createElement('div');
+                let textWarning;
+                warningDiv.classList.add('invalid-feedback')
+
+                if (idInput === 'telUser') textWarning = 'Por favor rellene el campo con su teléfono celular de 10 dígitos.';
+                if (idInput === 'rfc') textWarning = 'Por favor rellene el campo con su rfc de 12 a 13 dígitos.';
+                if (idInput === 'cp') textWarning = 'Por favor utilice un código postal válido.';
+
+                warningDiv.innerText = textWarning
+                col.appendChild(warningDiv);
+            }
 
             return col;
         }
@@ -200,6 +232,7 @@
             });
 
             let fileWrapper = document.createElement('div');
+            let fileWarning = document.createElement('div');
             let label = document.createElement('label');
             let input = document.createElement('input');
             fileWrapper.classList.add('custom-file');
@@ -212,15 +245,20 @@
             label.classList.add('custom-file-label');
             label.innerText = labelName;
 
+            fileWarning.classList.add('invalid-feedback');
+            fileWarning.innerText = 'El archivo debe de pesar menos de 300mb'
+
             fileWrapper.appendChild(input);
             fileWrapper.appendChild(label);
+            fileWrapper.appendChild(fileWarning);
             col.appendChild(fileWrapper);
-
+            inputListener(input, label);
             return col;
         }
 
         const renderIntegrador = () => {
             mainContent.innerHTML = '';
+            rol.classList.remove('is-invalid')
 
             infoPersonal = renderSectionTitle('Información personal');
 
@@ -289,7 +327,7 @@
             docReq.appendChild(formRow);
 
             formRow = document.createElement('div');
-            formRow.classList.add('form-row', 'mt-3');
+            formRow.classList.add('form-row', 'mt-4');
             col = renderInputFileColumn('docReq2', 'Documento requisito 2', ['col-sm-6']);
             formRow.appendChild(col);
             col = renderInputFileColumn('docReq3', 'Documento requisito 3', ['col-sm-6']);
@@ -299,11 +337,85 @@
             mainContent.appendChild(docReq);
         }
 
+
         return { renderIntegrador }
     })()
 
+
+    const validations = (() => {
+
+        const isRequired = value => value === '' ? false : true;
+
+        const isBetween = (length, min, max) => length < min || length > max ? false : true;
+
+        const showError = (errorDiv) => {
+            errorDiv.classList.remove('is-valid');
+            errorDiv.classList.add('is-invalid');
+
+            return false
+        }
+
+        const validateError = () => {
+            let errors = document.querySelectorAll('.form-control, .custom-file-input')
+            errors.forEach(error => {
+                error.classList.remove('is-invalid');
+                error.classList.add('is-valid');
+            });
+        }
+
+        return {
+            isRequired, isBetween,
+            showError, validateError
+        }
+    })()
+
     const appLogic = (() => {
-        const rol = document.querySelector('#rolUser');
+        let form = document.querySelector('#form');
+        let rol = document.querySelector('#rolUser');
+        let telInput = document.querySelector('#telUser');
+        let rfc = document.querySelector('#rfc');
+        let actaConstitutiva = document.querySelector('#actaConstitutiva');
+        let docReq1 = document.querySelector('#docReq1');
+        let docReq2 = document.querySelector('#docReq2');
+        let docReq3 = document.querySelector('#docReq3');
+
+        const validateRolOption = () => validations.isRequired(rol.value);
+
+        const validateTel = () => validations.isBetween(telInput.value.length, 10, 10);
+
+        const validateRFC = () => validations.isBetween(rfc.value.length, 12, 13);
+
+        const validateFileInput = (fileInput) => validations.isBetween(fileInput.files[0].size, 1, 314572800); // 314,572,800 == 300mb
+
+
+        const validateForm = () => {
+            form = document.querySelector('#form');
+            rol = document.querySelector('#rolUser');
+            telInput = document.querySelector('#telUser');
+            rfc = document.querySelector('#rfc');
+            actaConstitutiva = document.querySelector('#actaConstitutiva');
+            docReq1 = document.querySelector('#docReq1');
+            docReq2 = document.querySelector('#docReq2');
+            docReq3 = document.querySelector('#docReq3');
+
+            if (!validateRolOption()) {
+                validations.showError(rol);
+                return
+            }
+
+            validations.validateError();
+
+            let errors = [];
+
+            errors.push(!validateTel() ? validations.showError(telInput) : true);
+            errors.push(!validateRFC() ? validations.showError(rfc) : true);
+            errors.push(!validateFileInput(actaConstitutiva) ? validations.showError(actaConstitutiva) : true);
+            errors.push(!validateFileInput(docReq1) ? validations.showError(docReq1) : true);
+            errors.push(!validateFileInput(docReq2) ? validations.showError(docReq2) : true);
+            errors.push(!validateFileInput(docReq3) ? validations.showError(docReq3) : true);
+
+            if (!errors.includes(false)) form.submit();
+        }
 
         const addListeners = () => {
             rol.addEventListener('change', () => {
@@ -313,10 +425,36 @@
                     renderDOM.renderIntegrador();
                 }
             })
+            form.addEventListener('submit', (e) => {
+                console.log('submit');
+                e.preventDefault();
+                validateForm();
+            })
+        }
+
+        const fillForm = () => {
+            if (valuesCompleted) {
+                let rol = document.querySelector('#rolUser')
+                rol.value = valuesCompleted.rolUser;
+                renderDOM.renderIntegrador();
+
+                Object.entries(valuesCompleted).forEach(([divId, divValue]) => {
+                    let div = document.getElementById(divId);
+                    if (divId === 'error') return
+                    div.classList.add('is-valid');
+                    div.value = divValue;
+                })
+
+                let errorDiv = document.getElementById(valuesCompleted.error)
+                errorDiv.classList.remove('is-valid');
+                errorDiv.classList.add('is-invalid');
+            }
         }
 
         const _init = (() => {
             addListeners();
+            fillForm();
+
         })()
     })()
 </script>
