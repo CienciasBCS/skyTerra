@@ -50,8 +50,8 @@ def get_gestor_id_with_code(codigo):
 def get_random_gestor_id(municipio):
     gestores = Gestor.query.join(Gestor.user_role, aliased=True).join\
                 (User, aliased=True).join(CodigoPostal).filter_by(municipio=municipio).all()
-    gestor = random.choice(gestores)
-    if gestor:
+    if gestores:
+        gestor = random.choice(gestores)
         return gestor.id
     else:
         return None
