@@ -21,6 +21,7 @@
                         <div class="form-row mt-4">
                             <label for="rolUser">Selecciona el tipo de usuario</label>
                             <select name="rolUser" id="rolUser" class="form-control">
+                                <option hidden disabled selected value> -- Seleccione una opción -- </option>
                                 <option value="comprador">Comprador</option>
                                 <option value="gestor">Gestor</option>
                                 <option value="integrador">Integrador</option>
@@ -94,7 +95,7 @@
                                 </div>
                                 <div class="col-md-3 col-sm-3">
                                     <label for="cp">Código Postal</label>
-                                    <input type="text" name="cp" class="form-control {{'is-invalid' if cp_error}}"
+                                    <input type="number" name="cp" class="form-control {{'is-invalid' if cp_error}}"
                                         required>
                                     <div class="invalid-feedback">
                                         Por favor escoja un código postal valido.
