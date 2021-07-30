@@ -9,16 +9,51 @@
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <!-- <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            {% if current_user.is_authenticated %}
+            {% if current_user.user_rol %}
+            <!-- Si el usuario tiene rol -->
+            {% if current_user.user_rol.tipo == 'comprador' %}
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/usuario_final">Usuario Final</a>
+                    <a class="nav-link" href="{{ url_for('solarbeam.comprador_ofertas') }}">Mis ofertas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/about">¿Cómo funciona?</a>
+                    <a class="nav-link" href="{{ url_for('solarbeam.registro_oferta_compra') }}">Regsitrar nueva
+                        oferta</a>
                 </li>
             </ul>
+            {% elif current_user.user_rol.tipo == 'gestor' %}
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('solarbeam.gestor_ofertas') }}">Mis ofertas</a>
+                </li>
+            </ul>
+            {% endif %}
+            {% else %}
+            <!-- Si el usuario NO tiene rol -->
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('solarbeam.confirmar_usuario') }}">Continuar registro</a>
+                </li>
+            </ul>
+            <!-- verificacion de rol -->
+            {% endif %}
+            <!-- si esta autentificado -->
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                </li>
+            </ul>
+            {% else %}
+            <!-- si no está autentificado -->
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.login') }}">Log In/Sign Up</a>
+                </li>
+            </ul>
+            {% endif %}
 
-        </div> -->
+        </div>
     </div>
 </nav>
