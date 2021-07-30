@@ -19,6 +19,26 @@
         <div class="card rounded shadow">
             <div class="card-header h4 text-center">Mis ofertas</div>
             <div class="card-body">
+                {% if errorInvGestor %}
+                <div class="row d-flex justify-content-center">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        El código del gestor es incorrecto.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                {% elif errorNoGestor %}
+                <div class="row d-flex justify-content-center">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        No existen gestores en tu municipio por el momento.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+
                 <div class="mb-3 flex-column">
                     <h6>Hola {{current_user.nombre}}!</h6>
                     <p>Actualmente tienes: <span>{{ len(ofertas_activas) }}</span> oferta(s) de compra activa(s).</p>
@@ -89,7 +109,9 @@
                                     {% if oferta.gestor %}
                                     <td>{{oferta.gestor.user_role.user.email}}</td>
                                     {% else %}
-                                    <td>Ningún gestor se ha encontrado en el área</td>
+                                    <td>Ningún gestor se ha encontrado en el área <span
+                                            class="ml-3 cursor-pointer flaticon-users" data-toggle="modal"
+                                            data-target="#exampleModal" id="{{oferta.id}}"></span></td>
                                     {% endif %}
                                     <td>{{oferta.min_wp}}</td>
                                     <td>{{oferta.max_kw}}</td>
@@ -218,8 +240,115 @@
         </div>
     </div>
 </section>
+<form method="POST" id="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Actualizar gestor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <label for="gestorOpc">Selecciona una opción</label>
+                            <select name="gestorOpc" id="gestOption" class="form-control">
+                                <option value="sinGestor" selected>No cuento con código de gestor</option>
+                                <option value="conGestor">Cuento con código de gestor</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="codigoGestor">Código de gestor</label>
+                            <input type="text" class="form-control" name="codigoGestor" id="codigoGestor" disabled>
+                            <div class="invalid-feedback">
+                                Por favor rellene el campo con un código de gestor valido de 6 dígitos.
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="ofertaGestor" name="oferta">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 {% endblock content %}
 
 {% block javascript %}
+<script>
+    const appLogic = (() => {
+        const form = document.querySelector('#form');
+        const gestOption = document.querySelector('#gestOption');
+        const codigoInput = document.querySelector('#codigoGestor');
+        const hiddenInput = document.querySelector('#ofertaGestor');
+
+        const hiddenInputName = (newId) => {
+            hiddenInput.value = newId;
+        }
+
+        const updateCodeInput = () => {
+            codigoInput.value = '';
+            if (gestOption.value === 'sinGestor') codigoInput.disabled = true;
+            if (gestOption.value === 'conGestor') codigoInput.disabled = false;
+        }
+
+        const validateCodeInput = () => {
+            return (
+                validations.isRequired(codigoInput.value) &&
+                validations.isBetween(codigoInput.value.length, 6, 6)
+            )
+        }
+
+        const validateHiddenInput = () => validations.isRequired(hiddenInput.value);
+
+        const errorHiddenInput = () => {
+            alert('Error! Contactar admin');
+            return false
+        }
+
+        const validateForm = () => {
+            validations.validateError();
+
+            let errors = [];
+
+            if (gestOption.value === 'conGestor') {
+                errors.push(!validateCodeInput() ? validations.showError(codigoInput) : true);
+            }
+            errors.push(!validateHiddenInput() ? errorHiddenInput() : true);
+
+            if (!errors.includes(false)) form.submit();
+        }
+
+        const addListeners = () => {
+            let iconButtons = document.querySelectorAll('.flaticon-users')
+            iconButtons.forEach(iconButton => {
+                iconButton.addEventListener('click', (e) => {
+                    console.log(e.target.id);
+                    hiddenInputName(e.target.id)
+                })
+            });
+
+            gestOption.addEventListener('change', () => {
+                updateCodeInput();
+            })
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault()
+                validateForm()
+            })
+        }
+
+        const _init = (() => {
+            addListeners();
+        })()
+    })()
+</script>
 {% endblock javascript %}

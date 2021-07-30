@@ -90,11 +90,29 @@ def gestor_ofertas():
 
 
 # COMPRADOR
-@bp.route('/solarbeam/app/mis_ofertas/')
+@bp.route('/solarbeam/app/mis_ofertas/', methods=['GET', 'POST'])
 @login_required_roles(['comprador', 'admin'])
 def comprador_ofertas():
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        print(req_vals)
 
+        if req_vals['gestorOpc'] == 'sinGestor':
+            gestor_id = util_solarbeam.get_random_gestor_id(current_user.cp.municipio)
 
+            if not gestor_id:
+                return render_template('solarBeam/comprador_ofertas.html', errorNoGestor=True, len=len)
+
+        elif req_vals['gestorOpc'] == 'conGestor':
+            gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
+
+            if not gestor_id:
+                return render_template('solarBeam/comprador_ofertas.html', errorInvGestor=True, len=len)
+        oferta = OfertaLicitacion.query.get(req_vals['oferta'])
+        if oferta.comprador == current_user.user_rol:
+            if not oferta.gestor_id:
+                oferta.gestor_id = gestor_id
+                db.session.commit()
     return render_template('solarBeam/comprador_ofertas.html', len=len)
 
 

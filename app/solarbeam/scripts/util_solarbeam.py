@@ -40,6 +40,9 @@ def is_cp_valid(cp):
 def get_cp_id(cp):
     return CodigoPostal.query.filter_by(codigo_postal = 23090).first().id
 
+def is_telCel_valid(cel):
+    return not db.session.query(db.exists().where(User.telefono == cel)).scalar()
+
 def get_gestor_id_with_code(codigo):
     gestor = Gestor.query.filter_by(codigo=codigo).first()
     if gestor:

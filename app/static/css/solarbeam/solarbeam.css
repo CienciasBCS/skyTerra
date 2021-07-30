@@ -19,3 +19,7 @@
 .color-secondary {
     color: rgb(6, 6, 161);
 }
+
+.cursor-pointer {
+    cursor: pointer;
+}
