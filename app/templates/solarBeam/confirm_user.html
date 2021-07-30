@@ -341,34 +341,6 @@
         return { renderIntegrador }
     })()
 
-
-    const validations = (() => {
-
-        const isRequired = value => value === '' ? false : true;
-
-        const isBetween = (length, min, max) => length < min || length > max ? false : true;
-
-        const showError = (errorDiv) => {
-            errorDiv.classList.remove('is-valid');
-            errorDiv.classList.add('is-invalid');
-
-            return false
-        }
-
-        const validateError = () => {
-            let errors = document.querySelectorAll('.form-control, .custom-file-input')
-            errors.forEach(error => {
-                error.classList.remove('is-invalid');
-                error.classList.add('is-valid');
-            });
-        }
-
-        return {
-            isRequired, isBetween,
-            showError, validateError
-        }
-    })()
-
     const appLogic = (() => {
         let form = document.querySelector('#form');
         let rol = document.querySelector('#rolUser');
