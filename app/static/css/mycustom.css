@@ -1,3 +1,7 @@
 .left-0 {
     left: 0;
 }
+
+.vh-section {
+    min-height: 75vh;
+}
