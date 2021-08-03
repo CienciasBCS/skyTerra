@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Mis ofertas</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <div class="orange-bottom-border">
+                        <h5>Información del gestor</h5>
+                    </div>
+                    <div class="form-row mt-3">
+                        <div class="col-sm-6">
+                            <label for="gestorNombre">Nombre del gestor</label>
+                            <input type="text" name="gestorNombre" class="form-control"
+                                value="{{oferta.gestor.user.nombre}}" disabled>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="gestorApellidos">Apelidos del gestor</label>
+                            <input type="text" name="gestorApellidos" class="form-control"
+                                value="{{oferta.gestor.user.apellidos}}" disabled>
+                        </div>
+                    </div>
+                    <div class="form-row mt-3">
+                        <div class="col-sm-6">
+                            <label for="gestorEmail">Email</label>
+                            <input type="text" name="gestorEmail" class="form-control"
+                                value="{{oferta.gestor.user.email}}" disabled>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="gestorTel">Teléfono</label>
+                            <input type="text" name="gestorTel" class="form-control"
+                                value="{{oferta.gestor.user.telefono}}" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mt-4">
+                    <div class="orange-bottom-border">
+                        <h5>Información técnica de la oferta</h5>
+                    </div>
+                    <div class="form-row mt-3">
+                        <label for="proyectoNombre">Nombre del proyecto</label>
+                        <input type="text" name="proyectoNombre" id="proyectoNombre" class="form-control"
+                            value="{{oferta.nombre}}" disabled>
+                    </div>
+                    <div class="form-row mt-3">
+                        <div class="col-sm-4">
+                            <label for="capMin">Capacidad mínima en kWp</label>
+                            <input type="number" name="capMin" id="capMin" class="form-control" step=".01"
+                                value="{{oferta.min_wp}}" disabled>
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="capMax">Capacidad máxima en kWac</label>
+                            <input type="number" name="capMax" id="capMax" class="form-control" step=".01"
+                                value="{{oferta.max_kw}}" disabled>
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="capMax">Precio máximo</label>
+                            <input type="number" name="preMax" id="preMax" class="form-control"
+                                value="{{oferta.precio_max}}" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mt-4">
+                    <div class="orange-bottom-border">
+                        <h5>Ubicación</h5>
+                    </div>
+                    <div class="form-row mt-3">
+                        <div class="col-md-6">
+                            <label for="calle">Calle y número</label>
+                            <input type="text" id="calle" name="calle" class="form-control" value="{{oferta.direccion}}"
+                                disabled>
+                        </div>
+                        <div class="col-md-3 col-sm-3">
+                            <label for="colonia">Colonia</label>
+                            <input type="text" id="colonia" name="colonia" class="form-control"
+                                value="{{oferta.colonia}}" disabled>
+                        </div>
+                        <div class="col-md-3 col-sm-3">
+                            <label for="cp">Código Postal</label>
+                            <input type="number" id="cp" name="cp" class="form-control"
+                                value="{{oferta.cp.codigo_postal}}" disabled>
+                        </div>
+                    </div>
+                    <div class="form-row d-flex justify-content-center mt-3">
+                        <div id="gMap" style='width: 90%; min-height: 50vh;'></div>
+                    </div>
+                </div>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group mt-4 d-flex justify-content-center">
+                        {% if oferta.pre_dimensionamiento.status_comprador %}
+                        {% if oferta.pre_dimensionamiento.status_gestor %}
+                        <button class="btn btn-primary" disabled>Está oferta ya no se encuentra en la etapa de
+                            pre-dimensionamiento</button>
+                        {% else %}
+                        <button class="btn btn-primary" disabled>Gestor no ha confirmado la cita</button>
+                        {% endif %}
+                        {% else %}
+                        <button class="btn btn-primary" type="submit" name="confirm" value="True">Confirmo cita con
+                            gestor</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
+    async></script>
+<script>
+    let lat = {{ oferta.latitud | safe }};
+    let lng = {{ oferta.longitud | safe }};
+
+    const mapFunctions = (() => {
+        let marker;
+        let map;
+
+
+        const placeMarker = (location) => {
+            marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+
+
+        function initMap() {
+            map = new google.maps.Map(
+                document.getElementById('gMap'), {
+                zoom: 9,
+                center: { lat, lng }
+            });
+            placeMarker({ lat, lng })
+        }
+        return { initMap }
+    })()
+
+    const addListeners = (() => {
+        let copyBtn = document.getElementById('copyBtn');
+        let codigoInput = document.getElementById('codigoInput');
+        $(copyBtn).tooltip({ trigger: 'manual' }).tooltip('disable');
+
+
+        copyBtn.addEventListener('click', () => {
+            let dummy = document.createElement('input');
+            dummy.value = codigoInput.value;
+            document.body.appendChild(dummy)
+            dummy.select();
+            document.execCommand("copy");
+            $(copyBtn).tooltip('enable');
+            $(copyBtn).tooltip('show');
+            document.body.removeChild(dummy);
+            setTimeout(function () {
+                $(copyBtn).tooltip('disable');
+                $(copyBtn).tooltip('hide');
+            }, 1000);
+
+        })
+    })()
+
+
+
+    function initMap() {
+        mapFunctions.initMap();
+    }
+</script>
+
+{% endblock javascript %}

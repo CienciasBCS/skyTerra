@@ -101,6 +101,7 @@
                                 <th>Email de gestor</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
+                                <th>Confirmación</th>
                             </thead>
                             <tbody>
                                 {% for oferta in ofertas_predim %}
@@ -115,6 +116,18 @@
                                     {% endif %}
                                     <td>{{oferta.min_wp}}</td>
                                     <td>{{oferta.max_kw}}</td>
+                                    <td>
+                                        <p>
+                                            {% if oferta.pre_dimensionamiento.status_comprador %}
+                                            <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
+                                                class="text-success font-weight-bold">Falta confirmación de
+                                                gestor</a>
+                                            {% else %}
+                                            <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
+                                                class="text-danger font-weight-bold">Falta confirmación</a>
+                                            {% endif %}
+                                        </p>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
