@@ -76,6 +76,8 @@ class Gestor(UserRole):
 
 class Integrador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
+    ofertas = db.relationship('OfertaProveedor', backref='integrador')
+    ofertas_grupo = db.relationship('OfertaGrupo', backref='integrador')
 
     __mapper_args__ = {
         'polymorphic_identity':'integrador',
@@ -168,13 +170,36 @@ class OfertaLicitacion(db.Model):
     status = db.Column(db.Integer,  nullable=False, default=0)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+    pre_dimensionamiento = db.relationship('PreDimensionamiento', uselist=False, backref='oferta')
+    dimensionamiento = db.relationship('Dimensionamiento', backref='oferta')
+    adquisicion = db.relationship('Adquisicion', backref='oferta')
+    instalacion = db.relationship('Instalacion', backref='oferta')
+    puesta_en_marcha = db.relationship('PuestaEnMarcha', backref='oferta')
+
+class PreDimensionamiento(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
+    status_gestor = db.Column(db.Boolean, nullable=False, default=False)
+    status_comprador = db.Column(db.Boolean, nullable=False, default=False)
+
+class Dimensionamiento(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
+    
+class Adquisicion(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
+
+class Instalacion(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
+
+class PuestaEnMarcha(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)    
+
 class OfertaProveedor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'), nullable=False)
     licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id'), nullable=False)
     num_max = db.Column(db.Integer, nullable=False)
     precio_unitario = db.Column(db.Numeric(8, 2),  nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'), nullable=False)
 
     def __repr__(self):
         return f'<Oferta: {self.producto.type} Para: {self.licitacion.user.nombre}>'  
@@ -186,7 +211,7 @@ class OfertaCondicionada(db.Model):
 
 class OfertaGrupo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'), nullable=False)
 
 class OfertaExcluyente(db.Model):
     grupo_id = db.Column(db.Integer, db.ForeignKey('oferta_grupo.id'), primary_key=True)
