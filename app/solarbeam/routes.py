@@ -1,12 +1,11 @@
-import re
-from flask import render_template, request
+from flask import render_template, request, abort
 from flask.helpers import url_for
 from flask_login import current_user
 from werkzeug.utils import redirect
 
 from app.solarbeam import bp
 from app.decorators import login_required_no_rol, login_required_roles
-from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion
+from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion, PreDimensionamiento
 from .scripts import util_solarbeam, generacion, ahorros
 from app import util, db
 
@@ -85,38 +84,33 @@ def confirmar_usuario():
 @bp.route('/solarbeam/app/gestor/mis_ofertas/')
 @login_required_roles(['gestor', 'admin'])
 def gestor_ofertas():
-
+    
     return render_template('solarBeam/gestor_ofertas.html', len=len)
 
 
-# COMPRADOR
-@bp.route('/solarbeam/app/mis_ofertas/', methods=['GET', 'POST'])
-@login_required_roles(['comprador', 'admin'])
-def comprador_ofertas():
+@bp.route('/solarbeam/app/gestor/mis_ofertas/<id_oferta>', methods=['GET', 'POST'])
+@login_required_roles(['gestor', 'admin'])
+def gestor_oferta_info(id_oferta):
+    oferta = OfertaLicitacion.query.get(id_oferta)
+    if oferta:
+        if not oferta.gestor == current_user.user_rol:
+            abort(401)
+
     if request.method == 'POST':
         req_vals = request.form.to_dict()
-        print(req_vals)
+        if req_vals['confirm'] == 'True':
+            oferta.pre_dimensionamiento.status_gestor = True
+            if oferta.pre_dimensionamiento.status_comprador:
+                oferta.status = 1
+            db.session.commit()
+        
+        return redirect(url_for('solarbeam.gestor_ofertas'))
 
-        if req_vals['gestorOpc'] == 'sinGestor':
-            gestor_id = util_solarbeam.get_random_gestor_id(current_user.cp.municipio)
-
-            if not gestor_id:
-                return render_template('solarBeam/comprador_ofertas.html', errorNoGestor=True, len=len)
-
-        elif req_vals['gestorOpc'] == 'conGestor':
-            gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
-
-            if not gestor_id:
-                return render_template('solarBeam/comprador_ofertas.html', errorInvGestor=True, len=len)
-        oferta = OfertaLicitacion.query.get(req_vals['oferta'])
-        if oferta.comprador == current_user.user_rol:
-            if not oferta.gestor_id:
-                oferta.gestor_id = gestor_id
-                db.session.commit()
-    return render_template('solarBeam/comprador_ofertas.html', len=len)
+    return render_template('solarBeam/gestor_oferta_info.html', oferta=oferta)
 
 
-@bp.route('/solarbeam/app/registro_oferta_compra/', methods=['GET', 'POST'])
+# COMPRADOR
+@bp.route('/solarbeam/app/comprador/registro_oferta_compra/', methods=['GET', 'POST'])
 @login_required_roles(['comprador', 'admin'])
 def registro_oferta_compra():
     if request.method == 'POST':
@@ -152,6 +146,10 @@ def registro_oferta_compra():
                 status=0
             )
             db.session.add(nueva_ofer_lic)
+            db.session.flush()
+
+            pre_dimensionamiento = PreDimensionamiento(id=nueva_ofer_lic.id)
+            db.session.add(pre_dimensionamiento)
             db.session.commit()
 
             return redirect(url_for('solarbeam.comprador_ofertas'))
@@ -164,7 +162,51 @@ def registro_oferta_compra():
     return render_template('solarBeam/reg_oferta_compra.html')
 
 
+@bp.route('/solarbeam/app/comprador/mis_ofertas/', methods=['GET', 'POST'])
+@login_required_roles(['comprador', 'admin'])
+def comprador_ofertas():
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        print(req_vals)
 
+        if req_vals['gestorOpc'] == 'sinGestor':
+            gestor_id = util_solarbeam.get_random_gestor_id(current_user.cp.municipio)
+
+            if not gestor_id:
+                return render_template('solarBeam/comprador_ofertas.html', errorNoGestor=True, len=len)
+
+        elif req_vals['gestorOpc'] == 'conGestor':
+            gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
+
+            if not gestor_id:
+                return render_template('solarBeam/comprador_ofertas.html', errorInvGestor=True, len=len)
+        oferta = OfertaLicitacion.query.get(req_vals['oferta'])
+        if oferta.comprador == current_user.user_rol:
+            if not oferta.gestor_id:
+                oferta.gestor_id = gestor_id
+                db.session.commit()
+    return render_template('solarBeam/comprador_ofertas.html', len=len)
+
+
+@bp.route('/solarbeam/app/comprador/mis_ofertas/<id_oferta>', methods=['GET', 'POST'])
+@login_required_roles(['comprador', 'admin'])
+def comprador_oferta_info(id_oferta):
+    oferta = OfertaLicitacion.query.get(id_oferta)
+    if oferta:
+        if not oferta.comprador == current_user.user_rol:
+            abort(401)
+
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        if req_vals['confirm'] == 'True':
+            oferta.pre_dimensionamiento.status_comprador = True
+            if oferta.pre_dimensionamiento.status_gestor:
+                oferta.status = 1
+            db.session.commit()
+        
+        return redirect(url_for('solarbeam.comprador_ofertas'))
+
+    return render_template('solarBeam/comprador_oferta_info.html', oferta=oferta)
 
 # INTEGRADOR
 @bp.route('/solarbeam/app/proyectos_disponibles/')
