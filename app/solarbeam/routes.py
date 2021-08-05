@@ -1,12 +1,15 @@
-from flask import render_template, request, abort
-from flask.helpers import url_for
+from datetime import datetime
+import json
+
+from flask import render_template, request, abort, url_for, session
 from flask_login import current_user
 from werkzeug.utils import redirect
 
 from app.solarbeam import bp
 from app.decorators import login_required_no_rol, login_required_roles
-from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion, PreDimensionamiento
+from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion, PreDimensionamiento, ConsumoInfo
 from .scripts import util_solarbeam, generacion, ahorros
+from . import solarbeam_graphs
 from app import util, db
 
 @bp.route('/solarbeam/app/', methods=['GET', 'POST'])
@@ -14,17 +17,58 @@ def solarbeam_app():
     util.get_conn_sb_tar()
     estados = util.get_json_s3('tarifas-cfe', 'estados_municipios.json')
     if request.method == 'POST':
+        # resp = make_response(redirect(url_for('solarbeam.consumption_dashboard')))
+
         req_vals = request.form.to_dict()
-        print(req_vals)
         lat, lon = float(req_vals['coordLat']), float(req_vals['coordLon'])
         consumo_df = util_solarbeam.get_consumo_df(req_vals)
         tot_kwh = consumo_df[['kwh-base', 'kwh-inter', 'kwh-punta']].sum().sum()
-        a, cap = generacion.main(lat, lon, 2010, tot_kwh)
-        df, df2, rinv, rinv_noinf, ahorro_key, ahorro_anual, nueva_fact = ahorros.main(
-            a, consumo_df, cap, req_vals['estado'], req_vals['municipio'], req_vals['servicio'])
 
+        a, cap = generacion.main(lat, lon, 2010, tot_kwh)
+        df, df2, rinv_inf, rinv_noinf = ahorros.main(
+            a, consumo_df, cap, req_vals['estado'], req_vals['municipio'], req_vals['servicio'])
+        
+
+        if 'consumo_id' in session:
+            consumo_info = ConsumoInfo.query.get(session['consumo_id'])
+            consumo_info.consumo_json = json.loads(df.to_json())
+            consumo_info.ahorro_json = json.loads(df2.to_json())
+            consumo_info.info_solar_json = json.loads(a[['ind', 'generacion_graph']].to_json())
+            consumo_info.rinv_inf_json = rinv_inf
+            consumo_info.rinv_noinf_json = rinv_noinf
+            consumo_info.created_at = datetime.utcnow()
+            db.session.commit()
+        else:
+            consumo_info = ConsumoInfo(
+                consumo_json = json.loads(df.to_json()), 
+                ahorro_json = json.loads(df2.to_json()),
+                info_solar_json=json.loads(a[['ind', 'generacion_graph']].to_json()),
+                rinv_inf_json = rinv_inf, rinv_noinf_json=rinv_noinf
+            )
+
+            db.session.add(consumo_info)
+            db.session.commit()
+            session['consumo_id'] = consumo_info.id
+
+        return redirect(url_for('solarbeam.consumption_dashboard'))
 
     return render_template('solarBeam/home.html', estados=estados)
+
+@bp.route('/solarbeam/app/set_session')
+def set_session():
+    session['test'] = 'funciona'
+    return render_template('solarbeam/consumo_personal.html')
+
+@bp.route('/solarbeam/app/consumo_personal')
+def consumption_dashboard():
+    consumo_id = session['consumo_id']
+    consumo_info = ConsumoInfo.query.get(consumo_id)
+
+    graphs, capacidad, costos = solarbeam_graphs.get_consumo_graphs(
+        consumo_info.consumo_json, consumo_info.ahorro_json, consumo_info.info_solar_json, 
+        consumo_info.rinv_inf_json, consumo_info.rinv_noinf_json
+    )
+    return render_template('solarbeam/consumo_personal.html', graphs=graphs, capacidad=capacidad, costos=costos)
 
 @bp.route('/solarbeam/app/confirmacion_usuario/', methods=['GET', 'POST'])
 @login_required_no_rol()

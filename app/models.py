@@ -1,8 +1,17 @@
 from datetime import datetime
-from enum import unique
 from flask_login import UserMixin
 
 from app import db, login, util
+
+
+class ConsumoInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    consumo_json = db.Column(db.JSON, nullable=False)
+    ahorro_json = db.Column(db.JSON, nullable=False)
+    info_solar_json = db.Column(db.JSON, nullable=False)
+    rinv_inf_json = db.Column(db.JSON, nullable=False)
+    rinv_noinf_json = db.Column(db.JSON, nullable=False)
+    created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
 class CodigoPostal(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,7 +21,6 @@ class CodigoPostal(db.Model):
     ciudad = db.Column(db.String(100))
     usuarios = db.relationship('User', backref='cp')
     ofertas = db.relationship('OfertaLicitacion', backref='cp')
-
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

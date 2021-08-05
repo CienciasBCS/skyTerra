@@ -28,7 +28,6 @@ def get_tar_info(estado, municipio, mes, tarifa, tipo):
     WHERE mes = '{mes}' AND estado = '{estado}' AND municipio = '{municipio}'
     AND tipo = '{tipo}'
     """
-    print(query)
     results = conn.execute(query).fetchall()
     conn.close()
     return {result[1]: json.loads(result[2]) for result in results}

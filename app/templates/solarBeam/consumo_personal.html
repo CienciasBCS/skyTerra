@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}¿Cómo funciona?{% endblock title %}
+
+{% block stylesheets %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section class="section-bg">
+    <div class="container mt-3 mb-3">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header h5 text-center">Información</div>
+                    <div class="card-body">
+                        <table class="table card-table text-center">
+                            <thead>
+                                <th>Capacidad para cubrir el 100%</th>
+                                <th>Costo de inversión</th>
+                                <th>Costo anual por mantenimiento</th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ capacidad }} KWp</td>
+                                    <td>${{ costos.inversion }}</td>
+                                    <td>${{ costos.mantenimiento }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-sm-12">
+                <div class="card shadow-sm">
+                    <div class="card-header h5 text-center">Comparativa</div>
+                    <div class="card-body">
+                        <div class="chart" id="comparacionConsumoGraph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-sm-6">
+                <div class="card shadow-sm">
+                    <div class="card-header h5 text-center">Ahorros</div>
+                    <div class="card-body">
+                        <div class="chart" id="ahorrosGraph"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card shadow-sm">
+                    <div class="card-header h5 text-center">Producción anual esperada</div>
+                    <div class="card-body">
+                        <div class="chart" id="genProyectadaGraph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-sm-12">
+                <div class="card shadow-sm">
+                    <div class="card-header h5 text-center">Retorno de inversión esperado</div>
+                    <div class="card-body">
+                        <div class="chart" id="rivGraph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-sm-12">
+                <div class="card shadow-sm">
+                    <div class="card-header h5 text-center">Retorno de inversión esperado</div>
+                    <div class="card-body">
+                        <div class="chart" id="rivCapInfGraph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    const graphsObject = {{ graphs | safe }};
+
+    Object.entries(graphsObject).forEach(([key, value]) => {
+        let plotlyData = JSON.parse(value);
+        let chartId = `${key}Graph`
+        Plotly.newPlot(chartId, plotlyData);
+        // Plotly.plot(chartId, [], {}, scrollConfig);
+    });
+
+    // Plotly.newPlot(barId, jsonData);
+    // Plotly.plot(barId, [], {}, scrollConfig);
+</script>
+
+
+{% endblock javascript %}

@@ -35,10 +35,10 @@
                                 <div class="form-group col-md-2 text-center">
                                     <label for="serviciosOptions">Selecciona un servicio</label>
                                     <select id="serviciosOptions" name="servicio" class="form-control">
-                                        <option value="hogar">Hogar</option>
+                                        <option value="hogar" disabled>Hogar</option>
                                         <option value="negocio">Negocio</option>
                                         <option value="industria">Industria</option>
-                                        <option value="industria">Agrícola y servicios</option>
+                                        <option value="industria" disabled>Agrícola y servicios</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-2 text-center">
@@ -47,7 +47,7 @@
                                 </div>
                                 <div class="form-group col-md-2 text-center">
                                     <label for="iniDate">Año</label>
-                                    <input type="date" name="fecha" id="iniDate" value="2021-06-04"
+                                    <input type="date" name="fecha" id="iniDate" value="2021-05-31" max="2021-05-31"
                                         class="form-control">
                                 </div>
                             </div>
@@ -91,8 +91,10 @@
     const estadosMunis = {{ estados | safe }};
     const tarifasBySelection = {
         'hogar': ['1', '1a', '1b', '1c', '1d', '1e', '1f', 'dac'],
-        'negocio': ['apbt', 'pdbt', 'apmt', 'gdmth', 'rabt', 'ramt', 'gdbt', 'gdmto', '9cn'],
-        'industria': ['apmt', 'ramt', 'gdmto', 'gdmth', 'dist', 'dit', '9cn'],
+        // 'negocio': ['apbt', 'pdbt', 'apmt', 'gdmth', 'rabt', 'ramt', 'gdbt', 'gdmto', '9cn'],
+        'negocio': ['gdmth'],
+        // 'industria': ['apmt', 'ramt', 'gdmto', 'gdmth', 'dist', 'dit', '9cn'],
+        'industria': ['gdmth'],
         'agricola': ['apmt', 'ramt', 'gdmto', 'gdmth', 'dist', 'dit', '9cn']
     }
 
