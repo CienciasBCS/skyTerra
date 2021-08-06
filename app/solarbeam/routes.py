@@ -54,10 +54,11 @@ def solarbeam_app():
 
     return render_template('solarBeam/home.html', estados=estados)
 
-@bp.route('/solarbeam/app/set_session')
-def set_session():
-    session['test'] = 'funciona'
-    return render_template('solarbeam/consumo_personal.html')
+@bp.route('/solarbeam/app/set_session/<consumo_id>')
+def set_session(consumo_id):
+    session['consumo_id'] = int(consumo_id)
+    print(session)
+    return 'yep'
 
 @bp.route('/solarbeam/app/consumo_personal')
 def consumption_dashboard():

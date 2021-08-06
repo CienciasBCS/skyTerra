@@ -24,6 +24,24 @@ def calc_costo_instalacion(kwp):
 
     return costo * 20
 
+def calc_costo_mto(kwp, año):
+    costo = 0
+    if kwp < 5:
+        costo = 35 * kwp
+    elif kwp < 15:
+        costo = 36 * kwp
+    elif kwp < 30:
+        costo = 33 * kwp
+    elif kwp < 50:
+        costo = 27 * kwp
+    elif kwp < 100:
+        costo = 37 * kwp
+    elif kwp < 250:
+        costo = 35 * kwp
+    else:
+        costo = 28 * kwp
+
+    return costo * año * 20
 
 def obtener_nuevos_consumos(nuevo_consumo, consumo_base, consumo_inter, consumo_punta):
     consumos = []
@@ -51,7 +69,7 @@ def main(a,df, cap, estado, municipio, tipo):
         banco_energia = []
         nuevos_consumos = []
         capacidad_total = cap * capacidad_gen
-        print(capacidad_total)
+        # print(capacidad_total)
         df[f'generation-{capacidad_gen}'] = df['generation'] * capacidad_gen
         df[f'cap-{capacidad_gen}'] = capacidad_total
 
@@ -118,25 +136,30 @@ def main(a,df, cap, estado, municipio, tipo):
         df2[f'cap-{capacidad_gen}'] = capacidad_total
 
 
-        costo_inversion = calc_costo_instalacion(capacidad_total) 
-        # CON INFLACIÓN
-        año_pasado = df2[df2[f"ahorro_con_inflacion-{capacidad_gen}"]
-                         > costo_inversion][f"ahorro_con_inflacion-{capacidad_gen}"].iloc[0]
-        año_ahorro = df2[df2[f"ahorro_con_inflacion-{capacidad_gen}"]
-                         < costo_inversion][f"ahorro_con_inflacion-{capacidad_gen}"].iloc[-1]
-        año_riv = df2[df2[f"ahorro_con_inflacion-{capacidad_gen}"] < costo_inversion]["year"].iloc[-1]
+        costo_inversion = calc_costo_instalacion(capacidad_total)
 
-        rinv_inf[capacidad_gen] = ((costo_inversion - año_pasado) / año_ahorro) + año_riv
+        df2[f'costo_mto-{capacidad_gen}'] = df2.apply(lambda x: calc_costo_mto(x[f'cap-{capacidad_gen}'], x['year']), axis=1)
+        df2[f'costo_total-{capacidad_gen}'] = df2[f'costo_mto-{capacidad_gen}'] + costo_inversion
+        df2[f'ahorro_neto_inf-{capacidad_gen}'] = df2[f'ahorro_con_inflacion-{capacidad_gen}'] - df2[f'costo_total-{capacidad_gen}']
+        df2[f'ahorro_neto_noinf-{capacidad_gen}'] = df2[f'ahorro_sin_inflacion-{capacidad_gen}'] - df2[f'costo_total-{capacidad_gen}']
+
+        # CON INFLACIÓN
+        año_pasado = df2[df2[f"ahorro_neto_inf-{capacidad_gen}"]
+                        < 0][f"ahorro_neto_inf-{capacidad_gen}"].iloc[-1]
+        año_ahorro = df2[df2[f"ahorro_neto_inf-{capacidad_gen}"]
+                        > 0][f"ahorro_neto_inf-{capacidad_gen}"].iloc[0]
+        año_riv = df2[df2[f"ahorro_neto_inf-{capacidad_gen}"] < 0]["year"].iloc[-1] + 1
+
+        rinv_inf[capacidad_gen] = (abs(año_pasado) / (abs(año_pasado) + año_ahorro)) + año_riv
 
         # SIN INFLACIÓN
-        año_pasado_noinf = df2[df2[f"ahorro_sin_inflacion-{capacidad_gen}"]
-                               > costo_inversion][f"ahorro_sin_inflacion-{capacidad_gen}"].iloc[0]
-        año_ahorro_noinf = df2[df2[f"ahorro_sin_inflacion-{capacidad_gen}"]
-                               < costo_inversion][f"ahorro_sin_inflacion-{capacidad_gen}"].iloc[-1]
-        año_riv_noinf = df2[df2[f"ahorro_sin_inflacion-{capacidad_gen}"]
-                            < costo_inversion]["year"].iloc[-1]
+        año_pasado_noinf = df2[df2[f"ahorro_neto_noinf-{capacidad_gen}"]
+                            < 0][f"ahorro_neto_noinf-{capacidad_gen}"].iloc[-1]
+        año_ahorro_noinf = df2[df2[f"ahorro_neto_noinf-{capacidad_gen}"]
+                            > 0][f"ahorro_neto_noinf-{capacidad_gen}"].iloc[0]
+        año_riv_noinf = df2[df2[f"ahorro_neto_noinf-{capacidad_gen}"]
+                            < 0]["year"].iloc[-1] + 1
 
-        rinv_noinf[capacidad_gen] = ((costo_inversion - año_pasado_noinf) /
-                         año_ahorro_noinf) + año_riv_noinf
+        rinv_noinf[capacidad_gen] = (abs(año_pasado_noinf) / (abs(año_pasado_noinf) + año_ahorro_noinf)) + año_riv_noinf
 
     return df, df2, rinv_inf, rinv_noinf

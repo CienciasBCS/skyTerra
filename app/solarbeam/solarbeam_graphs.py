@@ -105,9 +105,6 @@ def get_expected_gen_graph(consumo_df, cap=1):
 
 def get_riv_graph(ahorro_df, cap=1):
     ahorro_df['fecha'] = pd.date_range(start='2020-01-01', end='2045-01-01', freq='y')
-    ahorro_df['costo_inversion'] = ahorro_df[f'cap-{cap}'].apply(lambda x: calc_costo_instalacion(x))
-    ahorro_df['costo_mto'] = ahorro_df.apply(lambda x: calc_costo_mto(x[f'cap-{cap}'], x['year']), axis=1)
-    ahorro_df['costo_total'] = ahorro_df['costo_inversion'] + ahorro_df['costo_mto']
 
 
     fig = go.Figure()
@@ -120,7 +117,7 @@ def get_riv_graph(ahorro_df, cap=1):
         hovertemplate='<i>Ahorro con inflación: </i><b> %{y:$,.2f}</b><extra></extra>'
     ))
     fig.add_trace(go.Scatter(
-        x=ahorro_df['fecha'], y=ahorro_df['costo_total'], mode='lines', name='Inversión más mantenimiento', marker_color='yellow',
+        x=ahorro_df['fecha'], y=ahorro_df[f'costo_total-{cap}'], mode='lines', name='Inversión más mantenimiento', marker_color='yellow',
         hovertemplate='<i>Inversión más mantenimiento: </i><b> %{y:$,.2f}</b><extra></extra>'
     ))
 
@@ -159,6 +156,7 @@ def get_riv_cap_graph(riv_dict, cap):
 def get_consumo_graphs(consumo_dict, ahorro_dict, solar_info_dict, riv_inf_dict, riv_noinf_dict):
     consumo_df = pd.DataFrame(consumo_dict)
     ahorro_df = pd.DataFrame(ahorro_dict)
+    ahorro_df.to_csv('ahorro.csv')
     solar_info_df = pd.DataFrame(solar_info_dict)
     capacidad = consumo_df['cap-1'][0]
 
