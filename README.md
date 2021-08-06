@@ -1,2 +1,2 @@
 # solarBeam
-Aplicación web para la aplicación solarBeam
+Aplicación web para la aplicación de skyTerra
