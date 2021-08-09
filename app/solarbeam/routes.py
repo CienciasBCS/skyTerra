@@ -14,7 +14,6 @@ from app import util, db
 
 @bp.route('/solarbeam/app/', methods=['GET', 'POST'])
 def solarbeam_app():
-    util.get_conn_sb_tar()
     estados = util.get_json_s3('tarifas-cfe', 'estados_municipios.json')
     if request.method == 'POST':
         # resp = make_response(redirect(url_for('solarbeam.consumption_dashboard')))
