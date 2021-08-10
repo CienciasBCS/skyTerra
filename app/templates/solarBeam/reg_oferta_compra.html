@@ -230,14 +230,14 @@
         const validateCapMin = () => {
             return (
                 validations.isRequired(capMin.value) &&
-                validations.isBetween(capMin.value, 0.01, 100)
+                validations.isBetween(capMin.value, 0.01, 999999)
             )
         }
 
         const validateCapMax = () => {
             return (
                 validations.isRequired(capMax.value) &&
-                validations.isBetween(capMax.value, 0.01, 100)
+                validations.isBetween(capMax.value, 0.01, 999999)
             )
         }
 
