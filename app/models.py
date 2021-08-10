@@ -1,5 +1,9 @@
 from datetime import datetime
+
+import boto3
+from sqlalchemy.ext.hybrid import hybrid_property
 from flask_login import UserMixin
+from flask import current_app
 
 from app import db, login, util
 
@@ -167,8 +171,10 @@ class OfertaLicitacion(db.Model):
     comprador_id = db.Column(db.Integer, db.ForeignKey('comprador.id', ondelete="CASCADE" ), nullable=False)
     gestor_id = db.Column(db.Integer, db.ForeignKey('gestor.id'))
     nombre = db.Column(db.String(100), nullable=False)
-    max_kw = db.Column(db.Numeric(4, 2),  nullable=False)
-    min_wp = db.Column(db.Numeric(4, 2),  nullable=False)
+    min_wp = db.Column(db.Numeric(8, 2),  nullable=False)
+    max_kw = db.Column(db.Numeric(8, 2),  nullable=False)
+    kwp = db.Column(db.Numeric(8,2))
+    kw = db.Column(db.Numeric(8,2))
     precio_max = db.Column(db.Numeric(12, 2),  nullable=False)        
     direccion = db.Column(db.String(100), nullable=False)
     colonia = db.Column(db.String(100), nullable=False)
@@ -179,10 +185,10 @@ class OfertaLicitacion(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     pre_dimensionamiento = db.relationship('PreDimensionamiento', uselist=False, backref='oferta')
-    dimensionamiento = db.relationship('Dimensionamiento', backref='oferta')
-    adquisicion = db.relationship('Adquisicion', backref='oferta')
-    instalacion = db.relationship('Instalacion', backref='oferta')
-    puesta_en_marcha = db.relationship('PuestaEnMarcha', backref='oferta')
+    dimensionamiento = db.relationship('Dimensionamiento', uselist=False, backref='oferta')
+    adquisicion = db.relationship('Adquisicion', uselist=False, backref='oferta')
+    instalacion = db.relationship('Instalacion', uselist=False, backref='oferta')
+    puesta_en_marcha = db.relationship('PuestaEnMarcha', uselist=False, backref='oferta')
 
 class PreDimensionamiento(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
@@ -191,6 +197,30 @@ class PreDimensionamiento(db.Model):
 
 class Dimensionamiento(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
+    proyecto_ejecutivo_key = db.Column(db.String(50))
+    status_comprador = db.Column(db.Boolean, nullable=False, default=False)
+
+    @hybrid_property
+    def create_presigned_url(self):
+        """Generate a presigned URL to share an S3 object
+            return: Presigned URL as string. If error, returns None.
+        """
+        s3 = boto3.client('s3')
+        bucket_name = current_app.config['BUCKET']
+        expiration = 3600
+ 
+        # Generate a presigned URL for the S3 object
+        try:
+            response = s3.generate_presigned_url(
+                "get_object",
+                Params={"Bucket": bucket_name, "Key": self.proyecto_ejecutivo_key},
+                ExpiresIn=expiration,
+            )
+        except Exception as e:
+            return None
+    
+        # The response contains the presigned URL
+        return response
     
 class Adquisicion(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
