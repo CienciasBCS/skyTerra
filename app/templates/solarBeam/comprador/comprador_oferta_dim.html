@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Confirmar datos</div>
+            <div class="card-body">
+                <table class="table table-card text-center">
+                    <thead>
+                        <th>Capacidad KWp</th>
+                        <th>Capacidad KW</th>
+                        <th>Proyecto ejecutivo</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ oferta.kwp }}</td>
+                            <td>{{ oferta.kw }}</td>
+                            <td>
+                                <a href="{{oferta.dimensionamiento.create_presigned_url}}" target="_blank">
+                                    <i class="flaticon-file-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <form action="" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-row d-flex justify-content-center">
+                        <button type="submit" name="confirm" value="yes" class="btn btn-primary">Confirmar
+                            datos</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+<script>
+
+</script>
+
+{% endblock javascript %}

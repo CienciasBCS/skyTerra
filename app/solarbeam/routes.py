@@ -12,7 +12,7 @@ from .scripts import util_solarbeam, generacion, ahorros
 from . import solarbeam_graphs
 from app import util, db
 
-@bp.route('/solarbeam/app/', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET', 'POST'])
 def solarbeam_app():
     estados = util.get_json_s3('tarifas-cfe', 'estados_municipios.json')
     if request.method == 'POST':
@@ -53,13 +53,12 @@ def solarbeam_app():
 
     return render_template('solarBeam/home.html', estados=estados)
 
-@bp.route('/solarbeam/app/set_session/<consumo_id>')
+@bp.route('/set_session/<consumo_id>')
 def set_session(consumo_id):
     session['consumo_id'] = int(consumo_id)
-    print(session)
     return 'yep'
 
-@bp.route('/solarbeam/app/consumo_personal')
+@bp.route('/consumo_personal')
 def consumption_dashboard():
     consumo_id = session['consumo_id']
     consumo_info = ConsumoInfo.query.get(consumo_id)
@@ -70,7 +69,7 @@ def consumption_dashboard():
     )
     return render_template('solarbeam/consumo_personal.html', graphs=graphs, capacidad=capacidad, costos=costos)
 
-@bp.route('/solarbeam/app/confirmacion_usuario/', methods=['GET', 'POST'])
+@bp.route('/confirmacion_usuario/', methods=['GET', 'POST'])
 @login_required_no_rol()
 def confirmar_usuario():
     if request.method == 'POST':
@@ -83,7 +82,7 @@ def confirmar_usuario():
 
         for file in request.files:
             file_object = request.files[file]
-            file_key = f"archivos/{current_user.id}/{file}.pdf"
+            file_key = f"archivos/usuario/{current_user.id}/{file}.pdf"
 
             error = util.upload_file_to_s3(file_object, file_key)
 
@@ -125,14 +124,14 @@ def confirmar_usuario():
 
 
 # GESTOR
-@bp.route('/solarbeam/app/gestor/mis_ofertas/')
+@bp.route('/gestor/mis_ofertas/')
 @login_required_roles(['gestor', 'admin'])
 def gestor_ofertas():
     
-    return render_template('solarBeam/gestor_ofertas.html', len=len)
+    return render_template('solarBeam/gestor/gestor_ofertas.html', len=len)
 
 
-@bp.route('/solarbeam/app/gestor/mis_ofertas/<id_oferta>', methods=['GET', 'POST'])
+@bp.route('/gestor/mis_ofertas/<id_oferta>/predim_confirmacion', methods=['GET', 'POST'])
 @login_required_roles(['gestor', 'admin'])
 def gestor_oferta_info(id_oferta):
     oferta = OfertaLicitacion.query.get(id_oferta)
@@ -145,16 +144,51 @@ def gestor_oferta_info(id_oferta):
         if req_vals['confirm'] == 'True':
             oferta.pre_dimensionamiento.status_gestor = True
             if oferta.pre_dimensionamiento.status_comprador:
-                oferta.status = 1
+                util_solarbeam.confrim_predim_ofer(oferta)
             db.session.commit()
         
         return redirect(url_for('solarbeam.gestor_ofertas'))
 
-    return render_template('solarBeam/gestor_oferta_info.html', oferta=oferta)
+    return render_template('solarBeam/gestor/gestor_oferta_info.html', oferta=oferta)
 
+
+@bp.route('/gestor/mis_ofertas/<id_oferta>/dim_confirmacion', methods=['GET', 'POST'])
+@login_required_roles(['gestor', 'admin'])
+def gestor_oferta_dim_conf(id_oferta):
+    oferta = util_solarbeam.is_offer_from_gestor(id_oferta)
+    if not oferta:
+        return redirect(url_for('solarbeam.gestor_ofertas'))
+
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        print(req_vals)
+        
+        main_error = render_template('solarBeam/gestor/gestor_oferta_dim.html', oferta=oferta, s3_error=True)
+        cap_kwp = req_vals.get('capKwp')
+        cap_kw = req_vals.get('capKw')
+
+        if cap_kwp and cap_kw:
+            oferta.kwp = cap_kwp
+            oferta.kw = cap_kw
+            if 'projEje' in request.files:
+                file_object = request.files['projEje']
+                file_key = f"archivos/oferta/{oferta.id}/ProyectoEjecutivo.pdf"
+                error = util.upload_file_to_s3(file_object, file_key)
+            
+                if error:
+                    return main_error
+                oferta.dimensionamiento.proyecto_ejecutivo_key = file_key
+            else:
+                return main_error
+            
+            db.session.commit()
+
+            return redirect(url_for('solarbeam.gestor_ofertas'))
+            
+    return render_template('solarBeam/gestor/gestor_oferta_dim.html', oferta=oferta)
 
 # COMPRADOR
-@bp.route('/solarbeam/app/comprador/registro_oferta_compra/', methods=['GET', 'POST'])
+@bp.route('/comprador/registro_oferta_compra/', methods=['GET', 'POST'])
 @login_required_roles(['comprador', 'admin'])
 def registro_oferta_compra():
     if request.method == 'POST':
@@ -206,7 +240,7 @@ def registro_oferta_compra():
     return render_template('solarBeam/reg_oferta_compra.html')
 
 
-@bp.route('/solarbeam/app/comprador/mis_ofertas/', methods=['GET', 'POST'])
+@bp.route('/comprador/mis_ofertas/', methods=['GET', 'POST'])
 @login_required_roles(['comprador', 'admin'])
 def comprador_ofertas():
     if request.method == 'POST':
@@ -229,10 +263,10 @@ def comprador_ofertas():
             if not oferta.gestor_id:
                 oferta.gestor_id = gestor_id
                 db.session.commit()
-    return render_template('solarBeam/comprador_ofertas.html', len=len)
+    return render_template('solarBeam/comprador/comprador_ofertas.html', len=len)
 
 
-@bp.route('/solarbeam/app/comprador/mis_ofertas/<id_oferta>', methods=['GET', 'POST'])
+@bp.route('/comprador/mis_ofertas/<id_oferta>/predim_confirmacion', methods=['GET', 'POST'])
 @login_required_roles(['comprador', 'admin'])
 def comprador_oferta_info(id_oferta):
     oferta = OfertaLicitacion.query.get(id_oferta)
@@ -245,36 +279,55 @@ def comprador_oferta_info(id_oferta):
         if req_vals['confirm'] == 'True':
             oferta.pre_dimensionamiento.status_comprador = True
             if oferta.pre_dimensionamiento.status_gestor:
-                oferta.status = 1
+                util_solarbeam.confrim_predim_ofer(oferta)
             db.session.commit()
         
         return redirect(url_for('solarbeam.comprador_ofertas'))
 
-    return render_template('solarBeam/comprador_oferta_info.html', oferta=oferta)
+    return render_template('solarBeam/comprador/comprador_oferta_info.html', oferta=oferta)
+
+@bp.route('/comprador/mis_ofertas/<id_oferta>/dim_confirmacion', methods=['GET', 'POST'])
+@login_required_roles(['comprador', 'admin'])
+def comprador_oferta_dim_conf(id_oferta):
+    oferta = util_solarbeam.is_offer_from_comprador(id_oferta)
+    if not oferta:
+        return redirect(url_for('solarbeam.comprador_ofertas'))
+
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        
+        if req_vals.get('confirm') == 'yes':
+            oferta.dimensionamiento.status_comprador = 1
+            oferta.status = 2
+            db.session.commit()
+
+            return redirect(url_for('solarbeam.comprador_ofertas'))
+
+    return render_template('solarBeam/comprador/comprador_oferta_dim.html', oferta=oferta)
 
 # INTEGRADOR
-@bp.route('/solarbeam/app/proyectos_disponibles/')
+@bp.route('/proyectos_disponibles/')
 def proyectos_disponibles():
 
 
     return render_template('solarBeam/integrador_oferta_compra.html')
 
 
-@bp.route('/solarbeam/app/proyectos_disponibles/agregar_oferta')
+@bp.route('/proyectos_disponibles/agregar_oferta')
 def agregar_oferta():
 
 
     return render_template('solarBeam/integrador_agregar_oferta.html')
 
 
-@bp.route('/solarbeam/app/proyectos_disponibles/instalacion')
+@bp.route('/proyectos_disponibles/instalacion')
 def instalacion():
 
 
     return render_template('solarBeam/instalacion.html')
 
 
-@bp.route('/solarbeam/app/proyectos_disponibles/marcha')
+@bp.route('/proyectos_disponibles/marcha')
 def marrcha():
 
 

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Mis ofertas</div>
+            <div class="card-body">
+                {% if s3_error %}
+                <div class="alert alert-danger" role="alert">
+                    Hubo un error al procesar tu informacion. Intentalo nuevamente
+                </div>
+                {% endif %}
+                <form method="POST" enctype="multipart/form-data" id="form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-row">
+                        <div class="col-lg-6 col-sm-12 d-flex flex-column">
+                            <label for="">Proyecto Ejecutivo</label>
+                            <div class="custom-file">
+                                {% if oferta.dimensionamiento.proyecto_ejecutivo_key %}
+                                <input type="file" class="custom-file-input" name="projEje" id="projEje" disabled>
+                                <label class="custom-file-label" for="projEje" id="lblProjEje">Proyecto
+                                    ejecutivo</label>
+                                {% else %}
+                                <input type="file" class="custom-file-input" name="projEje" id="projEje" required>
+                                <label class="custom-file-label" for="projEje" id="lblProjEje">Proyecto
+                                    ejecutivo</label>
+                                <div class="invalid-feedback">
+                                    Por favor escoja un archivo PDF menor a 300mb.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 mt-3 mt-lg-0">
+                            <label for="capKwp">Capacidad en kWp</label>
+                            {% if oferta.dimensionamiento.proyecto_ejecutivo_key %}
+                            <input type="number" name="capKwp" id="capKwp" class="form-control" step=".01" disabled
+                                value="{{oferta.kwp}}">
+                            {% else %}
+                            <input type="number" name="capKwp" id="capKwp" class="form-control" step=".01">
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                Favor de llenar el campo.
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 mt-3 mt-lg-0">
+                            <label for="capKw">Capacidad en kW</label>
+                            {% if oferta.dimensionamiento.proyecto_ejecutivo_key %}
+                            <input type="number" name="capKw" id="capKw" class="form-control" step=".01" disabled
+                                value="{{oferta.kw}}">
+                            {% else %}
+                            <input type="number" name="capKw" id="capKw" class="form-control" step=".01">
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                Favor de llenar el campo.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row d-flex justify-content-center mt-4">
+                        {% if oferta.dimensionamiento.proyecto_ejecutivo_key %}
+                        <a href="{{ url_for('solarbeam.gestor_ofertas') }}" class="btn btn-primary">Regresar a
+                            ofertas</a>
+                        {% else %}
+                        <button type="submit" class="btn btn-primary">Confirmar datos</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+
+{% block javascript %}
+<script>
+    const appLogic = (() => {
+        const form = document.querySelector('#form');
+        const lblProyEje = document.querySelector('#lblProjEje');
+        const proyEje = document.querySelector('#projEje');
+        const capKwp = document.querySelector('#capKwp');
+        const capKw = document.querySelector('#capKw');
+
+        const valideteProyEje = (fileInput) => validations.isBetween(fileInput.files[0].size, 1, 314572800); // 314572800
+
+        const validateInputCap = (input) => {
+            console.log(input)
+            return (
+                validations.isRequired(input.value) &&
+                validations.isBetween(input.value, 0.1, 999999)
+            )
+        }
+
+        const validateForm = () => {
+            validations.validateError();
+
+            let errors = [];
+
+            errors.push(!valideteProyEje(proyEje) ? validations.showError(proyEje) : true);
+            errors.push(!validateInputCap(capKwp) ? validations.showError(capKwp) : true);
+            errors.push(!validateInputCap(capKw) ? validations.showError(capKw) : true);
+
+            if (!errors.includes(false)) form.submit();
+
+        }
+
+        const addListeners = () => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                validateForm();
+            })
+            proyEje.addEventListener('change', () => {
+                let file = proyEje.files[0];
+                lblProyEje.innerText = file.name;
+            })
+        }
+
+        const _init = (() => {
+            addListeners();
+        })()
+    })()
+</script>
+
+{% endblock javascript %}

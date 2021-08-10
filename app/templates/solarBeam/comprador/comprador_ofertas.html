@@ -19,20 +19,31 @@
         <div class="card rounded shadow">
             <div class="card-header h4 text-center">Mis ofertas</div>
             <div class="card-body">
+                {% if errorInvGestor %}
+                <div class="row d-flex justify-content-center">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        El código del gestor es incorrecto.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                {% elif errorNoGestor %}
+                <div class="row d-flex justify-content-center">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        No existen gestores en tu municipio por el momento.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+
                 <div class="mb-3 flex-column">
                     <h6>Hola {{current_user.nombre}}!</h6>
                     <p>Actualmente tienes: <span>{{ len(ofertas_activas) }}</span> oferta(s) de compra activa(s).</p>
-                    <p>Tu código para compartir es:
-                    </p>
-                    <div class="input-group m-0 p-0 col-sm-3">
-                        <input type="text" id="codigoInput" class="form-control"
-                            value="{{current_user.user_rol.codigo}}" aria-label="Código" aria-describedby="basic-addon2"
-                            disabled>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" id="copyBtn" type="button" data-toggle="tooltip"
-                                data-placement="bottom" title="Código copiado!">Copiar</button>
-                        </div>
-                    </div>
+                    <a href="{{url_for('solarbeam.registro_oferta_compra')}}"><button class="btn btn-primary">Registrar
+                            nueva oferta</button></a>
                 </div>
                 <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
                     <li class="nav-item">
@@ -87,34 +98,34 @@
                         <table class="table table-card text-center">
                             <thead>
                                 <th>Nombre</th>
-                                <th>Email de comprador</th>
+                                <th>Email de gestor</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
-                                <th>Cita confirmada</th>
+                                <th>Confirmación</th>
                             </thead>
                             <tbody>
                                 {% for oferta in ofertas_predim %}
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.comprador.user_role.user.email}}</td>
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
                                     {% else %}
-                                    <td>Ningún gestor ha aceptado la oferta</td>
+                                    <td>Ningún gestor se ha encontrado en el área <span
+                                            class="ml-3 cursor-pointer flaticon-users" data-toggle="modal"
+                                            data-target="#exampleModal" id="{{oferta.id}}"></span></td>
                                     {% endif %}
                                     <td>{{oferta.min_wp}}</td>
                                     <td>{{oferta.max_kw}}</td>
                                     <td>
                                         <p>
-
-                                            {% if oferta.pre_dimensionamiento.status_gestor %}
-                                            <a href="{{ url_for('solarbeam.gestor_oferta_info', id_oferta=oferta.id) }}"
+                                            {% if oferta.pre_dimensionamiento.status_comprador %}
+                                            <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
                                                 class="text-success font-weight-bold">Falta confirmación de
-                                                comprador</a>
+                                                gestor</a>
                                             {% else %}
-                                            <a href="{{ url_for('solarbeam.gestor_oferta_info', id_oferta=oferta.id) }}"
+                                            <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
                                                 class="text-danger font-weight-bold">Falta confirmación</a>
                                             {% endif %}
-
                                         </p>
                                     </td>
                                 </tr>
@@ -130,21 +141,30 @@
                         <table class="table table-card text-center">
                             <thead>
                                 <th>Nombre</th>
-                                <th>Email de comprador</th>
+                                <th>Email de gestor</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
+                                <th>Confirmación datos</th>
                             </thead>
                             <tbody>
                                 {% for oferta in ofertas_dimen %}
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.comprador.user_role.user.email}}</td>
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
                                     {% else %}
-                                    <td>Ningún gestor ha aceptado la oferta</td>
+                                    <td>Ningún gestor se ha encontrado en el área</td>
                                     {% endif %}
                                     <td>{{oferta.min_wp}}</td>
                                     <td>{{oferta.max_kw}}</td>
+                                    <td>
+                                        {% if oferta.dimensionamiento.proyecto_ejecutivo_key %}
+                                        <a href="{{ url_for('solarbeam.comprador_oferta_dim_conf', id_oferta=oferta.id) }}"
+                                            class="text-info font-weight-bold">Confirmar datos del gestor</a>
+                                        {% else %}
+                                        <span class="text-danger font-weight-bold">En espera de datos de gestor</span>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -158,21 +178,21 @@
                         <table class="table table-card text-center">
                             <thead>
                                 <th>Nombre</th>
-                                <th>Email de comprador</th>
-                                <th>Capacidad mínima en kWp</th>
-                                <th>Capacidad máxima en kWac</th>
+                                <th>Email de gestor</th>
+                                <th>Capacidad kWp</th>
+                                <th>Capacidad kW</th>
                             </thead>
                             <tbody>
                                 {% for oferta in ofertas_adqui %}
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.comprador.user_role.user.email}}</td>
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
-                                    <td>{{oferta.min_wp}}</td>
-                                    <td>{{oferta.max_kw}}</td>
+                                    <td>{{oferta.kwp}}</td>
+                                    <td>{{oferta.kw}}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -186,7 +206,7 @@
                         <table class="table table-card text-center">
                             <thead>
                                 <th>Nombre</th>
-                                <th>Email de comprador</th>
+                                <th>Email de gestor</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
                             </thead>
@@ -195,7 +215,7 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.comprador.user_role.user.email}}</td>
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
@@ -214,7 +234,7 @@
                         <table class="table table-card text-center">
                             <thead>
                                 <th>Nombre</th>
-                                <th>Email de comprador</th>
+                                <th>Email de gestor</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
                             </thead>
@@ -223,7 +243,7 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.comprador.user_role.user.email}}</td>
+                                    <td>{{oferta.gestor.user_role.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
@@ -242,33 +262,115 @@
         </div>
     </div>
 </section>
+<form method="POST" id="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Actualizar gestor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <label for="gestorOpc">Selecciona una opción</label>
+                            <select name="gestorOpc" id="gestOption" class="form-control">
+                                <option value="sinGestor" selected>No cuento con código de gestor</option>
+                                <option value="conGestor">Cuento con código de gestor</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="codigoGestor">Código de gestor</label>
+                            <input type="text" class="form-control" name="codigoGestor" id="codigoGestor" disabled>
+                            <div class="invalid-feedback">
+                                Por favor rellene el campo con un código de gestor valido de 6 dígitos.
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="ofertaGestor" name="oferta">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 {% endblock content %}
 
 {% block javascript %}
 <script>
-    const addListeners = (() => {
-        let copyBtn = document.getElementById('copyBtn');
-        let codigoInput = document.getElementById('codigoInput');
-        $(copyBtn).tooltip({ trigger: 'manual' }).tooltip('disable');
+    const appLogic = (() => {
+        const form = document.querySelector('#form');
+        const gestOption = document.querySelector('#gestOption');
+        const codigoInput = document.querySelector('#codigoGestor');
+        const hiddenInput = document.querySelector('#ofertaGestor');
 
+        const hiddenInputName = (newId) => {
+            hiddenInput.value = newId;
+        }
 
-        copyBtn.addEventListener('click', () => {
-            let dummy = document.createElement('input');
-            dummy.value = codigoInput.value;
-            document.body.appendChild(dummy)
-            dummy.select();
-            document.execCommand("copy");
-            $(copyBtn).tooltip('enable');
-            $(copyBtn).tooltip('show');
-            document.body.removeChild(dummy);
-            setTimeout(function () {
-                $(copyBtn).tooltip('disable');
-                $(copyBtn).tooltip('hide');
-            }, 1000);
+        const updateCodeInput = () => {
+            codigoInput.value = '';
+            if (gestOption.value === 'sinGestor') codigoInput.disabled = true;
+            if (gestOption.value === 'conGestor') codigoInput.disabled = false;
+        }
 
-        })
+        const validateCodeInput = () => {
+            return (
+                validations.isRequired(codigoInput.value) &&
+                validations.isBetween(codigoInput.value.length, 6, 6)
+            )
+        }
+
+        const validateHiddenInput = () => validations.isRequired(hiddenInput.value);
+
+        const errorHiddenInput = () => {
+            alert('Error! Contactar admin');
+            return false
+        }
+
+        const validateForm = () => {
+            validations.validateError();
+
+            let errors = [];
+
+            if (gestOption.value === 'conGestor') {
+                errors.push(!validateCodeInput() ? validations.showError(codigoInput) : true);
+            }
+            errors.push(!validateHiddenInput() ? errorHiddenInput() : true);
+
+            if (!errors.includes(false)) form.submit();
+        }
+
+        const addListeners = () => {
+            let iconButtons = document.querySelectorAll('.flaticon-users')
+            iconButtons.forEach(iconButton => {
+                iconButton.addEventListener('click', (e) => {
+                    console.log(e.target.id);
+                    hiddenInputName(e.target.id)
+                })
+            });
+
+            gestOption.addEventListener('change', () => {
+                updateCodeInput();
+            })
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault()
+                validateForm()
+            })
+        }
+
+        const _init = (() => {
+            addListeners();
+        })()
     })()
 </script>
-
 {% endblock javascript %}

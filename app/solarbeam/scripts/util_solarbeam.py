@@ -1,8 +1,10 @@
 import datetime, random
 from dateutil.relativedelta import relativedelta
 
+from flask import abort
+from flask_login import current_user
 from app import db
-from app.models import CodigoPostal, Gestor, User
+from app.models import CodigoPostal, Gestor, User, Dimensionamiento, OfertaLicitacion
 
 import pandas as pd
 
@@ -58,3 +60,34 @@ def get_random_gestor_id(municipio):
         return gestor.id
     else:
         return None
+
+def is_offer_from_gestor(id_oferta):
+    oferta = OfertaLicitacion.query.get(id_oferta)
+    if oferta:
+        if not oferta.gestor == current_user.user_rol:
+            abort(401)
+        else:
+            return oferta
+    else:
+        return False
+
+def is_offer_from_comprador(id_oferta):
+    oferta = OfertaLicitacion.query.get(id_oferta)
+    if oferta:
+        if not oferta.comprador == current_user.user_rol:
+            abort(401)
+        else:
+            return oferta
+    else:
+        return False
+
+def confrim_predim_ofer(oferta):
+    oferta.status = 1
+    oferta_dim = Dimensionamiento.query.get(oferta.id)
+    if oferta_dim:
+        oferta_dim.projecto_ejecutivo_key = None
+        oferta_dim.status_comprador = False
+    else:
+        oferta_dim = Dimensionamiento(id=oferta.id)
+        db.session.add(oferta_dim)
+    db.session.commit()
