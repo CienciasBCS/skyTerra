@@ -32,9 +32,24 @@ def get_tar_info(estado, municipio, mes, tarifa, tipo):
     conn.close()
     return {result[1]: json.loads(result[2]) for result in results}
 
-def calc_tarifa_gdmth(fecha, estado, municipio, tipo, kwh_list, dem_list):
+def get_tar_info_date_range(estado, municipio, fecha_min, fecha_max, tarifa, tipo):
+    conn = util.get_conn_sb_tar()
+    query = f"""
+    SELECT mes, division, costos FROM {tarifa}
+    WHERE mes >= '{fecha_min}' AND mes <= '{fecha_max}'
+    AND estado = '{estado}' AND municipio = '{municipio}'
+    AND tipo = '{tipo}'
+    """
+    results = conn.execute(query).fetchall()
+    conn.close()
+    return {result[0].strftime('%Y-%m-%d'):{result[1]: json.loads(result[2])} for result in results}
+
+def calc_tarifa_gdmth(fecha, estado, municipio, tipo, kwh_list, dem_list, diccionario_tarifa=False):
     mes = datetime.datetime.strptime(fecha, '%Y-%m-%d').month
-    tar_info = get_tar_info(estado, municipio, fecha, 'gdmth', tipo)
+    if diccionario_tarifa:
+        tar_info = diccionario_tarifa[fecha]
+    else:
+        tar_info = get_tar_info(estado, municipio, fecha, 'gdmth', tipo)
     
     costos_variables = []
     for division, costos_info in tar_info.items():

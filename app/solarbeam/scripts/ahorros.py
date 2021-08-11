@@ -59,12 +59,17 @@ def main(a,df, cap, estado, municipio, tipo):
     df2  = df2.reset_index().rename(columns = {"Month": "mes"})
     
     df = df2.merge(df, on = "mes")
+    fecha_min = df.fecha.min()
+    fecha_max = df.fecha.max()
+    tarifa_costo = tarifas.get_tar_info_date_range(estado, municipio, fecha_min, fecha_max, 'gdmth', tipo)
     df['precio_kwh'] = df.apply(lambda x: tarifas.calc_tarifa_gdmth(x['fecha'], estado, municipio, tipo,
                                   [x['kwh-base'], x['kwh-inter'], x['kwh-punta']], 
-                                  [x['dem-base'], x['dem-inter'], x['dem-punta']]), axis=1)
+                                  [x['dem-base'], x['dem-inter'], x['dem-punta']],
+                                  diccionario_tarifa=tarifa_costo), axis=1)
     df2 = pd.DataFrame()
     rinv_inf = {}                                  
     rinv_noinf = {}
+    
     for capacidad_gen in [0.5, 0.6, 0.7, 0.8, 0.9, 1]:
         banco_energia = []
         nuevos_consumos = []
@@ -106,7 +111,8 @@ def main(a,df, cap, estado, municipio, tipo):
         )
         df[f'nuevo_precio_kwh-{capacidad_gen}'] = df.apply(lambda x: tarifas.calc_tarifa_gdmth(x['fecha'], estado, municipio, tipo,
                                     [x[f'nuevo_kwh-base-{capacidad_gen}'], x[f'nuevo_kwh-inter-{capacidad_gen}'], x[f'nuevo_kwh-punta-{capacidad_gen}']], 
-                                    [x['dem-base'], x['dem-inter'], x['dem-punta']]), axis=1)
+                                    [x['dem-base'], x['dem-inter'], x['dem-punta']],
+                                    diccionario_tarifa=tarifa_costo), axis=1)
         
         df[f"ahorro-{capacidad_gen}"] = df["precio_kwh"] - df[f"nuevo_precio_kwh-{capacidad_gen}"]
 
@@ -161,5 +167,6 @@ def main(a,df, cap, estado, municipio, tipo):
                             < 0]["year"].iloc[-1] + 1
 
         rinv_noinf[capacidad_gen] = (abs(año_pasado_noinf) / (abs(año_pasado_noinf) + año_ahorro_noinf)) + año_riv_noinf
+        df.to_csv('df.csv', index=False)
 
     return df, df2, rinv_inf, rinv_noinf

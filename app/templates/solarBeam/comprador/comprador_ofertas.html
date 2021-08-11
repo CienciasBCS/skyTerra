@@ -9,12 +9,12 @@
 
 {% block content %}
 <section>
-    {% set ofertas_predim = current_user.user_rol.ofertas|selectattr('status', 'equalto', 0)|list %}
-    {% set ofertas_dimen = current_user.user_rol.ofertas|selectattr('status', 'equalto', 1)|list %}
-    {% set ofertas_adqui = current_user.user_rol.ofertas|selectattr('status', 'equalto', 2)|list %}
-    {% set ofertas_insta = current_user.user_rol.ofertas|selectattr('status', 'equalto', 3)|list %}
-    {% set ofertas_puestaMarcha = current_user.user_rol.ofertas|selectattr('status', 'equalto', 4)|list %}
-    {% set ofertas_activas = current_user.user_rol.ofertas|rejectattr('status', 'equalto', 4)|list %}
+    {% set ofertas_predim = current_user.user_rol.comprador.get_ofertas_by_status(0) %}
+    {% set ofertas_dimen = current_user.user_rol.comprador.get_ofertas_by_status(1) %}
+    {% set ofertas_adqui = current_user.user_rol.comprador.get_ofertas_by_status(2) %}
+    {% set ofertas_insta = current_user.user_rol.comprador.get_ofertas_by_status(3) %}
+    {% set ofertas_puestaMarcha = current_user.user_rol.comprador.get_ofertas_by_status(4) %}
+    {% set ofertas_activas = current_user.user_rol.comprador.get_ofertas_activas() %}
     <div class="container mt-3 mb-3">
         <div class="card rounded shadow">
             <div class="card-header h4 text-center">Mis ofertas</div>
@@ -101,32 +101,49 @@
                                 <th>Email de gestor</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
-                                <th>Confirmación</th>
+                                <th>Oferta</th>
+                                <th>Cita confirmada</th>
                             </thead>
                             <tbody>
                                 {% for oferta in ofertas_predim %}
-                                <tr>
-                                    <td>{{oferta.nombre}}</td>
+                                <tr class="align-items-center">
+                                    <td class="align-middle">{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td class="align-middle">{{oferta.gestor.user_role.user.email}}</td>
                                     {% else %}
-                                    <td>Ningún gestor se ha encontrado en el área <span
+                                    <td class="align-middle">Ningún gestor se ha encontrado en el área <span
                                             class="ml-3 cursor-pointer flaticon-users" data-toggle="modal"
                                             data-target="#exampleModal" id="{{oferta.id}}"></span></td>
                                     {% endif %}
-                                    <td>{{oferta.min_wp}}</td>
-                                    <td>{{oferta.max_kw}}</td>
-                                    <td>
-                                        <p>
-                                            {% if oferta.pre_dimensionamiento.status_comprador %}
-                                            <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
-                                                class="text-success font-weight-bold">Falta confirmación de
-                                                gestor</a>
-                                            {% else %}
-                                            <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
-                                                class="text-danger font-weight-bold">Falta confirmación</a>
-                                            {% endif %}
-                                        </p>
+                                    <td class="align-middle">{{oferta.min_wp}}</td>
+                                    <td class="align-middle">{{oferta.max_kw}}</td>
+                                    <td class="align-middle">
+                                        {% if oferta.licitacion.agrupada %}
+                                        <button class="btn btn-info ofertas-agrupadas-btn" data-toggle="modal"
+                                            id="ofertaAgruInfoBtn-{{oferta.id}}"
+                                            data-licitacion="{{oferta.licitacion.id}}"
+                                            data-target="#modalOfertasAgrupadas">
+                                            Oferta agrupada
+                                        </button>
+                                        {% else %}
+                                        <span>Oferta individual</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">
+                                        {% if oferta.pre_dimensionamiento.status_comprador %}
+                                        {% if not oferta.pre_dimensionamiento.status_gestor %}
+                                        <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
+                                            class="btn btn-info">Falta confirmación de
+                                            gestor</a>
+                                        {% else %}
+                                        <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
+                                            class="btn btn-success">Falta confirmación de
+                                            otras ofertas</a>
+                                        {% endif %}
+                                        {% else %}
+                                        <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
+                                            class="btn btn-danger">Falta confirmación</a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -144,25 +161,39 @@
                                 <th>Email de gestor</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
+                                <th>Oferta</th>
                                 <th>Confirmación datos</th>
                             </thead>
                             <tbody>
                                 {% for oferta in ofertas_dimen %}
                                 <tr>
-                                    <td>{{oferta.nombre}}</td>
+                                    <td class="align-middle">{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td class="align-middle">{{oferta.gestor.user_role.user.email}}</td>
                                     {% else %}
-                                    <td>Ningún gestor se ha encontrado en el área</td>
+                                    <td class="align-middle">Ningún gestor se ha encontrado en el área</td>
                                     {% endif %}
-                                    <td>{{oferta.min_wp}}</td>
-                                    <td>{{oferta.max_kw}}</td>
-                                    <td>
+                                    <td class="align-middle">{{oferta.min_wp}}</td>
+                                    <td class="align-middle">{{oferta.max_kw}}</td>
+                                    <td class="align-middle">
+                                        {% if oferta.licitacion.agrupada %}
+                                        <button class="btn btn-info ofertas-agrupadas-btn" data-toggle="modal"
+                                            id="ofertaAgruInfoBtn-{{oferta.id}}"
+                                            data-licitacion="{{oferta.licitacion.id}}"
+                                            data-target="#modalOfertasAgrupadas">
+                                            Oferta agrupada
+                                        </button>
+                                        {% else %}
+                                        <span>Oferta individual</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">
                                         {% if oferta.dimensionamiento.proyecto_ejecutivo_key %}
                                         <a href="{{ url_for('solarbeam.comprador_oferta_dim_conf', id_oferta=oferta.id) }}"
-                                            class="text-info font-weight-bold">Confirmar datos del gestor</a>
+                                            class="btn btn-info">Confirmar datos del gestor</a>
                                         {% else %}
-                                        <span class="text-danger font-weight-bold">En espera de datos de gestor</span>
+                                        <span class="text-danger font-weight-bold">En espera de datos de
+                                            gestor</span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -302,25 +333,42 @@
     </div>
 </form>
 
+
+<!-- MODAL DE INFO OFERTAS AGRUPADAS -->
+<div class="modal fade" id="modalOfertasAgrupadas" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalOfertasAgrupadasLabel">Información de las ofertas de la licitación</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table text-center">
+                    <thead>
+                        <th>Entidad Federativa</th>
+                        <th>Creación de la oferta</th>
+                        <th>Estado</th>
+                    </thead>
+                    <tbody id="tablaOfertasInfo">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
 
 {% block javascript %}
 <script>
-    const appLogic = (() => {
+    const pageValidation = (() => {
         const form = document.querySelector('#form');
-        const gestOption = document.querySelector('#gestOption');
-        const codigoInput = document.querySelector('#codigoGestor');
         const hiddenInput = document.querySelector('#ofertaGestor');
-
-        const hiddenInputName = (newId) => {
-            hiddenInput.value = newId;
-        }
-
-        const updateCodeInput = () => {
-            codigoInput.value = '';
-            if (gestOption.value === 'sinGestor') codigoInput.disabled = true;
-            if (gestOption.value === 'conGestor') codigoInput.disabled = false;
-        }
+        const codigoInput = document.querySelector('#codigoGestor');
 
         const validateCodeInput = () => {
             return (
@@ -349,11 +397,72 @@
             if (!errors.includes(false)) form.submit();
         }
 
+        return { validateForm }
+    })()
+
+
+    const appLogic = (() => {
+        const form = document.querySelector('#form');
+        const hiddenInput = document.querySelector('#ofertaGestor');
+        const gestOption = document.querySelector('#gestOption');
+        const ofertasAgruBtn = document.querySelectorAll('.ofertas-agrupadas-btn');
+        const codigoInput = document.querySelector('#codigoGestor');
+        const tableOfertasBody = document.querySelector('#tablaOfertasInfo');
+
+        const hiddenInputName = (newId) => {
+            hiddenInput.value = newId;
+        }
+
+        const updateCodeInput = () => {
+            codigoInput.value = '';
+            if (gestOption.value === 'sinGestor') codigoInput.disabled = true;
+            if (gestOption.value === 'conGestor') codigoInput.disabled = false;
+        }
+
+        const renderOfertasAgrupadasInfo = (data) => {
+            tableOfertasBody.innerHTML = '';
+            let status = {
+                1: 'pre_dimensionamiento', 2: 'dimensionamiento'
+            }
+            let statusName = status[data.status]
+            data.ofertas.forEach(oferta => {
+                let row = document.createElement('tr');
+                let entidadFed = document.createElement('td');
+                let dateTime = document.createElement('td');
+                let statusCompleted = document.createElement('td');
+                let statusIcon = document.createElement('i');
+
+                entidadFed.innerText = oferta.cp.estado;
+                dateTime.innerText = oferta.timestamp.split('T')[0];
+
+                statusIcon.classList.add('fa')
+                if (oferta[statusName]['is_complete']) statusIcon.classList.add('fa-check-circle')
+                if (!oferta[statusName]['is_complete']) statusIcon.classList.add('fa-times-circle')
+                statusCompleted.appendChild(statusIcon)
+
+                row.appendChild(entidadFed)
+                row.appendChild(dateTime)
+                row.appendChild(statusCompleted)
+
+                tableOfertasBody.appendChild(row)
+            })
+        }
+
+        const updateInfoOfertasAgrupadas = async (btn) => {
+            let licitacionId = btn.dataset.licitacion
+            console.log(licitacionId)
+            let resp = await fetch('../../../api/licitacion_info?' + new URLSearchParams({
+                licitacionId
+            }))
+            let data = await resp.json()
+            renderOfertasAgrupadasInfo(data)
+
+        }
+
         const addListeners = () => {
             let iconButtons = document.querySelectorAll('.flaticon-users')
             iconButtons.forEach(iconButton => {
                 iconButton.addEventListener('click', (e) => {
-                    console.log(e.target.id);
                     hiddenInputName(e.target.id)
                 })
             });
@@ -364,8 +473,16 @@
 
             form.addEventListener('submit', (e) => {
                 e.preventDefault()
-                validateForm()
+                pageValidation.validateForm();
             })
+
+            ofertasAgruBtn.forEach(ofertaAgruBtn => {
+                ofertaAgruBtn.addEventListener('click', () => {
+                    console.log(`click: ${ofertaAgruBtn.id}`);
+                    updateInfoOfertasAgrupadas(ofertaAgruBtn)
+                })
+            })
+
         }
 
         const _init = (() => {

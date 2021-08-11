@@ -149,30 +149,6 @@
         return { initMap }
     })()
 
-    const addListeners = (() => {
-        let copyBtn = document.getElementById('copyBtn');
-        let codigoInput = document.getElementById('codigoInput');
-        $(copyBtn).tooltip({ trigger: 'manual' }).tooltip('disable');
-
-
-        copyBtn.addEventListener('click', () => {
-            let dummy = document.createElement('input');
-            dummy.value = codigoInput.value;
-            document.body.appendChild(dummy)
-            dummy.select();
-            document.execCommand("copy");
-            $(copyBtn).tooltip('enable');
-            $(copyBtn).tooltip('show');
-            document.body.removeChild(dummy);
-            setTimeout(function () {
-                $(copyBtn).tooltip('disable');
-                $(copyBtn).tooltip('hide');
-            }, 1000);
-
-        })
-    })()
-
-
 
     function initMap() {
         mapFunctions.initMap();

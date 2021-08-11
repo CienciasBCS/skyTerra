@@ -1,5 +1,5 @@
 from datetime import datetime
-import json
+import json, time
 
 from flask import render_template, request, abort, url_for, session
 from flask_login import current_user
@@ -7,7 +7,7 @@ from werkzeug.utils import redirect
 
 from app.solarbeam import bp
 from app.decorators import login_required_no_rol, login_required_roles
-from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion, PreDimensionamiento, ConsumoInfo
+from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion, PreDimensionamiento, ConsumoInfo, CodigoPostal
 from .scripts import util_solarbeam, generacion, ahorros
 from . import solarbeam_graphs
 from app import util, db
@@ -22,11 +22,15 @@ def solarbeam_app():
         lat, lon = float(req_vals['coordLat']), float(req_vals['coordLon'])
         consumo_df = util_solarbeam.get_consumo_df(req_vals)
         tot_kwh = consumo_df[['kwh-base', 'kwh-inter', 'kwh-punta']].sum().sum()
-
+        start = time.time()
         a, cap = generacion.main(lat, lon, 2010, tot_kwh)
+        end = time.time()
+        print(f"TIEMPO PARA GENERACION: {end - start}")
+        start = time.time()
         df, df2, rinv_inf, rinv_noinf = ahorros.main(
             a, consumo_df, cap, req_vals['estado'], req_vals['municipio'], req_vals['servicio'])
-        
+        end = time.time()
+        print(f"TIEMPO PARA AHORROS: {end-start}")
 
         if 'consumo_id' in session:
             consumo_info = ConsumoInfo.query.get(session['consumo_id'])
@@ -144,7 +148,7 @@ def gestor_oferta_info(id_oferta):
         if req_vals['confirm'] == 'True':
             oferta.pre_dimensionamiento.status_gestor = True
             if oferta.pre_dimensionamiento.status_comprador:
-                util_solarbeam.confrim_predim_ofer(oferta)
+                util_solarbeam.confirm_predim_ofer(oferta)
             db.session.commit()
         
         return redirect(url_for('solarbeam.gestor_ofertas'))
@@ -194,48 +198,46 @@ def registro_oferta_compra():
     if request.method == 'POST':
         req_vals = request.form.to_dict()
         print(req_vals)
+
+        if not util_solarbeam.is_cp_valid(req_vals['cp']):
+            req_vals.pop('csrf_token')
+            req_vals['error'] = 'cp'
+            return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorCP=True)
+        else:
+            cp = CodigoPostal.query.filter_by(codigo_postal = req_vals['cp']).first()
+
         if req_vals['tipoOferta'] == 'ofertaInd':
             nueva_licitacion = Licitacion(agrupada=False, activa=True)
-            db.session.add(nueva_licitacion)
-            db.session.flush()
+        elif req_vals['tipoOferta'] == 'ofertaAgr':
+            nueva_licitacion = Licitacion.query.filter_by(agrupada=True, activa=True).first()
+        
+        db.session.add(nueva_licitacion)
+        db.session.flush()
 
-            if req_vals['gestorOpc'] == 'sinGestor':
-                gestor_id = util_solarbeam.get_random_gestor_id(current_user.cp.municipio)
-            elif req_vals['gestorOpc'] == 'conGestor':
-                gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
+        if req_vals['gestorOpc'] == 'sinGestor':
+            gestor_id = util_solarbeam.get_random_gestor_id(cp.municipio)
+        elif req_vals['gestorOpc'] == 'conGestor':
+            gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
 
-                if not gestor_id:
-                    req_vals.pop('csrf_token')
-                    req_vals['error'] = 'codigoGestor'
-                    return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorGestorCord=True)
-
-            if not util_solarbeam.is_cp_valid(req_vals['cp']):
+            if not gestor_id:
                 req_vals.pop('csrf_token')
-                req_vals['error'] = 'cp'
-                return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorCP=True)
-            else:
-                cp_id = util_solarbeam.get_cp_id(req_vals['cp'])
+                req_vals['error'] = 'codigoGestor'
+                return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorGestorCord=True)
 
-            nueva_ofer_lic = OfertaLicitacion(
-                licitacion_id=nueva_licitacion.id, comprador_id=current_user.user_rol.comprador.id, gestor_id=gestor_id,
-                max_kw=req_vals['capMax'], min_wp=req_vals['capMin'], precio_max=req_vals['preMax'],
-                nombre=req_vals['proyectoNombre'], direccion=req_vals['calle'], colonia=req_vals['colonia'],
-                cp_id=cp_id, latitud=req_vals['coordLat'], longitud=req_vals['coordLon'],
-                status=0
-            )
-            db.session.add(nueva_ofer_lic)
-            db.session.flush()
+        nueva_ofer_lic = OfertaLicitacion(
+            licitacion_id=nueva_licitacion.id, comprador_id=current_user.user_rol.comprador.id, gestor_id=gestor_id,
+            max_kw=req_vals['capMax'], min_wp=req_vals['capMin'], precio_max=req_vals['preMax'],
+            nombre=req_vals['proyectoNombre'], direccion=req_vals['calle'], colonia=req_vals['colonia'],
+            cp_id=cp.id, latitud=req_vals['coordLat'], longitud=req_vals['coordLon'],
+        )
+        db.session.add(nueva_ofer_lic)
+        db.session.flush()
 
-            pre_dimensionamiento = PreDimensionamiento(id=nueva_ofer_lic.id)
-            db.session.add(pre_dimensionamiento)
-            db.session.commit()
+        pre_dimensionamiento = PreDimensionamiento(id=nueva_ofer_lic.id)
+        db.session.add(pre_dimensionamiento)
+        db.session.commit()
 
-            return redirect(url_for('solarbeam.comprador_ofertas'))
-
-        if req_vals['coordLat'] and req_vals['coordLon']:
-            return render_template('solarBeam/reg_oferta_compra.html', success=True)
-        else:
-            return render_template('solarBeam/reg_oferta_compra.html', errorCoords=True)
+        return redirect(url_for('solarbeam.comprador_ofertas'))
 
     return render_template('solarBeam/reg_oferta_compra.html')
 
@@ -246,19 +248,19 @@ def comprador_ofertas():
     if request.method == 'POST':
         req_vals = request.form.to_dict()
         print(req_vals)
-
+        oferta = OfertaLicitacion.query.get(req_vals['oferta'])
         if req_vals['gestorOpc'] == 'sinGestor':
-            gestor_id = util_solarbeam.get_random_gestor_id(current_user.cp.municipio)
+            gestor_id = util_solarbeam.get_random_gestor_id(oferta.cp.municipio)
 
             if not gestor_id:
-                return render_template('solarBeam/comprador_ofertas.html', errorNoGestor=True, len=len)
+                return render_template('solarBeam/comprador/comprador_ofertas.html', errorNoGestor=True, len=len)
 
         elif req_vals['gestorOpc'] == 'conGestor':
             gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
 
             if not gestor_id:
-                return render_template('solarBeam/comprador_ofertas.html', errorInvGestor=True, len=len)
-        oferta = OfertaLicitacion.query.get(req_vals['oferta'])
+                return render_template('solarBeam/comprador/comprador_ofertas.html', errorInvGestor=True, len=len)
+        
         if oferta.comprador == current_user.user_rol:
             if not oferta.gestor_id:
                 oferta.gestor_id = gestor_id
@@ -279,7 +281,7 @@ def comprador_oferta_info(id_oferta):
         if req_vals['confirm'] == 'True':
             oferta.pre_dimensionamiento.status_comprador = True
             if oferta.pre_dimensionamiento.status_gestor:
-                util_solarbeam.confrim_predim_ofer(oferta)
+                util_solarbeam.confirm_predim_ofer(oferta)
             db.session.commit()
         
         return redirect(url_for('solarbeam.comprador_ofertas'))

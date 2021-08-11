@@ -65,17 +65,16 @@ def main(lat, lon, year):
     end = time.time()
     print(end - start)
     # Set the time index in the pandas dataframe:
-    a = df.set_index(pd.date_range(
-        '1/1/{yr}'.format(yr=year), freq=interval+'Min', periods=525600/int(interval)))
+    a = df.copy()
+    a['ind'] = (pd.date_range(
+            '1/1/{yr}'.format(yr=year), freq=interval+'Min', periods=525600/int(interval)))
 
-    a['ind'] = a.index
     ce = []
     for i in a["Month"]:
         ce.append(meses(i))
     a["Day acum"] = ce
     a["Declination Angle"] = -lat * \
         np.sin(np.radians((360/365)*(a["Day acum"]+a["Day"]+10)))
-    a["elevation angle"] = 90 - a["Solar Zenith Angle"]
     a["HRA"] = 15*(a["Hour"]+a["Minute"]/60-12)
     a["Elv Angle"] = np.degrees(np.arcsin((np.sin(np.radians(a["Declination Angle"]))*np.sin(np.radians(
         lat)) + np.cos(np.radians(a["Declination Angle"]))*np.cos(np.radians(lat))*np.cos(np.radians(a["HRA"])))))

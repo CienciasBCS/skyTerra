@@ -40,7 +40,7 @@ def is_cp_valid(cp):
     return db.session.query(db.exists().where(CodigoPostal.codigo_postal == cp)).scalar()
 
 def get_cp_id(cp):
-    return CodigoPostal.query.filter_by(codigo_postal = 23090).first().id
+    return CodigoPostal.query.filter_by(codigo_postal = cp).first().id
 
 def is_telCel_valid(cel):
     return not db.session.query(db.exists().where(User.telefono == cel)).scalar()
@@ -81,8 +81,7 @@ def is_offer_from_comprador(id_oferta):
     else:
         return False
 
-def confrim_predim_ofer(oferta):
-    oferta.status = 1
+def confirm_predim_ofer(oferta):
     oferta_dim = Dimensionamiento.query.get(oferta.id)
     if oferta_dim:
         oferta_dim.projecto_ejecutivo_key = None
@@ -90,4 +89,7 @@ def confrim_predim_ofer(oferta):
     else:
         oferta_dim = Dimensionamiento(id=oferta.id)
         db.session.add(oferta_dim)
+    if oferta.licitacion.is_predim_ofertas_complete():
+        oferta.licitacion.status = 1
+
     db.session.commit()
