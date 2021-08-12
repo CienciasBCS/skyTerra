@@ -77,15 +77,16 @@ class Comprador(UserRole):
 
     def has_licit_priv_agrupadas(self):
         return bool(LicitacionPrivada.query.filter_by(agrupada=True, comprador_id=self.id).all())
-        
-    def get_number_of_pending_licits(self):
+
+    def get_licit_priv_agrupadas(self):
+        return LicitacionPrivada.query.filter_by(agrupada=True, comprador_id=self.id).all()
+
+    def get_total_number_of_pending_offers(self):
         return len(
             OfertaLicitacion.query.join(LicitacionPrivada)\
                 .filter(OfertaLicitacion.activa==False,
                         LicitacionPrivada.comprador_id==self.id).all()
         )
-
-    
 
     def get_ofertas_by_status(self, status_id):
         return OfertaLicitacion.query.join(Licitacion).filter(Licitacion.status == status_id, OfertaLicitacion.comprador_id == self.id).all()
@@ -208,6 +209,12 @@ class LicitacionPrivada(Licitacion):
         'polymorphic_identity':'licitacion_privada',
         'with_polymorphic': '*'
     }
+
+    def get_number_of_pending_offers(self):
+        return len(
+            OfertaLicitacion.query.join(LicitacionPrivada)\
+                .filter(OfertaLicitacion.activa==False, LicitacionPrivada.id==self.id).all()
+        )
 
     def __repr__(self):
         return f'<Código: {self.codigo}>'  
