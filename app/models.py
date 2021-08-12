@@ -1,12 +1,9 @@
-from collections import UserList
 from datetime import datetime
-import simplejson
 
 import boto3
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask_login import UserMixin
 from flask import current_app
-from sqlalchemy.orm import backref
 from app import ma
 
 from app import db, login, util
@@ -74,10 +71,21 @@ class Comprador(UserRole):
     ofertas = db.relationship('OfertaLicitacion', backref='comprador')
     licitaciones_privadas = db.relationship('LicitacionPrivada', backref='comprador')
 
-
     __mapper_args__ = {
         'polymorphic_identity':'comprador',
     }
+
+    def has_licit_priv_agrupadas(self):
+        return bool(LicitacionPrivada.query.filter_by(agrupada=True, comprador_id=self.id).all())
+        
+    def get_number_of_pending_licits(self):
+        return len(
+            OfertaLicitacion.query.join(LicitacionPrivada)\
+                .filter(OfertaLicitacion.activa==False,
+                        LicitacionPrivada.comprador_id==self.id).all()
+        )
+
+    
 
     def get_ofertas_by_status(self, status_id):
         return OfertaLicitacion.query.join(Licitacion).filter(Licitacion.status == status_id, OfertaLicitacion.comprador_id == self.id).all()
@@ -176,6 +184,7 @@ class Licitacion(db.Model):
     status = db.Column(db.Integer,  nullable=False, default=0)
     activa = db.Column(db.Boolean, nullable=False, default=True)
     tipo = db.Column(db.String(25))
+    created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     ofertas = db.relationship('OfertaLicitacion', backref='licitacion', cascade="all,delete")
 
     __mapper_args__ = {
