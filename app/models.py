@@ -62,9 +62,6 @@ class UserRole(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), unique=True)
     tipo = db.Column(db.String(25))
-    comprador = db.relationship('Comprador', backref='user_role', uselist=False, cascade="all,delete")
-    gestor = db.relationship('Gestor', backref='user_role', uselist=False, cascade="all,delete")
-    integrador = db.relationship('Integrador', backref='user_role', uselist=False, cascade="all,delete")
 
     __mapper_args__ = {
         'polymorphic_identity':'user_role',
@@ -75,6 +72,7 @@ class Comprador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
     atr = db.Column(db.String(10))
     ofertas = db.relationship('OfertaLicitacion', backref='comprador')
+    licitaciones_privadas = db.relationship('LicitacionPrivada', backref='comprador')
 
 
     __mapper_args__ = {
@@ -177,13 +175,41 @@ class Licitacion(db.Model):
     cant = db.Column(db.Numeric(4, 2))
     status = db.Column(db.Integer,  nullable=False, default=0)
     activa = db.Column(db.Boolean, nullable=False, default=True)
+    tipo = db.Column(db.String(25))
     ofertas = db.relationship('OfertaLicitacion', backref='licitacion', cascade="all,delete")
 
+    __mapper_args__ = {
+        'polymorphic_identity':'licitacion',
+        'polymorphic_on': tipo
+    }
+    
     def is_predim_ofertas_complete(self):
         return all([oferta.pre_dimensionamiento.is_complete() for oferta in self.ofertas])
     
     def __repr__(self):
         return f'<kwh: {self.kw}>'  
+
+
+class LicitacionPrivada(Licitacion):
+    id = db.Column(db.Integer, db.ForeignKey('licitacion.id'), primary_key=True)
+    comprador_id = db.Column(db.Integer, db.ForeignKey('comprador.id'), nullable=False)
+    codigo = db.Column(db.String(6), index=True, default=util.get_random_code, unique=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity':'licitacion_privada',
+        'with_polymorphic': '*'
+    }
+
+    def __repr__(self):
+        return f'<Código: {self.codigo}>'  
+
+class LicitacionPublica(Licitacion):
+    id = db.Column(db.Integer, db.ForeignKey('licitacion.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity':'licitacion_publica',
+    }
+
 
 class OfertaLicitacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -202,6 +228,7 @@ class OfertaLicitacion(db.Model):
     latitud = db.Column(db.Numeric(7, 4),  nullable=False)
     longitud = db.Column(db.Numeric(7, 4),  nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    activa = db.Column(db.Boolean, nullable=False, default=True)
 
     pre_dimensionamiento = db.relationship('PreDimensionamiento', uselist=False, backref='oferta')
     dimensionamiento = db.relationship('Dimensionamiento', uselist=False, backref='oferta')
@@ -210,7 +237,8 @@ class OfertaLicitacion(db.Model):
     puesta_en_marcha = db.relationship('PuestaEnMarcha', uselist=False, backref='oferta')
 
     def get_comprador_ofertas_by_status(self, status_id):
-        return self.query.join(Licitacion).filter(Licitacion.status == status_id, self.comprador_id==self.comprador_id).all()
+        return self.query.join(Licitacion).filter(Licitacion.status == status_id, 
+                Comprador.id==self.comprador_id, OfertaLicitacion.activa == True).all()
 
 class PreDimensionamiento(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
