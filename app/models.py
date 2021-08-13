@@ -2,6 +2,7 @@ from datetime import datetime
 
 import boto3
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import contains_eager
 from flask_login import UserMixin
 from flask import current_app
 from app import ma
@@ -69,7 +70,7 @@ class Comprador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
     atr = db.Column(db.String(10))
     ofertas = db.relationship('OfertaLicitacion', backref='comprador')
-    licitaciones_privadas = db.relationship('LicitacionPrivada', backref='comprador')
+    licitaciones_privadas = db.relationship('LicitacionPrivada', backref='creador')
 
     __mapper_args__ = {
         'polymorphic_identity':'comprador',
@@ -84,12 +85,12 @@ class Comprador(UserRole):
     def get_total_number_of_pending_offers(self):
         return len(
             OfertaLicitacion.query.join(LicitacionPrivada)\
-                .filter(OfertaLicitacion.activa==False,
+                .filter(OfertaLicitacion.aceptada==None,
                         LicitacionPrivada.comprador_id==self.id).all()
         )
 
     def get_ofertas_by_status(self, status_id):
-        return OfertaLicitacion.query.join(Licitacion).filter(Licitacion.status == status_id, OfertaLicitacion.comprador_id == self.id).all()
+        return OfertaLicitacion.query.filter_by(status=status_id, aceptada=True, comprador_id=self.id).all()
     
     def get_ofertas_activas(self):
         return OfertaLicitacion.query.join(Licitacion).filter(Licitacion.activa == True, OfertaLicitacion.comprador_id == self.id).all()
@@ -101,10 +102,10 @@ class Gestor(UserRole):
 
     __mapper_args__ = {
         'polymorphic_identity':'gestor',
-    }    
+    }
 
     def get_ofertas_by_status(self, status_id):
-        return OfertaLicitacion.query.join(Licitacion).filter(Licitacion.status == status_id, OfertaLicitacion.gestor_id == self.id).all()
+        return OfertaLicitacion.query.filter_by(status=status_id, aceptada=True, gestor_id=self.id).all()
     
     def get_ofertas_activas(self):
         return OfertaLicitacion.query.join(Licitacion).filter(Licitacion.activa == True, OfertaLicitacion.gestor_id == self.id).all()
@@ -182,7 +183,6 @@ class Licitacion(db.Model):
     kwp_inst = db.Column(db.Numeric(4, 2))
     kw = db.Column(db.Numeric(4, 2))
     cant = db.Column(db.Numeric(4, 2))
-    status = db.Column(db.Integer,  nullable=False, default=0)
     activa = db.Column(db.Boolean, nullable=False, default=True)
     tipo = db.Column(db.String(25))
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -194,7 +194,10 @@ class Licitacion(db.Model):
     }
     
     def is_predim_ofertas_complete(self):
-        return all([oferta.pre_dimensionamiento.is_complete() for oferta in self.ofertas])
+        return all([oferta.pre_dimensionamiento.is_complete for oferta in self.ofertas if oferta.aceptada])
+
+    def is_dimen_ofertas_complete(self):
+        return all([oferta.dimensionamiento.is_complete for oferta in self.ofertas if oferta.aceptada])
     
     def __repr__(self):
         return f'<kwh: {self.kw}>'  
@@ -213,8 +216,13 @@ class LicitacionPrivada(Licitacion):
     def get_number_of_pending_offers(self):
         return len(
             OfertaLicitacion.query.join(LicitacionPrivada)\
-                .filter(OfertaLicitacion.activa==False, LicitacionPrivada.id==self.id).all()
+                .filter(OfertaLicitacion.aceptada==None, LicitacionPrivada.id==self.id).all()
         )
+
+    def get_pending_offers(self):
+        return OfertaLicitacion.query.join(LicitacionPrivada)\
+                .filter(OfertaLicitacion.aceptada==None, LicitacionPrivada.id==self.id).all()
+        
 
     def __repr__(self):
         return f'<Código: {self.codigo}>'  
@@ -225,7 +233,6 @@ class LicitacionPublica(Licitacion):
     __mapper_args__ = {
         'polymorphic_identity':'licitacion_publica',
     }
-
 
 class OfertaLicitacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -243,8 +250,9 @@ class OfertaLicitacion(db.Model):
     cp_id = db.Column(db.Integer, db.ForeignKey('codigo_postal.id', ondelete="CASCADE"))
     latitud = db.Column(db.Numeric(7, 4),  nullable=False)
     longitud = db.Column(db.Numeric(7, 4),  nullable=False)
+    status = db.Column(db.Integer,  nullable=False, default=0)
+    aceptada = db.Column(db.Boolean)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    activa = db.Column(db.Boolean, nullable=False, default=True)
 
     pre_dimensionamiento = db.relationship('PreDimensionamiento', uselist=False, backref='oferta')
     dimensionamiento = db.relationship('Dimensionamiento', uselist=False, backref='oferta')
@@ -254,7 +262,10 @@ class OfertaLicitacion(db.Model):
 
     def get_comprador_ofertas_by_status(self, status_id):
         return self.query.join(Licitacion).filter(Licitacion.status == status_id, 
-                Comprador.id==self.comprador_id, OfertaLicitacion.activa == True).all()
+                Comprador.id==self.comprador_id, OfertaLicitacion.aceptada == True).all()
+
+    def __repr__(self):
+        return f'<kwh: {self.nombre}>'                  
 
 class PreDimensionamiento(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
@@ -273,7 +284,6 @@ class Dimensionamiento(db.Model):
     @property
     def is_complete(self):
         return bool(self.proyecto_ejecutivo_key) and self.status_comprador
-
     @hybrid_property
     def create_presigned_url(self):
         """Generate a presigned URL to share an S3 object
@@ -349,11 +359,11 @@ class OfertaLicitacionSchema(ma.SQLAlchemyAutoSchema):
     precio_max = ma.Decimal(as_string=True)
     max_kw = ma.Decimal(as_string=True)
     min_wp = ma.Decimal(as_string=True)
+    kw = ma.Decimal(as_string=True)
+    kwp = ma.Decimal(as_string=True)
     latitud = ma.Decimal(as_string=True)
     longitud = ma.Decimal(as_string=True)
     cp = ma.Nested(CodigoPostalSchema(only=('estado', 'municipio')))
-    pre_dimensionamiento = ma.Nested(PreDimensionamientoSchema(only=['is_complete']))
-    dimensionamiento = ma.Nested(DimensionamientoSchema(only=['is_complete']))
 
     class Meta:
         model = OfertaLicitacion

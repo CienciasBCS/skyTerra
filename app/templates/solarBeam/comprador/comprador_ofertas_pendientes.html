@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card shadow">
+            <div class="card-header h4 text-center">Mis licitaciones privadas</div>
+            <form method="POST" id="form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="card-body">
+                    <table class="table table-card text-center">
+                        <thead>
+                            <th>Nombre del proyecto</th>
+                            <th>Capacidad mínima en Wp</th>
+                            <th>Capacidad máxima en Kw</th>
+                            <th>Precio máximo</th>
+                            <th>Decisión</th>
+                        </thead>
+                        <tbody>
+                            {% set ofertas_pendientes = licitacion.get_pending_offers() %}
+                            {% for oferta in ofertas_pendientes %}
+                            <tr>
+                                <td>{{oferta.nombre}}</td>
+                                <td>{{ "{:,.2f}".format(oferta.min_wp) }}</td>
+                                <td>{{ "{:,.2f}".format(oferta.max_kw) }}</td>
+                                <td>{{ "${:,.2f}".format(oferta.precio_max)}}</td>
+                                <td>
+                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-outline-success">
+                                            <input type="radio" name="oferta-{{oferta.id}}" id="option1"
+                                                value="aceptar">Aceptar
+                                        </label>
+                                        <label class="btn btn-outline-danger">
+                                            <input type="radio" name="oferta-{{oferta.id}}" id="option2"
+                                                value="rechazar">Rechazar
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary">Confirmar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block javascript %}
+
+{% endblock javascript %}

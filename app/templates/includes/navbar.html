@@ -18,6 +18,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('solarbeam.comprador_ofertas') }}">Mis ofertas</a>
                 </li>
+                {% if current_user.user_rol.has_licit_priv_agrupadas() %}
+                {% set pending_offers = current_user.user_rol.get_total_number_of_pending_offers() %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('solarbeam.comprador_lictaciones') }}">
+                        Mis licitaciones
+                        {% if pending_offers > 0 %}
+                        <span class="badge badge-pill badge-primary">{{ pending_offers }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('solarbeam.registro_oferta_compra') }}">Regsitrar nueva
                         oferta</a>

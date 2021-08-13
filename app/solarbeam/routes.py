@@ -7,7 +7,8 @@ from werkzeug.utils import redirect
 
 from app.solarbeam import bp
 from app.decorators import login_required_no_rol, login_required_roles
-from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion, PreDimensionamiento, ConsumoInfo, CodigoPostal
+from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion,\
+                        PreDimensionamiento, ConsumoInfo, CodigoPostal, LicitacionPublica, LicitacionPrivada
 from .scripts import util_solarbeam, generacion, ahorros
 from . import solarbeam_graphs
 from app import util, db
@@ -206,13 +207,33 @@ def registro_oferta_compra():
         else:
             cp = CodigoPostal.query.filter_by(codigo_postal = req_vals['cp']).first()
 
+        oferta_aceptada = True
         if req_vals['tipoOferta'] == 'ofertaInd':
-            nueva_licitacion = Licitacion(agrupada=False, activa=True)
-        elif req_vals['tipoOferta'] == 'ofertaAgr':
+            nueva_licitacion =  LicitacionPrivada(comprador_id=current_user.user_rol.id, agrupada=False)
+        elif req_vals['tipoOferta'] == 'ofertaNuevaLicPriv':
+            nueva_licitacion = LicitacionPrivada(comprador_id=current_user.user_rol.id, agrupada=True)
+        elif req_vals['tipoOferta'] == 'ofertaLicPub':
             nueva_licitacion = Licitacion.query.filter_by(agrupada=True, activa=True).first()
-        
-        db.session.add(nueva_licitacion)
-        db.session.flush()
+            if not nueva_licitacion:
+                nueva_licitacion = LicitacionPublica(agrupada=True, activa=True)
+                db.session.add(nueva_licitacion)
+                db.session.flush()
+        elif req_vals['tipoOferta'] == 'ofertaUnirLicPriv': 
+            codigo_licit = req_vals.get('codigoLicit')
+            nueva_licitacion = LicitacionPrivada.query.filter_by(agrupada=True, activa=True, codigo=codigo_licit).first()
+            oferta_aceptada = None
+            if not nueva_licitacion:
+                req_vals.pop('csrf_token')
+                req_vals['error'] = 'codigoLicit'
+                return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorCodeLicit=True)
+            elif nueva_licitacion.is_dimen_ofertas_complete():
+                req_vals.pop('csrf_token')
+                req_vals['error'] = 'codigoLicit'
+                return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorCodeLicit=True, errorLicitDimen=True)
+            
+        if req_vals['tipoOferta'] in ['ofertaInd', 'ofertaNuevaLicPriv']:
+            db.session.add(nueva_licitacion)
+            db.session.flush()
 
         if req_vals['gestorOpc'] == 'sinGestor':
             gestor_id = util_solarbeam.get_random_gestor_id(cp.municipio)
@@ -222,25 +243,24 @@ def registro_oferta_compra():
             if not gestor_id:
                 req_vals.pop('csrf_token')
                 req_vals['error'] = 'codigoGestor'
-                return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorGestorCord=True)
+                return render_template('solarBeam/reg_oferta_compra.html', req_vals=req_vals, errorCodeGestor=True)
 
         nueva_ofer_lic = OfertaLicitacion(
-            licitacion_id=nueva_licitacion.id, comprador_id=current_user.user_rol.comprador.id, gestor_id=gestor_id,
+            licitacion_id=nueva_licitacion.id, comprador_id=current_user.user_rol.id, gestor_id=gestor_id,
             max_kw=req_vals['capMax'], min_wp=req_vals['capMin'], precio_max=req_vals['preMax'],
             nombre=req_vals['proyectoNombre'], direccion=req_vals['calle'], colonia=req_vals['colonia'],
-            cp_id=cp.id, latitud=req_vals['coordLat'], longitud=req_vals['coordLon'],
+            cp_id=cp.id, latitud=req_vals['coordLat'], longitud=req_vals['coordLon'], aceptada=oferta_aceptada,
         )
+        
         db.session.add(nueva_ofer_lic)
         db.session.flush()
 
-        pre_dimensionamiento = PreDimensionamiento(id=nueva_ofer_lic.id)
-        db.session.add(pre_dimensionamiento)
+        util_solarbeam.populate_state_tbls(nueva_ofer_lic.id)
         db.session.commit()
 
         return redirect(url_for('solarbeam.comprador_ofertas'))
 
     return render_template('solarBeam/reg_oferta_compra.html')
-
 
 @bp.route('/comprador/mis_ofertas/', methods=['GET', 'POST'])
 @login_required_roles(['comprador', 'admin'])
@@ -267,6 +287,38 @@ def comprador_ofertas():
                 db.session.commit()
     return render_template('solarBeam/comprador/comprador_ofertas.html', len=len)
 
+@bp.route('/comprador/mis_licitaciones/')
+@login_required_roles(['comprador', 'admin'])
+def comprador_lictaciones():
+
+    return render_template('solarbeam/comprador/comprador_licitaciones.html', enumerate=enumerate)
+
+@bp.route('/comprador/mis_licitaciones/<id_licit>', methods=['GET', 'POST'])
+@login_required_roles(['comprador', 'admin'])
+def comprador_ofertas_pendientes_por_licitacion(id_licit):
+    licitacion = util_solarbeam.is_licit_from_comprador(id_licit)
+    if not licitacion:
+        return redirect(url_for('solarbeam.comprador_lictaciones'))
+
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        req_vals = {key: value for key, value in req_vals.items() if key.startswith('oferta-')}
+
+        for oferta_key, decision in req_vals.items():
+            oferta_id = oferta_key.split('-')[-1]
+            oferta = OfertaLicitacion.query.get(oferta_id)
+            if util_solarbeam.is_licit_from_comprador(oferta.licitacion.id):
+                bool_val = None
+                if decision == 'aceptar':
+                    bool_val = True
+                elif decision == 'rechazar':
+                    bool_val = False
+                oferta.aceptada = bool_val
+                db.session.commit()
+        
+        return redirect(url_for('solarbeam.comprador_lictaciones'))
+
+    return render_template('solarbeam/comprador/comprador_ofertas_pendientes.html', licitacion=licitacion)
 
 @bp.route('/comprador/mis_ofertas/<id_oferta>/predim_confirmacion', methods=['GET', 'POST'])
 @login_required_roles(['comprador', 'admin'])
@@ -299,9 +351,7 @@ def comprador_oferta_dim_conf(id_oferta):
         req_vals = request.form.to_dict()
         
         if req_vals.get('confirm') == 'yes':
-            oferta.dimensionamiento.status_comprador = 1
-            oferta.status = 2
-            db.session.commit()
+            util_solarbeam.confirm_dim_ofer(oferta)
 
             return redirect(url_for('solarbeam.comprador_ofertas'))
 

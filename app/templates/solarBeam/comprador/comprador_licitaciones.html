@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card shadow">
+            <div class="card-header h4 text-center">Mis licitaciones privadas</div>
+            <div class="card-body">
+                <table class="table table-card text-center">
+                    <thead>
+                        <th></th>
+                        <th>Fecha de creación</th>
+                        <th>Código de invitación</th>
+                        <th>Licitaciones pendientes de confirmación</th>
+                    </thead>
+                    <tbody>
+                        {% for i, licitacion in enumerate(current_user.user_rol.get_licit_priv_agrupadas(), 1) %}
+                        {% set pending_offers = licitacion.get_number_of_pending_offers() %}
+                        <tr>
+                            <td>{{i}}</td>
+                            <td>{{licitacion.created_at.strftime('%Y-%m-%d')}}</td>
+                            <td>{{licitacion.codigo}}</td>
+                            <td>
+                                <a href="{{ url_for('solarbeam.comprador_ofertas_pendientes_por_licitacion', id_licit=licitacion.id) if pending_offers else '#' }}"
+                                    class="btn btn-primary">
+                                    Ofertas <span class="badge badge-light">{{ pending_offers }}</span>
+                                    <span class="sr-only">Ofertas por confirmar</span>
+                                    </butaon>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block javascript %}
+
+{% endblock javascript %}

@@ -34,8 +34,14 @@
                 <form action="" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="form-row d-flex justify-content-center">
+                        {% if oferta.dimensionamiento.is_complete %}
+                        <button href="#" class="btn btn-primary" disabled>
+                            En espera de la confirmación de las demás ofertas
+                        </button>
+                        {% else %}
                         <button type="submit" name="confirm" value="yes" class="btn btn-primary">Confirmar
                             datos</button>
+                        {% endif %}
                     </div>
                 </form>
             </div>

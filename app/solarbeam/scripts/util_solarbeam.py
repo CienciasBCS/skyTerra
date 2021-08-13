@@ -4,8 +4,8 @@ from dateutil.relativedelta import relativedelta
 from flask import abort
 from flask_login import current_user
 from app import db
-from app.models import CodigoPostal, Gestor, User, Dimensionamiento, OfertaLicitacion
-
+from app.models import CodigoPostal, Gestor, User, OfertaLicitacion, Licitacion, \
+                    PreDimensionamiento, Dimensionamiento, Adquisicion, Instalacion, PuestaEnMarcha
 import pandas as pd
 
 def get_costos_actuales_anuales(req_dict):
@@ -45,31 +45,39 @@ def get_cp_id(cp):
 def is_telCel_valid(cel):
     return not db.session.query(db.exists().where(User.telefono == cel)).scalar()
 
+def populate_state_tbls(oferta_id):
+    for tbl in [PreDimensionamiento, Dimensionamiento, Adquisicion, Instalacion, PuestaEnMarcha]:
+        tbl_obj = tbl(id=oferta_id)
+        db.session.add(tbl_obj)
+
 def get_gestor_id_with_code(codigo):
     gestor = Gestor.query.filter_by(codigo=codigo).first()
     if gestor:
         return gestor.id
-    else:
-        return None
+    return None
 
 def get_random_gestor_id(municipio):
-    gestores = Gestor.query.join(Gestor.user_role, aliased=True).join\
-                (User, aliased=True).join(CodigoPostal).filter_by(municipio=municipio).all()
+    gestores = Gestor.query.join(User, aliased=True).join(CodigoPostal).filter_by(municipio=municipio).all()
     if gestores:
         gestor = random.choice(gestores)
         return gestor.id
-    else:
-        return None
+    return None
+
+def is_licit_from_comprador(id_licit):
+    licitacion = Licitacion.query.get(id_licit)
+    if licitacion:
+        if licitacion.creador != current_user.user_rol:
+            abort(401)
+        return licitacion
+    return False
 
 def is_offer_from_gestor(id_oferta):
     oferta = OfertaLicitacion.query.get(id_oferta)
     if oferta:
-        if not oferta.gestor == current_user.user_rol:
+        if oferta.gestor != current_user.user_rol:
             abort(401)
-        else:
-            return oferta
-    else:
-        return False
+        return oferta
+    return False
 
 def is_offer_from_comprador(id_oferta):
     oferta = OfertaLicitacion.query.get(id_oferta)
@@ -82,14 +90,15 @@ def is_offer_from_comprador(id_oferta):
         return False
 
 def confirm_predim_ofer(oferta):
-    oferta_dim = Dimensionamiento.query.get(oferta.id)
-    if oferta_dim:
-        oferta_dim.projecto_ejecutivo_key = None
-        oferta_dim.status_comprador = False
-    else:
-        oferta_dim = Dimensionamiento(id=oferta.id)
-        db.session.add(oferta_dim)
-    if oferta.licitacion.is_predim_ofertas_complete():
-        oferta.licitacion.status = 1
+    if oferta.pre_dimensionamiento.is_complete:
+        oferta.status = 1
 
+    db.session.commit()
+
+def confirm_dim_ofer(oferta):
+    oferta.dimensionamiento.status_comprador = True
+    if oferta.licitacion.is_dimen_ofertas_complete():
+        for dim_oferta in oferta.licitacion.ofertas:
+            if oferta.aceptada:
+                dim_oferta.status = 2
     db.session.commit()

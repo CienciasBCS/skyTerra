@@ -9,12 +9,12 @@
 
 {% block content %}
 <section>
-    {% set ofertas_predim = current_user.user_rol.comprador.get_ofertas_by_status(0) %}
-    {% set ofertas_dimen = current_user.user_rol.comprador.get_ofertas_by_status(1) %}
-    {% set ofertas_adqui = current_user.user_rol.comprador.get_ofertas_by_status(2) %}
-    {% set ofertas_insta = current_user.user_rol.comprador.get_ofertas_by_status(3) %}
-    {% set ofertas_puestaMarcha = current_user.user_rol.comprador.get_ofertas_by_status(4) %}
-    {% set ofertas_activas = current_user.user_rol.comprador.get_ofertas_activas() %}
+    {% set ofertas_predim = current_user.user_rol.get_ofertas_by_status(0) %}
+    {% set ofertas_dimen = current_user.user_rol.get_ofertas_by_status(1) %}
+    {% set ofertas_adqui = current_user.user_rol.get_ofertas_by_status(2) %}
+    {% set ofertas_insta = current_user.user_rol.get_ofertas_by_status(3) %}
+    {% set ofertas_puestaMarcha = current_user.user_rol.get_ofertas_by_status(4) %}
+    {% set ofertas_activas = current_user.user_rol.get_ofertas_activas() %}
     <div class="container mt-3 mb-3">
         <div class="card rounded shadow">
             <div class="card-header h4 text-center">Mis ofertas</div>
@@ -109,7 +109,7 @@
                                 <tr class="align-items-center">
                                     <td class="align-middle">{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td class="align-middle">{{oferta.gestor.user_role.user.email}}</td>
+                                    <td class="align-middle">{{oferta.gestor.user.email}}</td>
                                     {% else %}
                                     <td class="align-middle">Ningún gestor se ha encontrado en el área <span
                                             class="ml-3 cursor-pointer flaticon-users" data-toggle="modal"
@@ -140,6 +140,12 @@
                                             class="btn btn-success">Falta confirmación de
                                             otras ofertas</a>
                                         {% endif %}
+                                        {% elif oferta.aceptada == None %}
+                                        <span class="text-secondary font-weight-bold">El creador de la licitación no ha
+                                            aceptado su oferta</span>
+                                        {% elif oferta.aceptada == False %}
+                                        <span class="text-danger font-weight-bold">El creador de la licitación ha
+                                            rechazado su oferta</span>
                                         {% else %}
                                         <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
                                             class="btn btn-danger">Falta confirmación</a>
@@ -169,7 +175,7 @@
                                 <tr>
                                     <td class="align-middle">{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td class="align-middle">{{oferta.gestor.user_role.user.email}}</td>
+                                    <td class="align-middle">{{oferta.gestor.user.email}}</td>
                                     {% else %}
                                     <td class="align-middle">Ningún gestor se ha encontrado en el área</td>
                                     {% endif %}
@@ -188,9 +194,13 @@
                                         {% endif %}
                                     </td>
                                     <td class="align-middle">
-                                        {% if oferta.dimensionamiento.proyecto_ejecutivo_key %}
+                                        {% if oferta.dimensionamiento.is_complete %}
+                                        <span class="text-info font-weight-bold">En espera del resto de ofertas</span>
+                                        {% elif oferta.dimensionamiento.proyecto_ejecutivo_key %}
                                         <a href="{{ url_for('solarbeam.comprador_oferta_dim_conf', id_oferta=oferta.id) }}"
-                                            class="btn btn-info">Confirmar datos del gestor</a>
+                                            class="btn btn-danger">
+                                            Confirmación de datos técnicos
+                                        </a>
                                         {% else %}
                                         <span class="text-danger font-weight-bold">En espera de datos de
                                             gestor</span>
@@ -218,7 +228,7 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td>{{oferta.gestor.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
@@ -246,7 +256,7 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td>{{oferta.gestor.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
@@ -274,7 +284,7 @@
                                 <tr>
                                     <td>{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user_role.user.email}}</td>
+                                    <td>{{oferta.gestor.user.email}}</td>
                                     {% else %}
                                     <td>Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
@@ -336,7 +346,7 @@
 
 <!-- MODAL DE INFO OFERTAS AGRUPADAS -->
 <div class="modal fade" id="modalOfertasAgrupadas" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalOfertasAgrupadasLabel">Información de las ofertas de la licitación</h5>
@@ -349,7 +359,7 @@
                     <thead>
                         <th>Entidad Federativa</th>
                         <th>Creación de la oferta</th>
-                        <th>Estado</th>
+                        <th>Estado actual</th>
                     </thead>
                     <tbody id="tablaOfertasInfo">
                     </tbody>
@@ -419,46 +429,6 @@
             if (gestOption.value === 'conGestor') codigoInput.disabled = false;
         }
 
-        const renderOfertasAgrupadasInfo = (data) => {
-            tableOfertasBody.innerHTML = '';
-            let status = {
-                1: 'pre_dimensionamiento', 2: 'dimensionamiento'
-            }
-            let statusName = status[data.status]
-            data.ofertas.forEach(oferta => {
-                let row = document.createElement('tr');
-                let entidadFed = document.createElement('td');
-                let dateTime = document.createElement('td');
-                let statusCompleted = document.createElement('td');
-                let statusIcon = document.createElement('i');
-
-                entidadFed.innerText = oferta.cp.estado;
-                dateTime.innerText = oferta.timestamp.split('T')[0];
-
-                statusIcon.classList.add('fa')
-                if (oferta[statusName]['is_complete']) statusIcon.classList.add('fa-check-circle')
-                if (!oferta[statusName]['is_complete']) statusIcon.classList.add('fa-times-circle')
-                statusCompleted.appendChild(statusIcon)
-
-                row.appendChild(entidadFed)
-                row.appendChild(dateTime)
-                row.appendChild(statusCompleted)
-
-                tableOfertasBody.appendChild(row)
-            })
-        }
-
-        const updateInfoOfertasAgrupadas = async (btn) => {
-            let licitacionId = btn.dataset.licitacion
-            console.log(licitacionId)
-            let resp = await fetch('../../../api/licitacion_info?' + new URLSearchParams({
-                licitacionId
-            }))
-            let data = await resp.json()
-            renderOfertasAgrupadasInfo(data)
-
-        }
-
         const addListeners = () => {
             let iconButtons = document.querySelectorAll('.flaticon-users')
             iconButtons.forEach(iconButton => {
@@ -479,7 +449,7 @@
             ofertasAgruBtn.forEach(ofertaAgruBtn => {
                 ofertaAgruBtn.addEventListener('click', () => {
                     console.log(`click: ${ofertaAgruBtn.id}`);
-                    updateInfoOfertasAgrupadas(ofertaAgruBtn)
+                    utilFunctions.updateInfoOfertasAgrupadas(ofertaAgruBtn, tableOfertasBody)
                 })
             })
 
