@@ -1,5 +1,4 @@
 from flask import render_template
-from flask_login import current_user
 
 from app.main import bp
 
@@ -17,3 +16,9 @@ def usuario_final():
 def como_funciona():
 
     return render_template('static_pages/custom/como_funciona.html')
+
+
+@bp.route('/equipo/')
+def equipos():
+
+    return render_template('static_pages/custom/equipo.html')
