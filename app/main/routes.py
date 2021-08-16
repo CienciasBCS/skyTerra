@@ -18,7 +18,7 @@ def como_funciona():
     return render_template('static_pages/custom/como_funciona.html')
 
 
-@bp.route('/equipo/')
+@bp.route('/equipos/')
 def equipos():
 
-    return render_template('static_pages/custom/equipo.html')
+    return render_template('static_pages/custom/equipos.html')
