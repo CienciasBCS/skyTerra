@@ -1,9 +1,10 @@
 import pprint
 
-from flask import jsonify, request
+from flask import json, jsonify, request
+from flask_login import current_user
 
 from app.decorators import login_required_roles
-from app.models import Licitacion, LicitacionSchema, OfertaLicitacion, OfertaLicitacionSchema
+from app.models import Licitacion, LicitacionSchema, OfertaLicitacion, OfertaLicitacionSchema, OfertaProveedor, OfertaProveedorSchema
 from . import bp
 
 @bp.route('/licitacion_info')
@@ -29,3 +30,16 @@ def oferta_info():
 
     pprint.pprint(oferta_info)
     return jsonify(oferta_info)
+
+@bp.route('/integrador/ofertas_prov')
+@login_required_roles(['integrador', 'admin'])
+def ofertas_info_por_licit():
+    id_licit = request.args.get('licitId')
+    ofertas = OfertaProveedor.query.join(OfertaLicitacion).join(Licitacion)\
+        .filter(OfertaProveedor.integrador_id==current_user.user_rol.id, Licitacion.id==id_licit).all()
+        # OfertaProveedor.query.join(OfertaLicitacion).join(Licitacion).filter(OfertaProveedor.integrador_id==11, Licitacion.id==35).all()
+    print(ofertas)
+    oferta_output = OfertaProveedorSchema(many=True).dump(ofertas)
+    
+    pprint.pprint(oferta_output)
+    return jsonify(oferta_output)

@@ -35,6 +35,9 @@ def create_app(config_class=Config):
     from app.solarbeam.api import bp as solarbeam_api_bp
     app.register_blueprint(solarbeam_api_bp)
 
+    from app.solarbeam.integrador import bp as solarbeam_integrador_bp
+    app.register_blueprint(solarbeam_integrador_bp)
+
     return app
 
 

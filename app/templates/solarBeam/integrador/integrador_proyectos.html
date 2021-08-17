@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Proyectos Disponibles{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Proyectos disponibles</div>
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="adqui-tab" data-toggle="tab" href="#adqui" role="tab"
+                            aria-controls="adqui" aria-selected="true">Adquisición
+                            {% if ofertas_predim %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_predim)}}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="insta-tab" data-toggle="tab" href="#insta" role="tab"
+                            aria-controls="insta" aria-selected="false">Instalación
+                            {% if ofertas_insta %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_insta)}}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="puestaMarcha-tab" data-toggle="tab" href="#puestaMarcha" role="tab"
+                            aria-controls="puestaMarcha" aria-selected="false">Puesta en marcha
+                            {% if ofertas_puestaMarcha %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_puestaMarcha)}}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active p-3" id="adqui" role="tabpanel" aria-labelledby="adqui-tab">
+                        {% if ofertas_disponibles %}
+                        <table class="table table-card text-center">
+                            <thead>
+                                <th>Nombre</th>
+                                <th>Email de comprador</th>
+                                <th>Email de gestor</th>
+                                <th>Capacidad kWp</th>
+                                <th>Capacidad kW</th>
+                                <th>Precio máximo</th>
+                                <td></td>
+                            </thead>
+                            <tbody>
+                                {% for oferta in ofertas_disponibles %}
+                                <tr>
+                                    <td class="align-middle">{{oferta.nombre}}</td>
+                                    <td class="align-middle">{{oferta.comprador.user.email}}</td>
+                                    <td class="align-middle">{{oferta.gestor.user.email}}</td>
+                                    <td class="align-middle">{{ "{:,.2f}".format(oferta.kwp) }}</td>
+                                    <td class="align-middle">{{ "{:,.2f}".format(oferta.kw) }}</td>
+                                    <td class="align-middle">{{ "${:,.2f}".format(oferta.precio_max) }}</td>
+                                    <td class="align-middle">
+                                        <a class="btn btn-primary"
+                                            href="{{ url_for('solarbeam_integrador.integrador_oferta_info', id_oferta=oferta.id) }}">Realizar
+                                            oferta</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>Actualmente no existen proyectos disponibles.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade p-3" id="insta" role="tabpanel" aria-labelledby="insta-tab">
+                        <table class="table table-card text-center">
+                            <thead>
+                                <th>Nombre</th>
+                                <th>Email de comprador</th>
+                                <th>Capacidad mínima en kWp</th>
+                                <th>Capacidad máxima en kWac</th>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade p-3" id="puestaMarcha" role="tabpanel" aria-labelledby="puestaMarcha-tab">
+                        <table class="table table-card text-center">
+                            <thead>
+                                <th>Nombre</th>
+                                <th>Email de comprador</th>
+                                <th>Capacidad mínima en kWp</th>
+                                <th>Capacidad máxima en kWac</th>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+{% endblock content %}
+
+{% block javascript %}
+{% endblock javascript %}

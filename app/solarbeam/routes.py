@@ -96,7 +96,7 @@ def confirmar_usuario():
             flask_url = 'solarbeam.comprador_ofertas'
         elif req_vals['rolUser'] == 'integrador':
             rol = Integrador(user_id=current_user.id)
-            flask_url = 'solarbeam.integrador_ofertas'
+            flask_url = 'solarbeam_integrador.proyectos_disponibles'
         elif req_vals['rolUser'] == 'gestor':
             rol = Gestor(user_id=current_user.id)
             flask_url = 'solarbeam.gestor_ofertas'
@@ -358,11 +358,7 @@ def comprador_oferta_dim_conf(id_oferta):
     return render_template('solarBeam/comprador/comprador_oferta_dim.html', oferta=oferta)
 
 # INTEGRADOR
-@bp.route('/proyectos_disponibles/')
-def proyectos_disponibles():
 
-
-    return render_template('solarBeam/integrador_oferta_compra.html')
 
 
 @bp.route('/proyectos_disponibles/agregar_oferta')

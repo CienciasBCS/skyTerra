@@ -112,8 +112,15 @@ class Gestor(UserRole):
 
 class Integrador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
+    proyectos = db.relationship('Adquisicion', backref='integrador')
     ofertas = db.relationship('OfertaProveedor', backref='integrador')
     ofertas_grupo = db.relationship('OfertaGrupo', backref='integrador')
+
+    def get_licitaciones_con_ofertas(self):
+        return Licitacion.query.join(OfertaLicitacion).join(OfertaProveedor).filter(
+            OfertaProveedor.integrador_id == self.id, Licitacion.activa == True,
+            OfertaLicitacion.aceptada == True
+        ).all()
 
     __mapper_args__ = {
         'polymorphic_identity':'integrador',
@@ -202,7 +209,6 @@ class Licitacion(db.Model):
     def __repr__(self):
         return f'<kwh: {self.kw}>'  
 
-
 class LicitacionPrivada(Licitacion):
     id = db.Column(db.Integer, db.ForeignKey('licitacion.id'), primary_key=True)
     comprador_id = db.Column(db.Integer, db.ForeignKey('comprador.id'), nullable=False)
@@ -259,6 +265,7 @@ class OfertaLicitacion(db.Model):
     adquisicion = db.relationship('Adquisicion', uselist=False, backref='oferta')
     instalacion = db.relationship('Instalacion', uselist=False, backref='oferta')
     puesta_en_marcha = db.relationship('PuestaEnMarcha', uselist=False, backref='oferta')
+    ofertas_proveedores = db.relationship('OfertaProveedor', uselist=True, backref='oferta_compra')
 
     def get_comprador_ofertas_by_status(self, status_id):
         return self.query.join(Licitacion).filter(Licitacion.status == status_id, 
@@ -308,6 +315,7 @@ class Dimensionamiento(db.Model):
     
 class Adquisicion(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
+    integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'))
 
 class Instalacion(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
@@ -317,14 +325,12 @@ class PuestaEnMarcha(db.Model):
 
 class OfertaProveedor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'), nullable=False)
-    licitacion_id = db.Column(db.Integer, db.ForeignKey('licitacion.id'), nullable=False)
-    num_max = db.Column(db.Integer, nullable=False)
-    precio_unitario = db.Column(db.Numeric(8, 2),  nullable=False)
+    oferta_id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), nullable=False)
     integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'), nullable=False)
+    precio = db.Column(db.Numeric(8, 2),  nullable=False)
 
     def __repr__(self):
-        return f'<Oferta: {self.producto.type} Para: {self.licitacion.user.nombre}>'  
+        return f'<Precio: {self.precio} Para: {self.oferta_compra.nombre}>'  
 
 class OfertaCondicionada(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -367,7 +373,6 @@ class OfertaLicitacionSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = OfertaLicitacion
-        # include_fk = True
 
 class LicitacionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -375,9 +380,15 @@ class LicitacionSchema(ma.SQLAlchemyAutoSchema):
 
     
     codigo = ma.Nested(CodigoPostalSchema(only=('estado', 'municipio')), many=True)
-    ofertas = ma.Nested(OfertaLicitacionSchema(
-        # only=['latitud', 'codigo']
-    ), many=True)
+    ofertas = ma.Nested(OfertaLicitacionSchema(), many=True)
+
+class OfertaProveedorSchema(ma.SQLAlchemyAutoSchema):
+    precio = ma.Decimal(as_string=True)
+
+    class Meta:
+        model = OfertaProveedor
+
+    oferta_compra = ma.Nested(OfertaLicitacionSchema())
 
 @login.user_loader
 def load_user(cog_user_id):

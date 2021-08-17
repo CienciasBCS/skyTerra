@@ -40,6 +40,17 @@
                     <a class="nav-link" href="{{ url_for('solarbeam.gestor_ofertas') }}">Mis ofertas</a>
                 </li>
             </ul>
+            {% elif current_user.user_rol.tipo == 'integrador' %}
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link"
+                        href="{{ url_for('solarbeam_integrador.integrador_proyectos_disponibles') }}">Proyectos
+                        disponibles</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('solarbeam_integrador.integrador_ofertas') }}">Mis ofertas</a>
+                </li>
+            </ul>
             {% endif %}
             {% else %}
             <!-- Si el usuario NO tiene rol -->
