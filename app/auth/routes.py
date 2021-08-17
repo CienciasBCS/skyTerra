@@ -61,7 +61,7 @@ def callback():
             elif user.user_rol.tipo == 'comprador':
                 return redirect(url_for("solarbeam.comprador_ofertas"))
             elif user.user_rol.tipo == 'integrador':
-                return redirect(url_for("solarbeam_integrador.proyectos_disponibles"))
+                return redirect(url_for("solarbeam_integrador.integrador_proyectos_disponibles"))
         else:
             return redirect(url_for("solarbeam.confirmar_usuario"))
 

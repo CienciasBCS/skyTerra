@@ -95,7 +95,7 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active p-3" id="predim" role="tabpanel" aria-labelledby="predim-tab">
                         {% if ofertas_predim %}
-                        <table class="table table-card text-center">
+                        <table class="table table-card text-center table-delete-btn">
                             <thead>
                                 <th>Nombre</th>
                                 <th>Email de gestor</th>
@@ -151,6 +151,10 @@
                                             class="btn btn-danger">Falta confirmación</a>
                                         {% endif %}
                                     </td>
+                                    <td class="align-middle">
+                                        <i class="far fa-times-circle borrar-oferta" id="delete-{{oferta.id}}"
+                                            data-toggle="modal" data-target="#deleteModal"></i>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -161,7 +165,7 @@
                     </div>
                     <div class="tab-pane fade p-3" id="dimen" role="tabpanel" aria-labelledby="dimen-tab">
                         {% if ofertas_dimen %}
-                        <table class="table table-card text-center">
+                        <table class="table table-card text-center table-delete-btn">
                             <thead>
                                 <th>Nombre</th>
                                 <th>Email de gestor</th>
@@ -205,6 +209,10 @@
                                         <span class="text-danger font-weight-bold">En espera de datos de
                                             gestor</span>
                                         {% endif %}
+                                    </td>
+                                    <td class="align-middle">
+                                        <i class="far fa-times-circle borrar-oferta" id="delete-{{oferta.id}}"
+                                            data-toggle="modal" data-target="#deleteModal"></i>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -305,6 +313,7 @@
 </section>
 <form method="POST" id="form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="tipo" value="updateGestorCode">
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -337,6 +346,33 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                     <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form method="POST" id="deleteOffer">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="tipo" value="eliminar">
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Eliminar oferta</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Estas apunto de eliminar una oferta, este procedimiento es irreversible.</p>
+                    <p>¿Estás seguro que quieres continuar?</p>
+                    <input type="hidden" name="idOferta" id="inputBorrarOferta">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" value="Eliminar" class="btn btn-danger">Eliminar</button>
                 </div>
             </div>
         </div>
@@ -418,6 +454,8 @@
         const ofertasAgruBtn = document.querySelectorAll('.ofertas-agrupadas-btn');
         const codigoInput = document.querySelector('#codigoGestor');
         const tableOfertasBody = document.querySelector('#tablaOfertasInfo');
+        const errorOfertasIcon = document.querySelectorAll('.borrar-oferta');
+        const inputBorrarOferta = document.querySelector('#inputBorrarOferta');
 
         const hiddenInputName = (newId) => {
             hiddenInput.value = newId;
@@ -453,6 +491,11 @@
                 })
             })
 
+            errorOfertasIcon.forEach(errorIcon => {
+                errorIcon.addEventListener('click', (e) => {
+                    inputBorrarOferta.value = e.target.id.split('-')[1];
+                })
+            })
         }
 
         const _init = (() => {

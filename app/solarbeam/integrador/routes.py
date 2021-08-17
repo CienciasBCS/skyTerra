@@ -4,6 +4,7 @@ from flask_login import current_user
 
 from app.decorators import login_required_roles
 from app.models import OfertaLicitacion, Adquisicion, OfertaProveedor
+from app.solarbeam.scripts import util_solarbeam
 from app import db
 from . import bp
 
@@ -34,8 +35,18 @@ def integrador_oferta_info(id_oferta):
 
     return render_template('solarBeam/integrador/integrador_proyecto_info.html', oferta=oferta)
 
-@bp.route('/mis_ofertas/')
+@bp.route('/mis_ofertas/', methods=['GET', 'POST'])
 @login_required_roles(['integrador', 'admin'])
 def integrador_ofertas():
     licitaciones = current_user.user_rol.get_licitaciones_con_ofertas()
+
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        print(req_vals)
+        if req_vals['tipo'] == 'eliminar':
+            oferta = util_solarbeam.is_offer_prov_from_proveedor(req_vals['idOferta'])
+            if oferta:
+                db.session.delete(oferta)
+                db.session.commit()
+
     return render_template('solarBeam/integrador/integrador_ofertas.html', licitaciones=licitaciones)

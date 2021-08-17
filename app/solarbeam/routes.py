@@ -268,23 +268,32 @@ def comprador_ofertas():
     if request.method == 'POST':
         req_vals = request.form.to_dict()
         print(req_vals)
-        oferta = OfertaLicitacion.query.get(req_vals['oferta'])
-        if req_vals['gestorOpc'] == 'sinGestor':
-            gestor_id = util_solarbeam.get_random_gestor_id(oferta.cp.municipio)
+        if req_vals['tipo'] == 'eliminar':
+            oferta = util_solarbeam.is_offer_from_comprador(req_vals['idOferta'])
+            if oferta:
+                if oferta.status < 2:
+                    db.session.delete(oferta)
+                    db.session.commit()
+                # return redirect(url_for('solarbeam.comprador_ofertas'))
+        elif req_vals['tipo'] == 'updateGestorCode':
+            oferta = OfertaLicitacion.query.get(req_vals['oferta'])
+            if req_vals['gestorOpc'] == 'sinGestor':
+                gestor_id = util_solarbeam.get_random_gestor_id(oferta.cp.municipio)
 
-            if not gestor_id:
-                return render_template('solarBeam/comprador/comprador_ofertas.html', errorNoGestor=True, len=len)
+                if not gestor_id:
+                    return render_template('solarBeam/comprador/comprador_ofertas.html', errorNoGestor=True, len=len)
 
-        elif req_vals['gestorOpc'] == 'conGestor':
-            gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
+            elif req_vals['gestorOpc'] == 'conGestor':
+                gestor_id = util_solarbeam.get_gestor_id_with_code(req_vals['codigoGestor'])
 
-            if not gestor_id:
-                return render_template('solarBeam/comprador/comprador_ofertas.html', errorInvGestor=True, len=len)
-        
-        if oferta.comprador == current_user.user_rol:
-            if not oferta.gestor_id:
-                oferta.gestor_id = gestor_id
-                db.session.commit()
+                if not gestor_id:
+                    return render_template('solarBeam/comprador/comprador_ofertas.html', errorInvGestor=True, len=len)
+            
+            if oferta.comprador == current_user.user_rol:
+                if not oferta.gestor_id:
+                    oferta.gestor_id = gestor_id
+                    db.session.commit()
+    
     return render_template('solarBeam/comprador/comprador_ofertas.html', len=len)
 
 @bp.route('/comprador/mis_licitaciones/')

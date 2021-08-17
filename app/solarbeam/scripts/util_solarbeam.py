@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from flask import abort
 from flask_login import current_user
 from app import db
-from app.models import CodigoPostal, Gestor, User, OfertaLicitacion, Licitacion, \
+from app.models import CodigoPostal, Gestor, OfertaProveedor, User, OfertaLicitacion, Licitacion, \
                     PreDimensionamiento, Dimensionamiento, Adquisicion, Instalacion, PuestaEnMarcha
 import pandas as pd
 
@@ -83,6 +83,17 @@ def is_offer_from_comprador(id_oferta):
     oferta = OfertaLicitacion.query.get(id_oferta)
     if oferta:
         if not oferta.comprador == current_user.user_rol:
+            abort(401)
+        else:
+            return oferta
+    else:
+        return False
+
+def is_offer_prov_from_proveedor(id_oferta):
+    oferta = OfertaProveedor.query.get(id_oferta)
+    print(current_user.user_rol)
+    if oferta:
+        if not oferta.integrador == current_user.user_rol:
             abort(401)
         else:
             return oferta

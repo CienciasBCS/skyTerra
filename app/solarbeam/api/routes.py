@@ -37,9 +37,6 @@ def ofertas_info_por_licit():
     id_licit = request.args.get('licitId')
     ofertas = OfertaProveedor.query.join(OfertaLicitacion).join(Licitacion)\
         .filter(OfertaProveedor.integrador_id==current_user.user_rol.id, Licitacion.id==id_licit).all()
-        # OfertaProveedor.query.join(OfertaLicitacion).join(Licitacion).filter(OfertaProveedor.integrador_id==11, Licitacion.id==35).all()
-    print(ofertas)
     oferta_output = OfertaProveedorSchema(many=True).dump(ofertas)
     
-    pprint.pprint(oferta_output)
     return jsonify(oferta_output)

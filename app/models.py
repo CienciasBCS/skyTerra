@@ -260,11 +260,11 @@ class OfertaLicitacion(db.Model):
     aceptada = db.Column(db.Boolean)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    pre_dimensionamiento = db.relationship('PreDimensionamiento', uselist=False, backref='oferta')
-    dimensionamiento = db.relationship('Dimensionamiento', uselist=False, backref='oferta')
-    adquisicion = db.relationship('Adquisicion', uselist=False, backref='oferta')
-    instalacion = db.relationship('Instalacion', uselist=False, backref='oferta')
-    puesta_en_marcha = db.relationship('PuestaEnMarcha', uselist=False, backref='oferta')
+    pre_dimensionamiento = db.relationship('PreDimensionamiento', uselist=False, backref='oferta', cascade="all, delete-orphan")
+    dimensionamiento = db.relationship('Dimensionamiento', uselist=False, backref='oferta', cascade="all, delete-orphan")
+    adquisicion = db.relationship('Adquisicion', uselist=False, backref='oferta', cascade="all, delete-orphan")
+    instalacion = db.relationship('Instalacion', uselist=False, backref='oferta', cascade="all, delete-orphan")
+    puesta_en_marcha = db.relationship('PuestaEnMarcha', uselist=False, backref='oferta', cascade="all, delete-orphan")
     ofertas_proveedores = db.relationship('OfertaProveedor', uselist=True, backref='oferta_compra')
 
     def get_comprador_ofertas_by_status(self, status_id):
