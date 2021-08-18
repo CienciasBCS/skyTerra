@@ -71,6 +71,12 @@ class UserRole(db.Model):
         'polymorphic_on': tipo
     }
 
+class Admin(UserRole):
+    id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
+    __mapper_args__ = {
+        'polymorphic_identity':'admin',
+    }
+
 class Comprador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
     atr = db.Column(db.String(10))
