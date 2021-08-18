@@ -52,9 +52,14 @@ class User(UserMixin, db.Model):
     user_rol = db.relationship('UserRole', backref='user', uselist=False, cascade="all,delete")
     # rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
 
-
     def __repr__(self):
-        return f'<User {self.cog_user_id}>'  
+        return f'<User {self.cog_user_id}>' 
+
+class UserPending(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    rol_solicitado = db.Column(db.String(30), nullable=False)
+    aceptado = db.Column(db.Boolean)
+    fecha_peticion = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
 class UserRole(db.Model):
     id = db.Column(db.Integer, primary_key=True)
