@@ -54,11 +54,14 @@
             {% endif %}
             {% else %}
             <!-- Si el usuario NO tiene rol -->
+            {% if not current_user.user_pending %}
+            <!-- El usuario no ha continuado con el registro -->
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('solarbeam.confirmar_usuario') }}">Continuar registro</a>
                 </li>
             </ul>
+            {% endif %}
             <!-- verificacion de rol -->
             {% endif %}
             <!-- si esta autentificado -->
