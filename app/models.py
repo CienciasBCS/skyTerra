@@ -53,6 +53,32 @@ class User(UserMixin, db.Model):
     user_pending = db.relationship('UserPending', backref='user', uselist=False, cascade="all,delete")
     # rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
 
+    # @hybrid_property
+    def create_presigned_url(self, file):
+        """Generate a presigned URL to share an S3 object
+            return: Presigned URL as string. If error, returns None.
+        """
+        s3 = boto3.client('s3')
+        bucket_name = current_app.config['BUCKET']
+        expiration = 3600
+        key_files = {
+            'acta_const': self.acta_constitutiva_key, 'doc1': self.doc_req1_key,
+            'doc2': self.doc_req2_key, 'doc3': self.doc_req3_key
+        }
+
+ 
+        try:
+            response = s3.generate_presigned_url(
+                "get_object",
+                Params={"Bucket": bucket_name, "Key": key_files[file]},
+                ExpiresIn=expiration,
+            )
+        except Exception as e:
+            return None
+    
+        # The response contains the presigned URL
+        return response
+
     def __repr__(self):
         return f'<User {self.cog_user_id}>' 
 
@@ -77,6 +103,9 @@ class Admin(UserRole):
     __mapper_args__ = {
         'polymorphic_identity':'admin',
     }
+
+    def get_pending_users(self):
+        return len(UserPending.query.filter(UserPending.aceptado == None).all())
 
 class Comprador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
@@ -303,6 +332,7 @@ class Dimensionamiento(db.Model):
     @property
     def is_complete(self):
         return bool(self.proyecto_ejecutivo_key) and self.status_comprador
+
     @hybrid_property
     def create_presigned_url(self):
         """Generate a presigned URL to share an S3 object

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card shadow">
+            <div class="card-header h4 text-center">Usuarios pendientes por confirmar</div>
+            <div class="card-body">
+                <table class="table table-card text-center table-link-icon">
+                    <thead>
+                        <th>Nombre</th>
+                        <th>Apellidos</th>
+                        <th>Email</th>
+                        <th>Rol solicitado</th>
+                        <th>Fecha de solicitud de rol</th>
+                    </thead>
+                    <tbody>
+                        {% for pending_user in pending_users %}
+                        <tr>
+                            <td>{{pending_user.user.nombre}}</td>
+                            <td>{{pending_user.user.apellidos}}</td>
+                            <td>{{pending_user.user.email}}</td>
+                            <td>{{pending_user.rol_solicitado.title()}}</td>
+                            <td>{{pending_user.fecha_peticion}}</td>
+                            <td>
+                                <a href="{{url_for('solarbeam_admin.confirm_user', id_user=pending_user.user.id)}}">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block javascript %}
+
+{% endblock javascript %}

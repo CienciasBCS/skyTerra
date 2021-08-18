@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container p-2">
-        <a class="navbar-brand" href="/">
+        <a class="navbar-brand" href="{{ url_for('solarbeam.solarbeam_app') }}">
             <img src="{{ url_for('static', filename='logo/solarBeam.svg') }}" alt="" width="30" height="24"
                 class="d-inline-block align-text-top">
             Skyterra
@@ -49,6 +49,18 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('solarbeam_integrador.integrador_ofertas') }}">Mis ofertas</a>
+                </li>
+            </ul>
+            {% elif current_user.user_rol.tipo == 'admin' %}
+            {% set pending_users = current_user.user_rol.get_pending_users() %}
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('solarbeam_admin.pending_users') }}">
+                        Usuarios pendientes
+                        {% if pending_users > 0 %}
+                        <span class="badge badge-pill badge-primary">{{ pending_users }}</span>
+                        {% endif %}
+                    </a>
                 </li>
             </ul>
             {% endif %}

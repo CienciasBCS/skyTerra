@@ -40,3 +40,20 @@
 .table-delete-btn td:last-child i:hover {
     color: rgba(255, 0, 0, 1);
 }
+
+.table-link-icon td:last-child i {
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.15s;
+    color: rgba(0, 4, 255, 0.589);
+    cursor: pointer;
+}
+
+.table-link-icon tr:hover > td:last-child > a > i {
+    opacity: 1;
+    visibility: visible;
+}
+
+.table-link-icon td:last-child i:hover {
+    color: rgba(0, 4, 255, 1);
+}

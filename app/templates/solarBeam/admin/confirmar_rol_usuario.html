@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card shadow">
+            <div class="card-header h4 text-center">
+                {% if pending_user %}
+                Usuario: {{pending_user.id}} - Rol: {{pending_user.rol_solicitado.title()}}
+                {% else %}
+                No existen usuarios con ese id
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if pending_user %}
+                <div class="main-content" id="mainContent">
+                    <div class="form-group">
+                        <div class="orange-bottom-border">
+                            <h5>Información personal</h5>
+                        </div>
+                        <div class="form-row mt-4">
+                            <div class="col-sm-6">
+                                <label for="nombreUser">Nombre</label>
+                                <input value="{{pending_user.user.nombre}}" type="text" class="form-control" disabled
+                                    required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="apellUser">Apellidos</label>
+                                <input value="{{pending_user.user.apellidos}}" type="text" class="form-control" disabled
+                                    required>
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-sm-6">
+                                <label for="telUser">Teléfono celular a 10 digitos</label>
+                                <input value="{{pending_user.user.telefono}}" type="number" class="form-control"
+                                    disabled required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mt-4">
+                        <div class="orange-bottom-border">
+                            <h5>Información comercial</h5>
+                        </div>
+                        <div class="form-row mt-4">
+                            <div class="col-sm-6">
+                                <label for="nombreCom">Nombre Comercial</label>
+                                <input value="{{pending_user.user.nombre_comercial}}" type="text" class="form-control"
+                                    disabled required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="razSoc">Razón social</label>
+                                <input value="{{pending_user.user.razon_social}}" type="text" class="form-control"
+                                    disabled required>
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-sm-6">
+                                <label for="rfc">RFC</label>
+                                <input value="{{pending_user.user.rfc}}" type="text" class="form-control" disabled
+                                    required>
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-md-6">
+                                <label for="nomLegal">Nombre representante legal</label>
+                                <input value="{{pending_user.user.nombre_rep_legal}}" type="text" class="form-control"
+                                    disabled required>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <label for="apePatLegal">Apellido paterno del rep. legal</label>
+                                <input value="{{pending_user.user.ape_paterno_rep_legal}}" type="text"
+                                    class="form-control" disabled required>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <label for="apeMatLegal">Apellido materno del rep. legal</label>
+                                <input value="{{pending_user.user.ape_materno_rep_legal}}" type="text"
+                                    class="form-control" disabled required>
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="col-md-6">
+                                <label for="calle">Calle y número</label>
+                                <input value="{{pending_user.user.calle}}" type="text" class="form-control" disabled
+                                    required>
+                            </div>
+                            <div class="col-md-3 col-sm-3">
+                                <label for="colonia">Colonia</label>
+                                <input value="{{pending_user.user.colonia}}" type="text" class="form-control" disabled
+                                    required>
+                            </div>
+                            <div class="col-md-3 col-sm-3">
+                                <label for="cp">Código Postal</label>
+                                <input value="{{pending_user.user.cp.codigo_postal}}" type="number"
+                                    class="form-control {{'is-invalid' if cp_error}}" disabled required>
+                                <div class="invalid-feedback">
+                                    Por favor escoja un código postal valido.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mt-4">
+                        <div class="orange-bottom-border">
+                            <h5>Documentos necesarios</h5>
+                        </div>
+                        <div class="form-row mt-4">
+                            <div class="col-sm-6 d-flex justify-content-center">
+                                <a href="{{pending_user.user.create_presigned_url(file='acta_const')}}" target="_blank">
+                                    Acta Constitutiva <span class="ml-2"><i class="flaticon-file-1"></i></span>
+                                </a>
+                            </div>
+                            <div class="col-sm-6 d-flex justify-content-center">
+                                <a href="{{pending_user.user.create_presigned_url(file='doc1')}}" target="_blank">
+                                    Documento requisito 1 <span class="ml-2"><i class="flaticon-file-1"></i></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="form-row mt-4">
+                            <div class="col-sm-6 d-flex justify-content-center">
+                                <a href="{{pending_user.user.create_presigned_url(file='doc2')}}" target="_blank">
+                                    Documento requisito 2 <span class="ml-2"><i class="flaticon-file-1"></i></span>
+                                </a>
+                            </div>
+                            <div class="col-sm-6 d-flex justify-content-center">
+                                <a href="{{pending_user.user.create_presigned_url(file='doc3')}}" target="_blank">
+                                    Documento requisito 3 <span class="ml-2"><i class="flaticon-file-1"></i></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <form method="POST" id="form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="tipo_rol" value="{{pending_user.rol_solicitado}}">
+                        <div class="d-flex justify-content-center mt-3">
+                            <button type="submit" class="btn btn-primary">Confirmar rol:
+                                {{pending_user.rol_solicitado.title()}}</button>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <p>No hay usuarios con ese id.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block javascript %}
+
+{% endblock javascript %}

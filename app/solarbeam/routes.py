@@ -7,8 +7,8 @@ from werkzeug.utils import redirect
 
 from app.solarbeam import bp
 from app.decorators import login_required_no_rol, login_required_roles
-from app.models import Comprador, Integrador, Gestor, Licitacion, OfertaLicitacion,\
-                        PreDimensionamiento, ConsumoInfo, CodigoPostal, LicitacionPublica, LicitacionPrivada
+from app.models import Comprador, Licitacion, OfertaLicitacion,\
+                        UserPending, ConsumoInfo, CodigoPostal, LicitacionPublica, LicitacionPrivada
 from .scripts import util_solarbeam, generacion, ahorros
 from . import solarbeam_graphs
 from app import util, db
@@ -77,6 +77,9 @@ def consumption_dashboard():
 @bp.route('/confirmacion_usuario/', methods=['GET', 'POST'])
 @login_required_no_rol()
 def confirmar_usuario():
+    if current_user.user_pending:
+        abort(401)
+
     if request.method == 'POST':
         req_vals = request.form.to_dict()
         
@@ -93,13 +96,12 @@ def confirmar_usuario():
 
         if req_vals['rolUser'] == 'comprador':
             rol = Comprador(user_id=current_user.id)
+            has_rol = True
             flask_url = 'solarbeam.comprador_ofertas'
-        elif req_vals['rolUser'] == 'integrador':
-            rol = Integrador(user_id=current_user.id)
-            flask_url = 'solarbeam_integrador.proyectos_disponibles'
-        elif req_vals['rolUser'] == 'gestor':
-            rol = Gestor(user_id=current_user.id)
-            flask_url = 'solarbeam.gestor_ofertas'
+        else: # gestor e integrador
+            rol = UserPending(id=current_user.id, rol_solicitado=req_vals['rolUser'])
+            has_rol = False
+            flask_url = 'solarbeam.solarbeam_app'
         db.session.add(rol)
 
 
@@ -115,11 +117,11 @@ def confirmar_usuario():
         current_user.calle = req_vals['calle']
         current_user.colonia = req_vals['colonia']
         current_user.cp_id = util_solarbeam.get_cp_id(req_vals['cp'])  
-        current_user.acta_constitutiva_key = f"archivos/{current_user.id}/actaConstitutiva.pdf"
-        current_user.doc_req1_key = f"archivos/{current_user.id}/docReq1.pdf"
-        current_user.doc_req2_key = f"archivos/{current_user.id}/docReq2.pdf"
-        current_user.doc_req3_key = f"archivos/{current_user.id}/docReq3.pdf"
-        current_user.tiene_rol = True
+        current_user.acta_constitutiva_key = f"archivos/usuario/{current_user.id}/actaConstitutiva.pdf"
+        current_user.doc_req1_key = f"archivos/usuario/{current_user.id}/docReq1.pdf"
+        current_user.doc_req2_key = f"archivos/usuario/{current_user.id}/docReq2.pdf"
+        current_user.doc_req3_key = f"archivos/usuario/{current_user.id}/docReq3.pdf"
+        current_user.tiene_rol = has_rol
 
         db.session.commit()
 
