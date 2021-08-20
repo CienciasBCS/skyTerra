@@ -30,7 +30,6 @@ def integrador_oferta_info(id_oferta):
         oferta_prov = OfertaProveedor(oferta_id=oferta.id, integrador_id=current_user.user_rol.id, precio=req_vals['precioOferta'])
         db.session.add(oferta_prov)
         db.session.commit()
-        print(req_vals)
         return redirect(url_for('solarbeam_integrador.integrador_proyectos_disponibles'))
 
     return render_template('solarBeam/integrador/integrador_proyecto_info.html', oferta=oferta)
@@ -42,10 +41,9 @@ def integrador_ofertas():
 
     if request.method == 'POST':
         req_vals = request.form.to_dict()
-        print(req_vals)
         if req_vals['tipo'] == 'eliminar':
             oferta = util_solarbeam.is_offer_prov_from_proveedor(req_vals['idOferta'])
-            if oferta:
+            if oferta and not oferta.asignada:
                 db.session.delete(oferta)
                 db.session.commit()
 

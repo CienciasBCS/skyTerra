@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card shadow">
+            <div class="card-header h4 text-center">Licitaciones</div>
+            <div class="card-body">
+                <table class="table table-card text-center table-link-icon">
+                    <thead>
+                        <th>ID</th>
+                        <th>Tipo de licitación</th>
+                        <th>Total kW</th>
+                        <th>Total kWp</th>
+                        <th>Ofertas en la licitación</th>
+                        <th>Total de ofertas de venta</th>
+                    </thead>
+                    <tbody>
+                        {% for licitacion in licitaciones %}
+                        <tr>
+                            <td>{{licitacion.id}}</td>
+                            <td>{{licitacion.tipo.title()}}</td>
+                            <td>{{licitacion.get_total_kw_ofertas()}}</td>
+                            <td>{{licitacion.get_total_kwp_ofertas()}}</td>
+                            <td>{{licitacion.get_total_number_of_ofertas_compra()}}</td>
+                            <td>{{licitacion.get_total_number_of_ofertas_prov()}}</td>
+                            <td>
+                                <a href="{{url_for('solarbeam_admin.asignacion_ofertas', id_licit=licitacion.id)}}">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block javascript %}
+
+{% endblock javascript %}

@@ -2,7 +2,7 @@ from datetime import datetime
 
 import boto3
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import contains_eager
+from sqlalchemy.orm import contains_eager, defaultload
 from flask_login import UserMixin
 from flask import current_app
 from app import ma
@@ -155,7 +155,6 @@ class Integrador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
     proyectos = db.relationship('Adquisicion', backref='integrador')
     ofertas = db.relationship('OfertaProveedor', backref='integrador')
-    ofertas_grupo = db.relationship('OfertaGrupo', backref='integrador')
 
     def get_licitaciones_con_ofertas(self):
         return Licitacion.query.join(OfertaLicitacion).join(OfertaProveedor).filter(
@@ -167,64 +166,6 @@ class Integrador(UserRole):
         'polymorphic_identity':'integrador',
     }    
 
-class Marca(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(75), nullable=False)
-    productos = db.relationship('Producto', backref='marca')
-
-    def __repr__(self):
-        return f'<Marca: {self.nombre}>'    
-
-class Producto(db.Model):
-    __tablename__ = 'producto'
-    id = db.Column(db.Integer, primary_key=True)
-    marca_id = db.Column(db.Integer, db.ForeignKey('marca.id'))
-    type = db.Column(db.String(50))
-    paneles = db.relationship('Panel', backref='producto')
-    inversores = db.relationship('Inversor', backref='producto')
-
-    __mapper_args__ = {
-        'polymorphic_identity':'producto',
-        'polymorphic_on': type
-    }
-
-class Panel(Producto):
-    __tablename__ = 'panel'
-    id = db.Column(db.Integer, db.ForeignKey('producto.id'), primary_key=True)
-    modelo = db.Column(db.String(100),  nullable=False)
-    ficha_tecnica_key = db.Column(db.String(50), nullable=False)
-    wp = db.Column(db.Integer, nullable=False)
-    vmp = db.Column(db.Numeric(4, 2), nullable=False)
-    imp = db.Column(db.Numeric(4, 2), nullable=False)
-    efc = db.Column(db.Numeric(4, 2), nullable=False)
-
-    def __repr__(self):
-        return f'<Panel: {self.marca.nombre} - wp: {self.wp}>'  
-
-    __mapper_args__ = {
-        'polymorphic_identity':'panel',
-    }
-
-class Inversor(Producto):
-    id = db.Column(db.Integer, db.ForeignKey('producto.id'), primary_key=True)
-    modelo = db.Column(db.String(100),  nullable=False)
-    ficha_tecnica_key = db.Column(db.String(50), nullable=False)
-    min_wp = db.Column(db.Integer, nullable=False)
-    max_wp = db.Column(db.Integer, nullable=False)
-    kw_ac = db.Column(db.Integer, nullable=False)
-    max_vdc = db.Column(db.Numeric(4, 2), nullable=False)
-    max_isc = db.Column(db.Numeric(4, 2), nullable=False)
-    max_imc = db.Column(db.Numeric(4, 2), nullable=False)
-    min_mppt = db.Column(db.Numeric(4, 2), nullable=False)
-    max_mppt = db.Column(db.Numeric(4, 2), nullable=False)
-    num_mppt = db.Column(db.Integer, nullable=False)
-    strings = db.Column(db.Integer, nullable=False)
-    efc = db.Column(db.Numeric(4, 2), nullable=False)
-
-    __mapper_args__ = {
-        'polymorphic_identity':'inversor',
-    }
-
 class Licitacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     agrupada = db.Column(db.Boolean, nullable=False, default=False)
@@ -235,6 +176,7 @@ class Licitacion(db.Model):
     tipo = db.Column(db.String(25))
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     ofertas = db.relationship('OfertaLicitacion', backref='licitacion', cascade="all,delete")
+    oferta_venta_asignada = db.Column(db.Boolean, nullable=False, default=False)
 
     __mapper_args__ = {
         'polymorphic_identity':'licitacion',
@@ -246,6 +188,21 @@ class Licitacion(db.Model):
 
     def is_dimen_ofertas_complete(self):
         return all([oferta.dimensionamiento.is_complete for oferta in self.ofertas if oferta.aceptada])
+
+    def get_total_kw_ofertas(self):
+        return sum([oferta.kw for oferta in self.ofertas if oferta.kw])
+
+    def get_total_kwp_ofertas(self):
+        return sum([oferta.kwp for oferta in self.ofertas if oferta.kwp])
+    
+    def get_total_number_of_ofertas_compra(self):
+        return len(self.ofertas)
+
+    def get_total_number_of_ofertas_prov(self):
+        total_ofertas_prov = 0
+        for oferta in self.ofertas:
+            total_ofertas_prov += len(oferta.ofertas_proveedores)
+        return total_ofertas_prov
     
     def __repr__(self):
         return f'<kwh: {self.kw}>'  
@@ -310,7 +267,7 @@ class OfertaLicitacion(db.Model):
 
     def get_comprador_ofertas_by_status(self, status_id):
         return self.query.join(Licitacion).filter(Licitacion.status == status_id, 
-                Comprador.id==self.comprador_id, OfertaLicitacion.aceptada == True).all()
+                Comprador.id==self.comprador_id, self.aceptada == True).all()
 
     def __repr__(self):
         return f'<kwh: {self.nombre}>'                  
@@ -370,22 +327,23 @@ class OfertaProveedor(db.Model):
     oferta_id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), nullable=False)
     integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'), nullable=False)
     precio = db.Column(db.Numeric(8, 2),  nullable=False)
+    asignada = db.Column(db.Boolean)
 
     def __repr__(self):
         return f'<Precio: {self.precio} Para: {self.oferta_compra.nombre}>'  
 
-class OfertaCondicionada(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    oferta_1 = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), nullable=False)
-    oferta_2 = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), nullable=False)
+# class OfertaCondicionada(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     oferta_1 = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), nullable=False)
+#     oferta_2 = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), nullable=False)
 
-class OfertaGrupo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'), nullable=False)
+# class OfertaGrupo(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'), nullable=False)
 
-class OfertaExcluyente(db.Model):
-    grupo_id = db.Column(db.Integer, db.ForeignKey('oferta_grupo.id'), primary_key=True)
-    oferta = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), primary_key=True)
+# class OfertaExcluyente(db.Model):
+#     grupo_id = db.Column(db.Integer, db.ForeignKey('oferta_grupo.id'), primary_key=True)
+#     oferta = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), primary_key=True)
     
 
 # --------- SCHEMAS ---------

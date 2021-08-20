@@ -35,6 +35,7 @@
                         <th>Capacidad kWp</th>
                         <th>Fecha de creación</th>
                         <th>Precio ofertado</th>
+                        <th>Status</th>
                     </thead>
                     <tbody id="ofertaProvInfo"></tbody>
                 </table>
@@ -96,6 +97,7 @@
         }
 
         const renderDataToTable = (data) => {
+            console.log(data)
             tableSpinner.classList.add('d-none');
             data.forEach(ofertaProv => {
                 let row = document.createElement('tr');
@@ -104,6 +106,7 @@
                 let tdCapKwp = document.createElement('td');
                 let tdDate = document.createElement('td');
                 let tdPrecioOfertado = document.createElement('td');
+                let tdAsignada = document.createElement('td');
                 let tdDelete = document.createElement('td');
                 let deleteIcon = document.createElement('i');
 
@@ -112,11 +115,19 @@
                 tdCapKwp.innerText = ofertaProv.oferta_compra.min_wp;
                 tdDate.innerText = ofertaProv.oferta_compra.timestamp.split('T')[0];
                 tdPrecioOfertado.innerText = ofertaProv.precio;
-                deleteIcon.classList.add('far', 'fa-times-circle', 'borrar-oferta');
-                deleteIcon.id = `delete-${ofertaProv.id}`;
-                deleteIcon.dataset.toggle = 'modal';
-                deleteIcon.dataset.target = '#deleteModal';
-                tdDelete.appendChild(deleteIcon);
+                if (ofertaProv.asignada) tdAsignada.innerText = 'Asignada'
+                else if (ofertaProv.asignada === false) tdAsignada.innerText = 'Rechazada'
+                else if (ofertaProv.asignada === null) tdAsignada.innerText = 'Pendiente'
+
+                if (!ofertaProv.asignada) {
+                    deleteIcon.classList.add('far', 'fa-times-circle', 'borrar-oferta');
+                    deleteIcon.id = `delete-${ofertaProv.id}`;
+                    deleteIcon.dataset.toggle = 'modal';
+                    deleteIcon.dataset.target = '#deleteModal';
+                    addDeleteIconListener(deleteIcon);
+                    tdDelete.appendChild(deleteIcon);
+                }
+
 
 
                 row.appendChild(tdNombre);
@@ -124,10 +135,11 @@
                 row.appendChild(tdCapKwp);
                 row.appendChild(tdDate);
                 row.appendChild(tdPrecioOfertado);
+                row.appendChild(tdAsignada);
                 row.appendChild(tdDelete);
                 tableBody.appendChild(row);
 
-                addDeleteIconListener(deleteIcon);
+
             });
         }
 

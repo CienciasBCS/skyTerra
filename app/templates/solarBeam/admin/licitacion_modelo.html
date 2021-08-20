@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card shadow">
+            <div class="card-header h4 text-center">Licitacion: {{licitacion.id}}</div>
+            <div class="card-body">
+                <table class="table table-card text-center table-link-icon">
+                    <thead>
+                        <th>ID oferta compra</th>
+                        <th>ID oferta venta</th>
+                        <th>Precio ofrecido</th>
+                    </thead>
+                    <tbody>
+                        {% for oferta_compra in licitacion.ofertas %}
+                        {% for oferta_proveedor in oferta_compra.ofertas_proveedores %}
+                        <tr>
+                            <td>{{oferta_compra.id}}</td>
+                            <td>{{oferta_proveedor.id}}</td>
+                            <td>{{oferta_proveedor.precio}}</td>
+                        </tr>
+                        {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="confirm" value="true">
+                    <div class="form-row d-flex justify-content-center">
+                        <button class="btn btn-primary" type="submit">Correr modelo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block javascript %}
+
+{% endblock javascript %}
