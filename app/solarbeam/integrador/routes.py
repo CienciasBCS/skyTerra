@@ -11,9 +11,9 @@ from . import bp
 @bp.route('/proyectos_disponibles')
 @login_required_roles(['integrador', 'admin'])
 def integrador_proyectos_disponibles():
-    ofertas_disponibles = OfertaLicitacion.query.join(Adquisicion).filter(OfertaLicitacion.status >=2, Adquisicion.integrador_id==None).all()
+    # ofertas_disponibles = OfertaLicitacion.query.join(Adquisicion).filter(OfertaLicitacion.status == 2, Adquisicion.oferta_prov_id==None).all()
 
-    return render_template('solarBeam/integrador/integrador_proyectos.html', ofertas_disponibles=ofertas_disponibles)
+    return render_template('solarBeam/integrador/integrador_proyectos.html', len=len)
 
 @bp.route('/proyectos_disponibles/<id_oferta>', methods=['GET', 'POST'])
 @login_required_roles(['integrador', 'admin'])

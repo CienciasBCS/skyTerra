@@ -8,6 +8,10 @@
 {% endblock stylesheets %}
 
 {% block content %}
+{% set ofertas_disponibles = current_user.user_rol.get_ofertas_disponibles() %}
+{% set ofertas_en_instalacion = current_user.user_rol.get_ofertas_en_instalacion() %}
+{% set ofertas_puesta_marcha = None %}
+
 <section>
     <div class="container mt-3 mb-3">
         <div class="card rounded shadow">
@@ -17,8 +21,8 @@
                     <li class="nav-item">
                         <a class="nav-link active" id="adqui-tab" data-toggle="tab" href="#adqui" role="tab"
                             aria-controls="adqui" aria-selected="true">Adquisición
-                            {% if ofertas_predim %}
-                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_predim)}}
+                            {% if ofertas_disponibles %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_disponibles)}}
                             </span>
                             {% endif %}
                         </a>
@@ -26,8 +30,8 @@
                     <li class="nav-item">
                         <a class="nav-link" id="insta-tab" data-toggle="tab" href="#insta" role="tab"
                             aria-controls="insta" aria-selected="false">Instalación
-                            {% if ofertas_insta %}
-                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_insta)}}
+                            {% if ofertas_en_instalacion %}
+                            &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_en_instalacion)}}
                             </span>
                             {% endif %}
                         </a>
@@ -35,7 +39,7 @@
                     <li class="nav-item">
                         <a class="nav-link" id="puestaMarcha-tab" data-toggle="tab" href="#puestaMarcha" role="tab"
                             aria-controls="puestaMarcha" aria-selected="false">Puesta en marcha
-                            {% if ofertas_puestaMarcha %}
+                            {% if ofertas_puesta_marcha %}
                             &nbsp&nbsp<span class="badge badge-pill badge-primary">{{ len(ofertas_puestaMarcha)}}
                             </span>
                             {% endif %}
@@ -78,18 +82,39 @@
                         {% endif %}
                     </div>
                     <div class="tab-pane fade p-3" id="insta" role="tabpanel" aria-labelledby="insta-tab">
+                        {% if ofertas_en_instalacion %}
                         <table class="table table-card text-center">
                             <thead>
                                 <th>Nombre</th>
                                 <th>Email de comprador</th>
+                                <th>Email de gestor</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
+                                <th>Precio</th>
                             </thead>
                             <tbody>
+                                {% for oferta in ofertas_en_instalacion %}
+                                <tr>
+                                    <td class="align-middle">{{oferta.nombre}}</td>
+                                    <td class="align-middle">{{oferta.comprador.user.email}}</td>
+                                    <td class="align-middle">{{oferta.gestor.user.email}}</td>
+                                    <td class="align-middle">{{ "{:,.2f}".format(oferta.kwp) }}</td>
+                                    <td class="align-middle">{{ "{:,.2f}".format(oferta.kw) }}</td>
+                                    <td class="align-middle">{{
+                                        "${:,.2f}".format(oferta.adquisicion.oferta_proveedor.precio) }}</td>
+                                    <td class="align-middle">
+                                        <a class="btn btn-primary" href="#">Confirmar instalación</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
+                        {% else %}
+                        <p>Actualmente no existen ofertas en proceso de instalación.</p>
+                        {% endif %}
                     </div>
                     <div class="tab-pane fade p-3" id="puestaMarcha" role="tabpanel" aria-labelledby="puestaMarcha-tab">
+                        {% if ofertas_puesta_marcha %}
                         <table class="table table-card text-center">
                             <thead>
                                 <th>Nombre</th>
@@ -100,6 +125,9 @@
                             <tbody>
                             </tbody>
                         </table>
+                        {% else %}
+                        <p>Actualmente no existen ofertas concluidas.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

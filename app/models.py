@@ -1,8 +1,9 @@
 from datetime import datetime
+from enum import unique
+import re
 
 import boto3
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import contains_eager, defaultload
 from flask_login import UserMixin
 from flask import current_app
 from app import ma
@@ -153,7 +154,6 @@ class Gestor(UserRole):
 
 class Integrador(UserRole):
     id = db.Column(db.Integer, db.ForeignKey('user_role.id', ondelete="CASCADE"), primary_key=True)
-    proyectos = db.relationship('Adquisicion', backref='integrador')
     ofertas = db.relationship('OfertaProveedor', backref='integrador')
 
     def get_licitaciones_con_ofertas(self):
@@ -161,6 +161,14 @@ class Integrador(UserRole):
             OfertaProveedor.integrador_id == self.id, Licitacion.activa == True,
             OfertaLicitacion.aceptada == True
         ).all()
+
+    def get_ofertas_disponibles(self):
+        return OfertaLicitacion.query.join(Adquisicion).\
+            filter(OfertaLicitacion.status == 2, Adquisicion.oferta_prov_id == None).all()
+
+    def get_ofertas_en_instalacion(self):
+        return OfertaLicitacion.query.join(Adquisicion).join(OfertaProveedor).\
+            filter(OfertaLicitacion.status == 3, OfertaProveedor.integrador_id == self.id).all()
 
     __mapper_args__ = {
         'polymorphic_identity':'integrador',
@@ -314,7 +322,10 @@ class Dimensionamiento(db.Model):
     
 class Adquisicion(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
-    integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'))
+    oferta_prov_id = db.Column(db.Integer, db.ForeignKey('oferta_proveedor.id'), unique=True)
+
+    oferta_proveedor = db.relationship('OfertaProveedor', uselist=False, backref='adquisicion')
+    # integrador_id = db.Column(db.Integer, db.ForeignKey('integrador.id'))
 
 class Instalacion(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)

@@ -68,6 +68,7 @@ def asignacion_ofertas(id_licit):
                 oferta_comp = OfertaLicitacion.query.get(decision['oferta_compra'])
                 oferta_vta = OfertaProveedor.query.get(decision['oferta_venta'])
                 oferta_comp.status = 3
+                oferta_comp.adquisicion.oferta_prov_id = oferta_vta.id
                 oferta_vta.asignada = decision['variable']
             licitacion.oferta_venta_asignada = True
             db.session.commit()
