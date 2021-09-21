@@ -42,7 +42,8 @@
                 <div class="mb-3 flex-column">
                     <h6>Hola {{current_user.nombre}}!</h6>
                     <p>Actualmente tienes: <span>{{ len(ofertas_activas) }}</span> oferta(s) de compra activa(s).</p>
-                    <a href="{{url_for('solarbeam.registro_oferta_compra')}}"><button class="btn btn-primary">Registrar
+                    <a href="{{url_for('solarbeam_comprador.registro_oferta_compra')}}"><button
+                            class="btn btn-primary">Registrar
                             nueva oferta</button></a>
                 </div>
                 <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
@@ -132,11 +133,11 @@
                                     <td class="align-middle">
                                         {% if oferta.pre_dimensionamiento.status_comprador %}
                                         {% if not oferta.pre_dimensionamiento.status_gestor %}
-                                        <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
+                                        <a href="{{ url_for('solarbeam_comprador.comprador_oferta_info', id_oferta=oferta.id) }}"
                                             class="btn btn-info">Falta confirmación de
                                             gestor</a>
                                         {% else %}
-                                        <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
+                                        <a href="{{ url_for('solarbeam_comprador.comprador_oferta_info', id_oferta=oferta.id) }}"
                                             class="btn btn-success">Falta confirmación de
                                             otras ofertas</a>
                                         {% endif %}
@@ -147,7 +148,7 @@
                                         <span class="text-danger font-weight-bold">El creador de la licitación ha
                                             rechazado su oferta</span>
                                         {% else %}
-                                        <a href="{{ url_for('solarbeam.comprador_oferta_info', id_oferta=oferta.id) }}"
+                                        <a href="{{ url_for('solarbeam_comprador.comprador_oferta_info', id_oferta=oferta.id) }}"
                                             class="btn btn-danger">Falta confirmación</a>
                                         {% endif %}
                                     </td>
@@ -201,7 +202,7 @@
                                         {% if oferta.dimensionamiento.is_complete %}
                                         <span class="text-info font-weight-bold">En espera del resto de ofertas</span>
                                         {% elif oferta.dimensionamiento.proyecto_ejecutivo_key %}
-                                        <a href="{{ url_for('solarbeam.comprador_oferta_dim_conf', id_oferta=oferta.id) }}"
+                                        <a href="{{ url_for('solarbeam_comprador.comprador_oferta_dim_conf', id_oferta=oferta.id) }}"
                                             class="btn btn-danger">
                                             Confirmación de datos técnicos
                                         </a>
@@ -256,20 +257,30 @@
                             <thead>
                                 <th>Nombre</th>
                                 <th>Email de gestor</th>
+                                <th>Email de integrador</th>
                                 <th>Capacidad mínima en kWp</th>
                                 <th>Capacidad máxima en kWac</th>
+                                <th>Precio</th>
                             </thead>
                             <tbody>
                                 {% for oferta in ofertas_insta %}
                                 <tr>
-                                    <td>{{oferta.nombre}}</td>
+                                    <td class="align-middle">{{oferta.nombre}}</td>
                                     {% if oferta.gestor %}
-                                    <td>{{oferta.gestor.user.email}}</td>
+                                    <td class="align-middle">{{oferta.gestor.user.email}}</td>
                                     {% else %}
-                                    <td>Ningún gestor ha aceptado la oferta</td>
+                                    <td class="align-middle">Ningún gestor ha aceptado la oferta</td>
                                     {% endif %}
-                                    <td>{{oferta.min_wp}}</td>
-                                    <td>{{oferta.max_kw}}</td>
+                                    <td class="align-middle">
+                                        {{oferta.adquisicion.oferta_proveedor.integrador.user.email}}</td>
+                                    <td class="align-middle">{{oferta.min_wp}}</td>
+                                    <td class="align-middle">{{oferta.max_kw}}</td>
+                                    <td class="align-middle">{{
+                                        "${:,.2f}".format(oferta.adquisicion.oferta_proveedor.precio) }}
+                                    </td>
+                                    <td class="align-middle">
+                                        <a class="btn btn-primary" href="#">Confirmar instalación</a>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

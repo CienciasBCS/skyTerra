@@ -16,12 +16,12 @@
             {% if current_user.user_rol.tipo == 'comprador' %}
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('solarbeam.comprador_ofertas') }}">Mis ofertas</a>
+                    <a class="nav-link" href="{{ url_for('solarbeam_comprador.comprador_ofertas') }}">Mis ofertas</a>
                 </li>
                 {% if current_user.user_rol.has_licit_priv_agrupadas() %}
                 {% set pending_offers = current_user.user_rol.get_total_number_of_pending_offers() %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('solarbeam.comprador_lictaciones') }}">
+                    <a class="nav-link" href="{{ url_for('solarbeam_comprador.comprador_lictaciones') }}">
                         Mis licitaciones
                         {% if pending_offers > 0 %}
                         <span class="badge badge-pill badge-primary">{{ pending_offers }}</span>
@@ -30,14 +30,15 @@
                 </li>
                 {% endif %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('solarbeam.registro_oferta_compra') }}">Regsitrar nueva
+                    <a class="nav-link" href="{{ url_for('solarbeam_comprador.registro_oferta_compra') }}">Registrar
+                        nueva
                         oferta</a>
                 </li>
             </ul>
             {% elif current_user.user_rol.tipo == 'gestor' %}
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('solarbeam.gestor_ofertas') }}">Mis ofertas</a>
+                    <a class="nav-link" href="{{ url_for('solarbeam_gestor.gestor_ofertas') }}">Mis ofertas</a>
                 </li>
             </ul>
             {% elif current_user.user_rol.tipo == 'integrador' %}
