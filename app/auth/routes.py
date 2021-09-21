@@ -57,9 +57,9 @@ def callback():
         flask_login.login_user(user, remember=True)
         if user.user_rol:
             if user.user_rol.tipo == 'gestor':
-                return redirect(url_for("solarbeam.gestor_ofertas"))
+                return redirect(url_for("solarbeam_gestor.gestor_ofertas"))
             elif user.user_rol.tipo == 'comprador':
-                return redirect(url_for("solarbeam.comprador_ofertas"))
+                return redirect(url_for("solarbeam_comprador.comprador_ofertas"))
             elif user.user_rol.tipo == 'integrador':
                 return redirect(url_for("solarbeam_integrador.integrador_proyectos_disponibles"))
             elif user.user_rol.tipo == 'admin':
