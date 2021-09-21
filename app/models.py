@@ -277,6 +277,10 @@ class OfertaLicitacion(db.Model):
         return self.query.join(Licitacion).filter(Licitacion.status == status_id, 
                 Comprador.id==self.comprador_id, self.aceptada == True).all()
 
+    def is_oferta_instalada(self):
+        return all([self.instalacion.confirmacion_comprador, self.instalacion.confirmacion_integrador, 
+                self.instalacion.confirmacion_gestor])
+
     def __repr__(self):
         return f'<kwh: {self.nombre}>'                  
 
@@ -329,9 +333,13 @@ class Adquisicion(db.Model):
 
 class Instalacion(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)
-
+    confirmacion_integrador = db.Column(db.Boolean, default=False, nullable=False)
+    confirmacion_comprador = db.Column(db.Boolean, default=False, nullable=False)
+    confirmacion_gestor = db.Column(db.Boolean, default=False, nullable=False)
+    
 class PuestaEnMarcha(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('oferta_licitacion.id'), primary_key=True)    
+    finished_at = db.Column(db.DateTime, index=True)
 
 class OfertaProveedor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
