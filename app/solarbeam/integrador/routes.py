@@ -48,3 +48,24 @@ def integrador_ofertas():
                 db.session.commit()
 
     return render_template('solarBeam/integrador/integrador_ofertas.html', licitaciones=licitaciones)
+
+@bp.route('/proyecto/<id_oferta>/instalacion_confirmacion', methods=['GET', 'POST'])
+@login_required_roles(['integrador', 'admin'])
+def integrador_oferta_instalacion_conf(id_oferta):
+    oferta = util_solarbeam.is_offer_asignada_a_integrador(id_oferta)
+    if not oferta or oferta.status != 3:
+        return redirect(url_for('solarbeam_integrador.integrador_proyectos_disponibles'))
+
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        print(req_vals)
+
+        if req_vals.get('instalacion') == 'True':
+            oferta.instalacion.confirmacion_integrador = True
+            db.session.commit()
+
+            util_solarbeam.confirm_inst_offer(oferta)
+
+            return redirect(url_for('solarbeam_integrador.integrador_proyectos_disponibles'))
+
+    return render_template('solarbeam/integrador/integrador_oferta_inst.html', oferta=oferta)

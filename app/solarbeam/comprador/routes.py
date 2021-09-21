@@ -72,7 +72,7 @@ def registro_oferta_compra():
         util_solarbeam.populate_state_tbls(nueva_ofer_lic.id)
         db.session.commit()
 
-        return redirect(url_for('solarbeam.comprador_ofertas'))
+        return redirect(url_for('solarbeam_comprador.comprador_ofertas'))
 
     return render_template('solarBeam/reg_oferta_compra.html')
 
@@ -121,7 +121,7 @@ def comprador_lictaciones():
 def comprador_ofertas_pendientes_por_licitacion(id_licit):
     licitacion = util_solarbeam.is_licit_from_comprador(id_licit)
     if not licitacion:
-        return redirect(url_for('solarbeam.comprador_lictaciones'))
+        return redirect(url_for('solarbeam_comprador.comprador_lictaciones'))
 
     if request.method == 'POST':
         req_vals = request.form.to_dict()
@@ -139,7 +139,7 @@ def comprador_ofertas_pendientes_por_licitacion(id_licit):
                 oferta.aceptada = bool_val
                 db.session.commit()
         
-        return redirect(url_for('solarbeam.comprador_lictaciones'))
+        return redirect(url_for('solarbeam_comprador.comprador_lictaciones'))
 
     return render_template('solarbeam/comprador/comprador_ofertas_pendientes.html', licitacion=licitacion)
 
@@ -159,7 +159,7 @@ def comprador_oferta_info(id_oferta):
                 util_solarbeam.confirm_predim_ofer(oferta)
             db.session.commit()
         
-        return redirect(url_for('solarbeam.comprador_ofertas'))
+        return redirect(url_for('solarbeam_comprador.comprador_ofertas'))
 
     return render_template('solarBeam/comprador/comprador_oferta_info.html', oferta=oferta)
 
@@ -168,7 +168,7 @@ def comprador_oferta_info(id_oferta):
 def comprador_oferta_dim_conf(id_oferta):
     oferta = util_solarbeam.is_offer_from_comprador(id_oferta)
     if not oferta:
-        return redirect(url_for('solarbeam.comprador_ofertas'))
+        return redirect(url_for('solarbeam_comprador.comprador_ofertas'))
 
     if request.method == 'POST':
         req_vals = request.form.to_dict()
@@ -176,6 +176,27 @@ def comprador_oferta_dim_conf(id_oferta):
         if req_vals.get('confirm') == 'yes':
             util_solarbeam.confirm_dim_ofer(oferta)
 
-            return redirect(url_for('solarbeam.comprador_ofertas'))
+            return redirect(url_for('solarbeam_comprador.comprador_ofertas'))
 
     return render_template('solarBeam/comprador/comprador_oferta_dim.html', oferta=oferta)
+
+@bp.route('/mis_ofertas/<id_oferta>/instalacion_confirmacion', methods=['GET', 'POST'])
+@login_required_roles(['comprador', 'admin'])
+def comprador_oferta_instalacion_conf(id_oferta):
+    oferta = util_solarbeam.is_offer_from_comprador(id_oferta)
+    if not oferta or oferta.status != 3:
+        return redirect(url_for('solarbeam_comprador.comprador_ofertas'))
+
+    if request.method == 'POST':
+        req_vals = request.form.to_dict()
+        print(req_vals)
+
+        if req_vals.get('instalacion') == 'True':
+            oferta.instalacion.confirmacion_comprador = True
+            db.session.commit()
+
+            util_solarbeam.confirm_inst_offer(oferta)
+
+            return redirect(url_for('solarbeam_comprador.comprador_ofertas'))
+
+    return render_template('solarBeam/comprador/comprador_oferta_inst.html', id_oferta=id_oferta, oferta=oferta)

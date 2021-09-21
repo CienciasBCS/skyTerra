@@ -89,16 +89,23 @@ def is_offer_from_comprador(id_oferta):
     else:
         return False
 
+def is_offer_asignada_a_integrador(id_oferta):
+    oferta = OfertaLicitacion.query.get(id_oferta)
+    if oferta:
+        if not oferta.adquisicion.oferta_proveedor.integrador == current_user.user_rol:
+            abort(401)
+        else:
+            return oferta
+    return False
+
 def is_offer_prov_from_proveedor(id_oferta):
     oferta = OfertaProveedor.query.get(id_oferta)
-    print(current_user.user_rol)
     if oferta:
         if not oferta.integrador == current_user.user_rol:
             abort(401)
         else:
             return oferta
-    else:
-        return False
+    return False
 
 def confirm_predim_ofer(oferta):
     if oferta.pre_dimensionamiento.is_complete:
@@ -113,3 +120,10 @@ def confirm_dim_ofer(oferta):
             if oferta.aceptada:
                 dim_oferta.status = 2
     db.session.commit()
+
+def confirm_inst_offer(oferta):
+    if oferta.is_oferta_instalada():
+        oferta.status = 4
+        oferta.puesta_en_marcha.finished_at = datetime.datetime.utcnow()
+
+        db.session.commit()

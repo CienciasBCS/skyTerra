@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de oferta de compra{% endblock title %}
+
+{% block stylesheets %}
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<section>
+    <div class="container mt-3 mb-3">
+        <div class="card rounded shadow">
+            <div class="card-header h4 text-center">Oferta en instalación</div>
+            <div class="card-body">
+                <table class="table table-card text-center">
+                    <thead>
+                        <th>Nombre</th>
+                        <th>Email de gestor</th>
+                        <th>Email de comprador</th>
+                        <th>Direccion</th>
+                        <th>Colonia</th>
+                        <th>Capacidad mínima en kWp</th>
+                        <th>Capacidad máxima en kWac</th>
+                        <th>Precio</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="align-middle">{{oferta.nombre}}</td>
+                            <td class="align-middle">{{oferta.gestor.user.email}}</td>
+                            <td class="align-middle">{{oferta.comprador.user.email}}</td>
+                            <td class="align-middle">{{oferta.direccion}}</td>
+                            <td class="align-middle">{{oferta.colonia}}</td>
+                            <td class="align-middle">{{oferta.min_wp}}</td>
+                            <td class="align-middle">{{oferta.max_kw}}</td>
+                            <td class="align-middle">
+                                {{"${:,.2f}".format(oferta.adquisicion.oferta_proveedor.precio) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="row d-flex justify-content-center mt-3">
+                    <div id="gMap" style='width: 90%; min-height: 50vh;'></div>
+                </div>
+                <div class="form-row d-flex justify-content-center mt-4">
+                    {% if not oferta.instalacion.confirmacion_integrador %}
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-primary" type="submit" name="instalacion" value="True">Confirmar
+                            instalación
+                            terminada</button>
+                    </form>
+                    {% elif oferta.is_oferta_instalada() %}
+                    <div class="alert alert-success" role="alert">
+                        Está oferta ha sido confirmada de instalada!
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        Ya has confirmado la instalación de esta oferta. En espera de la confirmación del gestor e
+                        integrador.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block javascript %}
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDzLu74p00cxGZVFd5fGWkH6Aj6lBJO-Q&callback=initMap&libraries=&v=weekly"
+    async></script>
+<script>
+    let lat = {{ oferta.latitud | safe }};
+    let lng = {{ oferta.longitud | safe }};
+
+    const mapFunctions = (() => {
+        let marker;
+        let map;
+
+
+        const placeMarker = (location) => {
+            marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+
+
+        function initMap() {
+            map = new google.maps.Map(
+                document.getElementById('gMap'), {
+                zoom: 9,
+                center: { lat, lng }
+            });
+            placeMarker({ lat, lng })
+        }
+        return { initMap }
+    })()
+
+
+    function initMap() {
+        mapFunctions.initMap();
+    }
+</script>
+
+{% endblock javascript %}
