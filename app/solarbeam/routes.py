@@ -128,25 +128,3 @@ def confirmar_usuario():
         return redirect(url_for(flask_url))
 
     return render_template('solarBeam/confirm_user.html')
-
-# INTEGRADOR
-
-@bp.route('/proyectos_disponibles/agregar_oferta')
-def agregar_oferta():
-
-
-    return render_template('solarBeam/integrador_agregar_oferta.html')
-
-
-@bp.route('/proyectos_disponibles/instalacion')
-def instalacion():
-
-
-    return render_template('solarBeam/instalacion.html')
-
-
-@bp.route('/proyectos_disponibles/marcha')
-def marrcha():
-
-
-    return render_template('solarBeam/marcha.html')    
