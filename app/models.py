@@ -49,7 +49,7 @@ class User(UserMixin, db.Model):
     doc_req1_key = db.Column(db.String(100), nullable=False)
     doc_req2_key = db.Column(db.String(100), nullable=False)
     doc_req3_key = db.Column(db.String(100), nullable=False)
-    tiene_rol = db.Column(db.Boolean, nullable=False, default=False)
+    tiene_rol = db.Column(db.Boolean)
     user_rol = db.relationship('UserRole', backref='user', uselist=False, cascade="all,delete")
     user_pending = db.relationship('UserPending', backref='user', uselist=False, cascade="all,delete")
     # rol_id = db.Column(db.Integer, db.ForeignKey('rol.id'))
