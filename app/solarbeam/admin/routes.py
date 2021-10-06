@@ -13,8 +13,8 @@ from . import bp
 @login_required_roles(['admin'])
 def pending_users():
     pending_users = UserPending.query.filter(
-        or_(UserPending.aceptado == False, UserPending.aceptado == None)
-        ).all() 
+        UserPending.aceptado == None
+    ).all() 
     return  render_template('solarbeam/admin/usuarios_por_confirmar.html', pending_users=pending_users)
 
 
@@ -25,14 +25,17 @@ def confirm_user(id_user):
 
     if request.method == 'POST':
         req_vals = request.form.to_dict()
-        if req_vals['tipo_rol'] == 'gestor':
-            rol = Gestor(user_id=pending_user.user.id)
-        elif req_vals['tipo_rol'] == 'integrador':
-            rol = Integrador(user_id=pending_user.user.id)
-        pending_user.aceptado = True
-        pending_user.user.tiene_rol = True
-
-        db.session.add(rol)
+        if req_vals['rol'] == 'aceptado':
+            if req_vals['tipo_rol'] == 'gestor':
+                rol = Gestor(user_id=pending_user.user.id)
+            elif req_vals['tipo_rol'] == 'integrador':
+                rol = Integrador(user_id=pending_user.user.id)
+            pending_user.aceptado = True
+            pending_user.user.tiene_rol = True
+            db.session.add(rol)
+        elif req_vals['rol'] == 'rechazado':
+            pending_user.aceptado = False    
+            
         db.session.commit()
 
         return redirect(url_for('solarbeam_admin.pending_users'))

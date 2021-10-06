@@ -65,6 +65,8 @@ def callback():
             elif user.user_rol.tipo == 'admin':
                 return redirect(url_for("solarbeam_admin.pending_users"))                
         else:
+            if user.tiene_rol == False:
+                return redirect(url_for('solarbeam.estado_rol_usuario'))
             return redirect(url_for("solarbeam.confirmar_usuario"))
 
     return render_template_string("""

@@ -68,6 +68,13 @@
                 </li>
             </ul>
             {% endif %}
+            {% elif current_user.user_pending %}
+            <!-- Tiene usuario pendiente -->
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('solarbeam.estado_rol_usuario') }}">Estado de rol</a>
+                </li>
+            </ul>
             {% else %}
             <!-- Si el usuario NO tiene rol -->
             {% if not current_user.user_pending %}

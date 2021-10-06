@@ -58,12 +58,12 @@ def solarbeam_app():
 
     return render_template('solarBeam/home.html', estados=estados)
 
-@bp.route('/set_session/<consumo_id>')
+@bp.route('/set_session/<consumo_id>/')
 def set_session(consumo_id):
     session['consumo_id'] = int(consumo_id)
     return 'yep'
 
-@bp.route('/consumo_personal')
+@bp.route('/consumo_personal/')
 def consumption_dashboard():
     consumo_id = session['consumo_id']
     consumo_info = ConsumoInfo.query.get(consumo_id)
@@ -77,8 +77,10 @@ def consumption_dashboard():
 @bp.route('/confirmacion_usuario/', methods=['GET', 'POST'])
 @login_required_no_rol()
 def confirmar_usuario():
+    print(current_user.user_pending)
     if current_user.user_pending:
-        abort(401)
+        if current_user.user_pending.aceptado == None: # si el usuario esta en proceso de revisión de rol
+            abort(401)
 
     if request.method == 'POST':
         req_vals = request.form.to_dict()
@@ -97,12 +99,18 @@ def confirmar_usuario():
         if req_vals['rolUser'] == 'comprador':
             rol = Comprador(user_id=current_user.id)
             has_rol = True
-            flask_url = 'solarbeam.comprador_ofertas'
+            flask_url = 'solarbeam_comprador.comprador_ofertas'
+            db.session.add(rol)
         else: # gestor e integrador
-            rol = UserPending(id=current_user.id, rol_solicitado=req_vals['rolUser'])
+            if current_user.user_pending:
+                current_user.user_pending.rol_solicitado = req_vals['rolUser']
+                current_user.user_pending.aceptado = None
+            else:
+                rol = UserPending(id=current_user.id, rol_solicitado=req_vals['rolUser'])
+                db.session.add(rol)
             has_rol = False
-            flask_url = 'solarbeam.solarbeam_app'
-        db.session.add(rol)
+            flask_url = 'solarbeam.estado_rol_usuario'
+        
 
 
         current_user.nombre = req_vals['nombreUser']
@@ -128,3 +136,11 @@ def confirmar_usuario():
         return redirect(url_for(flask_url))
 
     return render_template('solarBeam/confirm_user.html')
+
+@bp.route('/estado_rol_usuario/')
+@login_required_no_rol()
+def estado_rol_usuario():
+    if not current_user.user_pending:
+        abort(401)
+
+    return render_template('solarBeam/estado_rol.html')

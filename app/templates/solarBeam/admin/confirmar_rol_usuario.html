@@ -139,7 +139,9 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="tipo_rol" value="{{pending_user.rol_solicitado}}">
                         <div class="d-flex justify-content-center mt-3">
-                            <button type="submit" class="btn btn-primary">Confirmar rol:
+                            <button type="submit" name="rol" value="aceptado" class="btn btn-primary mr-2">Confirmar
+                                {{pending_user.rol_solicitado.title()}}</button>
+                            <button type="submit" name="rol" value="rechazado" class="btn btn-danger ml-2">Rechazar
                                 {{pending_user.rol_solicitado.title()}}</button>
                         </div>
                     </form>
